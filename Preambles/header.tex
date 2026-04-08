@@ -1,0 +1,310 @@
+% ==============================================================================
+% header.tex — LaTeX Preamble for Intermediate Econometrics
+% Shandong University of Finance and Economics (SUFE)
+% Textbook: Wooldridge, Introductory Econometrics, 8th edition
+% ==============================================================================
+%
+% USAGE (from Slides/ directory):
+%   \input{header}          % in Beamer .tex files (TEXINPUTS=../Preambles:)
+%
+% COMPILE (3-pass XeLaTeX):
+%   cd Slides
+%   TEXINPUTS=../Preambles:$TEXINPUTS xelatex -interaction=nonstopmode file.tex
+%   BIBINPUTS=..:$BIBINPUTS bibtex file
+%   TEXINPUTS=../Preambles:$TEXINPUTS xelatex -interaction=nonstopmode file.tex
+%   TEXINPUTS=../Preambles:$TEXINPUTS xelatex -interaction=nonstopmode file.tex
+% ==============================================================================
+
+
+% --- Essential packages -------------------------------------------------------
+\usepackage{fontspec}           % XeLaTeX font support (must load early)
+\usepackage{amsmath}            % Math environments (align, equation, etc.)
+\usepackage{amssymb}            % Math symbols (mathbb, etc.)
+\usepackage{bm}                 % Bold math (\bm{})
+\usepackage{mathtools}          % Extended math tools (coloneqq, etc.)
+
+
+% --- Table packages -----------------------------------------------------------
+\usepackage{booktabs}           % Professional tables (\toprule, \midrule, \bottomrule)
+\usepackage{threeparttable}     % Table notes (tablenotes environment)
+\usepackage{siunitx}            % Number alignment in tables (S column type)
+\sisetup{
+  table-format = 1.4,
+  table-number-alignment = center,
+  detect-weight = true,
+  detect-inline-weight = math
+}
+
+
+% --- Figure and graphics packages --------------------------------------------
+\usepackage{graphicx}           % Include figures (\includegraphics)
+\usepackage{subcaption}         % Subfigures (subfigure environment)
+\usepackage{tikz}               % TikZ diagrams
+\usepackage{pgfplots}           % Data plots
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric,
+                decorations.pathreplacing, calc, patterns}
+
+
+% --- Color and boxes ----------------------------------------------------------
+\usepackage{xcolor}             % Extended color support
+\usepackage{tcolorbox}          % Custom box environments
+\tcbuselibrary{skins, breakable, theorems}
+
+
+% --- Other utility packages ---------------------------------------------------
+\usepackage{hyperref}           % Hyperlinks
+\usepackage{natbib}             % Bibliography (\citet, \citep, \citealt)
+\usepackage{caption}            % Figure/table captions
+\usepackage{appendixnumberbeamer} % Appendix frame numbering
+
+
+% ==============================================================================
+% SUFE INSTITUTIONAL COLORS
+% ==============================================================================
+% Update hex values to match official SUFE brand colors if available.
+
+\definecolor{SUFEBlue}{HTML}{012169}     % Primary: deep navy
+\definecolor{SUFEGold}{HTML}{B9975B}     % Secondary: warm gold
+\definecolor{SUFEYellow}{HTML}{F2A900}   % Highlight: bright gold/yellow
+\definecolor{SUFELight}{HTML}{E8EDF5}    % Light background: pale blue-gray
+\definecolor{SUFEDark}{HTML}{1a1a1a}     % Body text: near-black
+\definecolor{positive}{HTML}{2E7D32}     % Positive/correct: dark green
+\definecolor{negative}{HTML}{C62828}     % Negative/incorrect: dark red
+
+
+% ==============================================================================
+% BEAMER THEME & COLOR SETUP
+% ==============================================================================
+
+\usetheme{default}
+\useinnertheme{default}
+\useoutertheme{default}
+\usecolortheme{default}
+
+% Frame title
+\setbeamercolor{frametitle}{fg=SUFEBlue, bg=white}
+\setbeamerfont{frametitle}{size=\large, series=\bfseries}
+\setbeamertemplate{frametitle}[default][left]
+\addtobeamertemplate{frametitle}{\vspace{0.05em}}{%
+  \vspace{0.05em}{\color{SUFEGold}\rule{\textwidth}{0.5pt}}\vspace{-0.1em}}
+
+% Title page
+\setbeamercolor{title}{fg=SUFEBlue}
+\setbeamercolor{subtitle}{fg=SUFEGold}
+\setbeamercolor{author}{fg=SUFEBlue}
+\setbeamercolor{institute}{fg=SUFEDark}
+\setbeamercolor{date}{fg=SUFEGold}
+
+% Structure elements
+\setbeamercolor{structure}{fg=SUFEBlue}
+\setbeamercolor{item}{fg=SUFEBlue}
+\setbeamercolor{subitem}{fg=SUFEGold}
+\setbeamercolor{subsubitem}{fg=SUFEGold}
+\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subbody}{size=\small}
+
+% Block environments
+\setbeamercolor{block title}{fg=white, bg=SUFEBlue}
+\setbeamercolor{block body}{fg=SUFEDark, bg=SUFELight}
+\setbeamercolor{block title alerted}{fg=white, bg=red!70!black}
+\setbeamercolor{block body alerted}{fg=SUFEDark, bg=red!5}
+\setbeamercolor{block title example}{fg=white, bg=SUFEGold!80!black}
+\setbeamercolor{block body example}{fg=SUFEDark, bg=SUFEGold!8}
+
+% Remove navigation symbols
+\setbeamertemplate{navigation symbols}{}
+
+% Footline: author | short title | slide N/N
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=.30\paperwidth,ht=2.25ex,dp=1ex,left,leftskip=2mm]{author in head/foot}%
+      \usebeamerfont{author in head/foot}\insertshortauthor
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.40\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+      \usebeamerfont{title in head/foot}\insertshorttitle
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.30\paperwidth,ht=2.25ex,dp=1ex,right,rightskip=2mm]{date in head/foot}%
+      \usebeamerfont{date in head/foot}%
+      \insertframenumber{} / \inserttotalframenumber
+    \end{beamercolorbox}}%
+  \vskip0pt%
+}
+\setbeamercolor{author in head/foot}{fg=white, bg=SUFEBlue}
+\setbeamercolor{title in head/foot}{fg=white, bg=SUFEBlue!80!black}
+\setbeamercolor{date in head/foot}{fg=white, bg=SUFEBlue}
+
+% Section separator slides (large centered section title)
+\AtBeginSection[]{
+  \begin{frame}
+    \centering
+    \vfill
+    {\Large\bfseries\color{SUFEBlue}\insertsectionhead}
+    \vfill
+    {\color{SUFEGold}\rule{0.5\textwidth}{1pt}}
+    \vfill
+  \end{frame}
+}
+
+
+% ==============================================================================
+% FONT SETUP (XeLaTeX)
+% ==============================================================================
+% Using Windows system fonts (Times New Roman / Arial / Consolas).
+% On macOS, swap for: TeX Gyre Termes / TeX Gyre Heros / TeX Gyre Cursor
+%   or: Times New Roman / Helvetica / Courier New
+
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Consolas}
+
+
+% ==============================================================================
+% CUSTOM BOX ENVIRONMENTS (tcolorbox)
+% ==============================================================================
+% Quarto CSS equivalents: .keybox, .highlightbox, .methodbox,
+%                         .assumptionbox, .resultbox
+
+% keybox: key definitions, stated assumptions
+\newtcolorbox{keybox}{
+  enhanced,
+  colback  = SUFEGold!10!white,
+  colframe = SUFEGold,
+  leftrule = 4pt, rightrule = 0pt, toprule = 0pt, bottomrule = 0pt,
+  arc = 0pt, outer arc = 0pt,
+  boxsep = 0pt, left = 8pt, right = 6pt, top = 4pt, bottom = 4pt,
+}
+
+% highlightbox: important theorems, main results
+\newtcolorbox{highlightbox}{
+  enhanced,
+  colback  = SUFEYellow!8!white,
+  colframe = SUFEYellow!80!SUFEGold,
+  leftrule = 4pt, rightrule = 0pt, toprule = 0pt, bottomrule = 0pt,
+  arc = 0pt, outer arc = 0pt,
+  boxsep = 0pt, left = 8pt, right = 6pt, top = 4pt, bottom = 4pt,
+}
+
+% definitionbox{Title}: formal definitions — OLS, IV, GMM, etc.
+\newtcolorbox{definitionbox}[1]{
+  enhanced,
+  title    = #1,
+  colback  = SUFEBlue!4!white,
+  colframe = SUFEBlue,
+  colbacktitle = SUFEBlue,
+  coltitle = white,
+  fonttitle= \bfseries\small,
+  arc = 4pt, outer arc = 4pt,
+  boxsep = 0pt, left = 8pt, right = 6pt, top = 4pt, bottom = 4pt,
+  toptitle = 3pt, bottomtitle = 3pt,
+}
+
+% examplebox{Title}: empirical examples, Wooldridge data applications
+\newtcolorbox{examplebox}[1]{
+  enhanced,
+  title    = #1,
+  colback  = SUFELight,
+  colframe = SUFEGold!70!white,
+  colbacktitle = SUFEGold!35!white,
+  coltitle = SUFEBlue,
+  fonttitle= \bfseries\small,
+  arc = 4pt, outer arc = 4pt,
+  boxsep = 0pt, left = 8pt, right = 6pt, top = 4pt, bottom = 4pt,
+  toptitle = 3pt, bottomtitle = 3pt,
+}
+
+% assumptionbox: numbered OLS assumptions (MLR.1–MLR.6)
+\newtcolorbox{assumptionbox}{
+  enhanced,
+  colback  = SUFEGold!8!white,
+  colframe = SUFEGold,
+  arc = 4pt, outer arc = 4pt,
+  boxsep = 0pt, left = 8pt, right = 6pt, top = 4pt, bottom = 4pt,
+}
+
+
+% ==============================================================================
+% STANDARD MATH MACROS
+% ==============================================================================
+
+% --- Operators ----------------------------------------------------------------
+\DeclareMathOperator{\E}{\mathbb{E}}       % Expectation
+\DeclareMathOperator{\Var}{Var}             % Variance
+\DeclareMathOperator{\Cov}{Cov}             % Covariance
+\DeclareMathOperator{\Corr}{Corr}           % Correlation
+\DeclareMathOperator{\plim}{plim}           % Probability limit
+\DeclareMathOperator{\rank}{rank}           % Matrix rank
+\DeclareMathOperator{\tr}{tr}               % Matrix trace
+\DeclareMathOperator{\se}{se}               % Standard error
+
+% --- Common shortcuts ---------------------------------------------------------
+\newcommand{\bhat}{\hat{\beta}}             % OLS point estimator
+\newcommand{\bhatt}{\tilde{\beta}}          % Alternative estimator
+\newcommand{\eps}{\varepsilon}              % Error term
+\newcommand{\epsh}{\hat{\varepsilon}}       % OLS residual
+\newcommand{\uh}{\hat{u}}                   % Residual (alternative)
+\newcommand{\yh}{\hat{y}}                   % Fitted value
+
+% Matrices and vectors
+\newcommand{\Xb}{\mathbf{X}}               % Design matrix
+\newcommand{\yb}{\mathbf{y}}               % Outcome vector
+\newcommand{\betab}{\boldsymbol{\beta}}    % Parameter vector
+\newcommand{\epsb}{\boldsymbol{\varepsilon}} % Error vector
+
+% Goodness-of-fit
+\newcommand{\SSR}{\text{SSR}}              % Sum of squared residuals
+\newcommand{\SSE}{\text{SSE}}              % Explained sum of squares
+\newcommand{\SST}{\text{SST}}              % Total sum of squares
+\newcommand{\Rsq}{R^2}                     % R-squared
+\newcommand{\aRsq}{\bar{R}^2}             % Adjusted R-squared
+
+% Asymptotic notation
+\newcommand{\avar}{\text{Avar}}            % Asymptotic variance
+\newcommand{\pto}{\overset{p}{\to}}        % Convergence in probability
+\newcommand{\dto}{\overset{d}{\to}}        % Convergence in distribution
+\newcommand{\iid}{\overset{\text{iid}}{\sim}}  % i.i.d. distributed
+\newcommand{\asim}{\overset{a}{\sim}}      % Approximately distributed
+
+% Econometric estimators
+\newcommand{\OLS}{\text{OLS}}
+\newcommand{\IV}{\text{IV}}
+\newcommand{\TSLS}{\text{2SLS}}
+\newcommand{\GMM}{\text{GMM}}
+\newcommand{\FE}{\text{FE}}
+\newcommand{\RE}{\text{RE}}
+\newcommand{\DID}{\text{DiD}}
+\newcommand{\RD}{\text{RD}}
+
+% Probability
+\newcommand{\prob}{\mathbb{P}}             % Probability
+\newcommand{\indep}{\perp\!\!\!\perp}      % Statistical independence
+
+% Distributions
+\newcommand{\Normal}{\mathcal{N}}          % Normal distribution
+% Usage: X \sim \Normal(\mu, \sigma^2)
+
+% Absolute value and norm
+\newcommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+
+
+% ==============================================================================
+% HYPERREF SETUP
+% ==============================================================================
+
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = SUFEBlue,
+  citecolor  = SUFEGold,
+  urlcolor   = SUFEBlue
+}
+
+
+% ==============================================================================
+% BIBLIOGRAPHY SETUP
+% ==============================================================================
+
+\bibliographystyle{aer}   % American Economic Review style
+% Usage: \bibliography{../Bibliography_base}  (from Slides/ directory)
+% In-text: \citet{Wooldridge2020}, \citep{White1980}
