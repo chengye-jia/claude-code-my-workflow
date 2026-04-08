@@ -1,0 +1,1260 @@
+%% ============================================================
+%% Lecture 6: Multiple Regression Analysis with Qualitative Information
+%% Intermediate Econometrics — SUFE
+%% Wooldridge, Introductory Econometrics, 8th edition, Chapter 7
+%% ============================================================
+\documentclass[aspectratio=169, 12pt]{beamer}
+\input{header}
+
+\title[L6: Qualitative Data]{Multiple Regression Analysis with Qualitative Information}
+\subtitle{Intermediate Econometrics}
+\author[SUFE Econometrics]{Chengye Jia}
+\institute{%
+  Department of Economics \\
+  Shandong University of Finance and Economics}
+\date{Spring 2026 \\ \smallskip \scriptsize Wooldridge, Chapter 7}
+
+%% ============================================================
+\begin{document}
+%% ============================================================
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}[shrink=10]{Outline}
+  \tableofcontents
+\end{frame}
+
+%% ============================================================
+\section{Describing Qualitative Information (\S7-1)}
+%% ============================================================
+
+\begin{frame}[shrink=20]{Dummy Variables: Definition and Naming}
+
+  Many variables in economics are \textbf{qualitative}, not quantitative.
+
+  \medskip
+
+  \begin{examplebox}{Examples of Qualitative Information}
+    \begin{itemize}
+      \item Gender: male or female
+      \item Marital status: married or single
+      \item Employment: employed or unemployed
+      \item Education: high school, college, graduate
+      \item Computer ownership: yes or no
+    \end{itemize}
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Solution:} Encode qualitative info as \textbf{dummy variables} (or \textbf{binary}, \textbf{indicator}, \textbf{zero-one} variables).
+
+  \begin{highlightbox}
+    A dummy variable takes value 1 when a condition is \textit{true} and 0 when \textit{false}.
+
+    \textbf{Naming convention:} Use descriptive names that clarify which case = 1.
+    \begin{itemize}
+      \item Good: \texttt{female} (1 = female, 0 = male)
+      \item Bad: \texttt{gender} (unclear which is 1)
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Data Example: WAGE1 Dataset}
+
+  \textbf{Wooldridge's WAGE1 dataset:} 526 workers from 1976 Current Population Survey
+
+  \medskip
+
+  \begin{center}
+    \small
+    \begin{tabular}{lllllll}
+      \toprule
+      \textit{wage} & \textit{educ} & \textit{exper} & \textit{tenure} & \textit{female} & \textit{married} & \textit{nonwhite} \\
+      \midrule
+      3.10 & 11 & 2 & 0 & 1 & 0 & 0 \\
+      3.24 & 12 & 22 & 2 & 1 & 1 & 0 \\
+      3.00 & 11 & 2 & 0 & 0 & 0 & 0 \\
+      6.00 & 8 & 44 & 28 & 0 & 1 & 0 \\
+      5.30 & 12 & 7 & 3 & 0 & 1 & 1 \\
+      \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \medskip
+
+  \begin{keybox}
+    Note: \texttt{female}, \texttt{married}, \texttt{nonwhite} are dummy variables (0 or 1).
+    This dataset allows us to test for gender discrimination, marriage premium, and racial gaps.
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{A Single Dummy Independent Variable (\S7-2)}
+%% ============================================================
+
+\begin{frame}[shrink=25]{A Single Dummy: The Gender-Wage Model}
+
+  \textbf{Question:} Do women earn less than men, \textit{ceteris paribus}?
+
+  \medskip
+
+  \begin{definitionbox}{Simple Model with Dummy (eq.\ 7.1)}
+    \[
+      \textit{wage} = \beta_0 + \delta_0 \textit{female} + \beta_1 \textit{educ} + u
+    \]
+    where \texttt{female} = 1 if worker is female, 0 if male.
+  \end{definitionbox}
+
+  \medskip
+
+  \textbf{Interpretation:}
+
+  \begin{itemize}
+    \item $\beta_0$ = hourly wage for a \textbf{male} with 0 education (intercept)
+    \item $\delta_0$ = \textbf{difference in wage} between females and males, holding education fixed
+    \item $\beta_1$ = return to one additional year of education (for both men and women)
+  \end{itemize}
+
+  \medskip
+
+  \begin{highlightbox}
+    \[
+      \E[\textit{wage} \mid \textit{female}, \textit{educ}] =
+      \begin{cases}
+        \beta_0 + \beta_1 \textit{educ} & \text{if male} \\
+        (\beta_0 + \delta_0) + \beta_1 \textit{educ} & \text{if female}
+      \end{cases}
+    \]
+
+    Geometrically: two \textbf{parallel lines} with the same slope but different intercepts.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Parallel Regression Lines: The Intercept Shift}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=1.0]
+      % Draw axes
+      \draw[->, line width=1pt] (0, 0) -- (14, 0) node[below right] {Education (years)};
+      \draw[->, line width=1pt] (0, 0) -- (0, 6) node[left] {Hourly Wage (\$)};
+
+      % Grid
+      \draw[gray!20] (1,0) grid (13, 5.5);
+
+      % Male regression line
+      \draw[thick, blue] (0, 1.5) -- (12, 4.8)
+        node[above right, blue] {Male: $\beta_0 + \beta_1 \, \text{educ}$};
+
+      % Female regression line (shifted down)
+      \draw[thick, red] (0, 0.7) -- (12, 4.0)
+        node[below right, red] {Female: $(\beta_0 + \delta_0) + \beta_1 \, \text{educ}$};
+
+      % Illustrate intercept shift
+      \draw[dashed, gray] (0, 1.5) -- (0, 0.7);
+      \draw[<->, line width=1.5pt, green] (0.2, 1.5) -- (0.2, 0.7)
+        node[left, green, font=\small] {$\delta_0 < 0$};
+
+      % Annotate slopes
+      \node[above, font=\small] at (3, 2.5) {Same slope: $\beta_1$};
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{keybox}
+    If $\delta_0 < 0$, females earn \textit{less} than males with the same education.
+    This difference is the \textbf{gender wage gap} (ceteris paribus).
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{The Dummy Variable Trap}
+
+  \textbf{Warning:} If you have $g$ categories, use \textbf{exactly} $g-1$ dummies!
+
+  \medskip
+
+  \textbf{Why?} Suppose we try to use:
+  \[
+    y = \beta_0 + \delta_{\text{male}} \cdot \textit{male} + \delta_{\text{female}} \cdot \textit{female} + u
+  \]
+
+  \textbf{Problem:} For every observation, either \texttt{male}=1, \texttt{female}=0 or \texttt{male}=0, \texttt{female}=1.
+
+  This means: $\texttt{male} + \texttt{female} = 1$ (perfectly collinear with intercept $\beta_0$).
+
+  Result: OLS cannot estimate both $\beta_0$ and $\delta_{\text{male}}$ uniquely (singular matrix).
+
+  \medskip
+
+  \begin{highlightbox}
+    \textbf{Rule:} For $g$ categories, define $g-1$ dummies. The omitted category is the \textbf{base group} or \textbf{benchmark group}.
+
+    All coefficients are interpreted \textit{relative to} the base group.
+  \end{highlightbox}
+
+  \medskip
+
+  In our wage example: \texttt{female} is the only dummy; males (female=0) form the base group.
+
+\end{frame}
+
+\begin{frame}[shrink=30]{Example 7.1: Gender Wage Gap Regression}
+
+  \textbf{Dataset:} WAGE1 (n = 526 workers)
+
+  \vspace{-0.3cm}
+
+  \begin{examplebox}{Wage Regression Results}
+    \[
+      \widehat{\textit{wage}} = -1.57 - 1.81 \, \textit{female} + 0.572 \, \textit{educ} + 0.25 \, \textit{exper} + 0.141 \, \textit{tenure}
+    \]
+    \[
+      (0.72) \quad (0.26) \quad\quad\quad\; (0.049) \quad\quad (0.012) \quad\quad (0.021)
+    \]
+    \[
+      n = 526, \quad R^2 = 0.364
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation:}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Holding education, experience, and tenure constant, women earn \textbf{\$1.81 per hour less} than men (in 1976 dollars).
+      \item This is the \textbf{controlled gender wage gap} or \textbf{conditional} gap.
+      \item t-statistic for female: $t = -1.81 / 0.26 = -6.96$ (highly significant).
+      \item Causal interpretation requires assuming no omitted variables correlated with both female and wage.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Controlled vs. Raw Gap}
+
+  \textbf{Same regression, now estimate without controls:}
+
+  \vspace{-0.3cm}
+
+  \begin{center}
+    \small
+    \begin{tabular}{lcccc}
+      \toprule
+      & \textbf{Controlled} & & & \textbf{Raw} \\
+      & (all controls) & & & (no controls) \\
+      \midrule
+      female & $-1.81$ & & & $-2.51$ \\
+      & $(0.26)$ & & & $(0.30)$ \\
+      \midrule
+      & $n=526, R^2=0.364$ & & & $n=526, R^2=0.116$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \medskip
+
+  \textbf{Why is the raw gap larger?}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Raw gap (\$2.51) includes the effect of differences in education, experience, and tenure.
+      \item Women in the sample have, on average, fewer years of work experience and lower tenure.
+      \item Controlling for these factors \textit{reduces} the estimated wage gap to \$1.81.
+      \item The difference $2.51 - 1.81 = 0.70$ is explained by \textit{compositional differences}.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Example 7.2: Computer Ownership and College GPA}
+
+  \textbf{Question:} Does owning a personal computer improve college grades?
+
+  \medskip
+
+  \begin{examplebox}{PC Ownership and GPA (GPA1)}
+    \[
+      \widehat{\textit{colGPA}} = 1.26 + 0.157 \, \textit{PC} + 0.447 \, \textit{hsGPA} + 0.0087 \, \textit{ACT}
+    \]
+    \[
+      (0.33) \quad (0.057) \quad\quad (0.094) \quad\quad\quad (0.0105)
+    \]
+    \[
+      n = 141, \quad R^2 = 0.219
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation:} PC ownership is associated with a $+0.157$ point higher GPA.
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Causality concern:}
+    \begin{itemize}
+      \item Does owning a PC \textit{cause} higher GPA, or do stronger students \textit{buy} PCs?
+      \item Possible omitted variable bias: ability, motivation, parental wealth.
+      \item This is \textbf{observational data}, not a randomized experiment.
+      \item Cannot conclude $\beta_{\text{PC}}$ is causal without additional assumptions.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{\texorpdfstring{\S7-2a}{S7-2a} — Log(y) with Dummies}
+%% ============================================================
+
+\begin{frame}[shrink=20]{Interpreting Dummy Coefficients: Percentage Changes}
+
+  When the \textbf{dependent variable is in logs}, a dummy coefficient has a special interpretation.
+
+  \medskip
+
+  \textbf{Approximate rule:} If $\hat{\beta}$ is small, $100 \hat{\beta} \approx \%$ change.
+
+  \medskip
+
+  \begin{definitionbox}{Exact Percentage Interpretation}
+    \[
+      \log(y) = \beta_0 + \delta \cdot d + \text{other terms}
+    \]
+
+    When $d$ changes from 0 to 1:
+    \[
+      \% \text{ change in } y = 100 \times \left[ \exp(\hat{\delta}) - 1 \right] \quad \text{(eq.\ 7.10)}
+    \]
+
+    If $\hat{\delta}$ is small (e.g., $< 0.10$), then $100 \hat{\delta} \approx \%$ change.
+  \end{definitionbox}
+
+  \medskip
+
+  \textbf{Example:} If $\hat{\delta} = 0.054$:
+  \begin{itemize}
+    \item Approximate: $100 \times 0.054 = 5.4\%$ \\
+    \item Exact: $100 \times (\exp(0.054) - 1) = 100 \times 0.0555 = 5.55\%$
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Example 7.4: Housing Prices and Colonial Style}
+
+  \begin{examplebox}{Housing Price Regression (HPRICE1)}
+    \[
+      \widehat{\log(\textit{price})} = -1.35 + 0.168 \log(\textit{lotsize}) + 0.707 \log(\textit{sqrft})
+    \]
+    \[
+      (0.65) \quad (0.038) \quad\quad\quad\quad\quad (0.093)
+    \]
+    \[
+      + 0.027 \, \textit{bdrms} + 0.054 \, \textit{colonial}
+    \]
+    \[
+      \quad\quad (0.029) \quad\quad\quad (0.045)
+    \]
+    \[
+      n = 88, \quad R^2 = 0.649
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation of colonial dummy:}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Approximate: Colonial homes sell for $5.4\%$ more.
+      \item Exact: $\exp(0.054) - 1 = 0.0555 \Rightarrow 5.55\%$ more.
+      \item t-statistic: $0.054 / 0.045 = 1.2$ (not significant at 5\%).
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Example 7.5: Log Hourly Wage and Gender}
+
+  \textbf{Same dataset (WAGE1) as Example 7.1, but with log(wage) as dependent variable.}
+
+  \medskip
+
+  \begin{examplebox}{Log Wage with Gender Dummy}
+    \[
+      \widehat{\log(\textit{wage})} = 0.417 - 0.297 \, \textit{female} + 0.080 \, \textit{educ} + 0.029 \, \textit{exper}
+    \]
+    \[
+      (0.099) \quad (0.036) \quad\quad (0.007) \quad\quad (0.005)
+    \]
+    \[
+      - 0.00058 \, \textit{exper}^2 + 0.032 \, \textit{tenure} - 0.00059 \, \textit{tenure}^2
+    \]
+    \[
+      n = 526, \quad R^2 = 0.441
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation of female coefficient:}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Approximate: Women earn $-29.7\%$ less than men.
+      \item Exact: $\exp(-0.297) - 1 = -0.257 \Rightarrow -25.7\%$ less.
+      \item The log model sometimes gives large coeff. estimates relative to % interpretation.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Using Dummy Variables for Multiple Categories (\S7-3)}
+%% ============================================================
+
+\begin{frame}[shrink=20]{Multiple Categories: The g-1 Rule}
+
+  \textbf{General problem:} Encode a categorical variable with $g$ categories.
+
+  \medskip
+
+  \textbf{Solution:} Define \textbf{exactly} $g-1$ dummies. The omitted category is the reference.
+
+  \medskip
+
+  \begin{highlightbox}
+    \textbf{Example:} Education with 4 levels: high school (base), some college, college degree, graduate degree.
+
+    Define 3 dummies:
+    \begin{itemize}
+      \item $d_1 = 1$ if some college, 0 otherwise
+      \item $d_2 = 1$ if college degree, 0 otherwise
+      \item $d_3 = 1$ if graduate degree, 0 otherwise
+    \end{itemize}
+
+    All coefficients are relative to high school (the base group).
+  \end{highlightbox}
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{To identify the base group:} Look at the regression output. The category with \textit{no} dummy variable is the reference.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=28]{Example 7.6: Four Gender-Marital Status Groups}
+
+  \textbf{Base group:} Single males. Define three dummies:
+  \begin{itemize}
+    \item \texttt{marrmale} = 1 if married male
+    \item \texttt{marrfem} = 1 if married female
+    \item \texttt{singfem} = 1 if single female
+  \end{itemize}
+
+  \medskip
+
+  \begin{examplebox}{Four Gender-Marital Groups (WAGE1)}
+    \[
+      \widehat{\log(\textit{wage})} = 0.321 + 0.213 \, \textit{marrmale} - 0.198 \, \textit{marrfem}
+    \]
+    \[
+      (0.100) \quad (0.055) \quad\quad\quad\quad (0.058)
+    \]
+    \[
+      - 0.110 \, \textit{singfem} + 0.079 \, \textit{educ} + 0.027 \, \textit{exper} - 0.00054 \, \textit{exper}^2
+    \]
+    \[
+      + 0.029 \, \textit{tenure} - 0.00053 \, \textit{tenure}^2 \quad\quad n = 526, R^2 = 0.461
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Married men earn $+21.3\%$ more than single men (base).
+      \item Married women earn $-19.8\%$ less than single men.
+      \item Single women earn $-11.0\%$ less than single men.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Ordinal Variables and Credit Ratings}
+
+  \textbf{Question:} How does credit rating (ordinal) affect mortgage approval probability?
+
+  \medskip
+
+  \textbf{Credit ratings:} 0 (no credit), 1 (poor), 2 (fair), 3 (good), 4 (excellent).
+
+  \medskip
+
+  \begin{definitionbox}{Ordinal Dummy Model}
+    \[
+      \textit{approve} = \beta_0 + \delta_1 \, \textit{CR1} + \delta_2 \, \textit{CR2} + \delta_3 \, \textit{CR3} + \delta_4 \, \textit{CR4} + u
+    \]
+
+    Base group: CR=0 (no credit history).
+  \end{definitionbox}
+
+  \medskip
+
+  \textbf{Key insight:} By treating each category separately (rather than using CR as a continuous score), we allow the effect to be nonlinear.
+
+  \medskip
+
+  \begin{keybox}
+    The coefficients $\delta_1, \delta_2, \delta_3, \delta_4$ reveal the exact shape of the relationship.
+    If they increase monotonically, the effect is monotonic.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=28]{Example 7.8: Law School Rankings and Salaries}
+
+  \textbf{Question:} How much does a law school's ranking matter for starting salary?
+
+  \medskip
+
+  \begin{examplebox}{Law School Rankings and Salaries}
+    \begin{small}
+    \[
+      \widehat{\log(\textit{salary})} = 9.17 + 0.700 \, \textit{top10} + 0.594 \, \textit{r11\_25}
+    \]
+    \[
+      + 0.375 \, \textit{r26\_40} + 0.263 \, \textit{r41\_60} + 0.132 \, \textit{r61\_100}
+    \]
+    \[
+      + 0.0057 \, \textit{LSAT} + 0.041 \, \textit{GPA} + \text{(other controls)}
+    \]
+    \[
+      n = 136, \quad R^2 = 0.911, \quad \bar{R}^2 = 0.905
+    \]
+    \end{small}
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation:}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Base group: schools ranked outside top 100.
+      \item Top-10 schools: $\exp(0.700) - 1 \approx +1.01$ (approximately double salary!).
+      \item Ranks 11-25: $\exp(0.594) - 1 \approx +0.81$ (roughly double).
+      \item Clearly, law school ranking has enormous effect on starting salary.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Interactions Involving Dummy Variables (\S7-4)}
+%% ============================================================
+
+\begin{frame}[shrink=25]{Interactions Among Dummy Variables}
+
+  \textbf{Motivation:} Do different groups respond differently to the same factor?
+
+  \medskip
+
+  \textbf{Example:} Does marriage have the same wage effect for men and women?
+
+  \medskip
+
+  \begin{definitionbox}{Dummy × Dummy Interaction}
+    \[
+      \log(\textit{wage}) = \beta_0 + \delta_0 \textit{female} + \delta_1 \textit{married}
+    \]
+    \[
+      + \gamma \, (\textit{female} \times \textit{married}) + \text{other controls} + u
+    \]
+  \end{definitionbox}
+
+  \medskip
+
+  \textbf{Interpretation:} The coefficient $\gamma$ captures the \textit{additional} effect of marriage for women.
+
+  \begin{keybox}
+    \begin{itemize}
+      \item For men: marriage raises wage by $\delta_1$ (alone).
+      \item For women: marriage raises wage by $\delta_1 + \gamma$.
+      \item If $\gamma < 0$, marriage "helps" men more than women (differential return).
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Example 7.9: Computer Use at Work vs. Home}
+
+  \textbf{Dataset:} 1989 CPS microdata (n = 13,379 workers); Krueger (1993)
+
+  \medskip
+
+  \begin{examplebox}{Computer Use and Wages}
+    \[
+      \widehat{\log(\textit{wage})} = \hat{\beta}_0 + 0.177 \, \textit{compwork} + 0.070 \, \textit{comphome}
+    \]
+    \[
+      \quad\quad\quad\quad\quad\quad (0.009) \quad\quad\quad\quad (0.019)
+    \]
+    \[
+      + 0.017 \, (\textit{compwork} \times \textit{comphome}) + \text{other controls}
+    \]
+    \[
+      \quad\quad\quad (0.023)
+    \]
+    \smallskip
+
+    Data: 1989 CPS microdata (n = 13,379)
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation:}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Using a computer at work: $+17.7\%$ wage premium (large and highly significant).
+      \item Using at home (no work): $+7.0\%$ premium.
+      \item Interaction (using both): $+1.7\%$ additional (not significant, t $\approx 0.74$).
+      \item Two main findings: (1) workplace computer use valuable, (2) home use has modest effect.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=20]{Allowing Different Slopes: Gender × Education}
+
+  \textbf{Question:} Do men and women get different returns to education?
+
+  \medskip
+
+  \begin{definitionbox}{Dummy × Continuous Interaction}
+    \[
+      \log(\textit{wage}) = \beta_0 + \delta_0 \textit{female} + \beta_1 \textit{educ}
+    \]
+    \[
+      + \delta_1 \, (\textit{female} \times \textit{educ}) + \text{other controls} + u
+    \]
+  \end{definitionbox}
+
+  \medskip
+
+  \textbf{Interpretation:}
+  \begin{itemize}
+    \item $\beta_1$ = return to education for \textbf{males}.
+    \item $\delta_1$ = \textbf{additional} return to education for females (compared to males).
+    \item Total return for females: $\beta_1 + \delta_1$.
+  \end{itemize}
+
+  \medskip
+
+  \begin{keybox}
+    If $\delta_1 \neq 0$ (and significant), the market \textit{values} education differently for men vs. women.
+    This is a type of \textbf{discrimination by skill} or \textbf{skill-biased discrimination}.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Four Cases of Slope Shifts}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=0.9]
+      % Top-left: delta0 > 0, delta1 < 0 (intercept up, slope down)
+      \begin{scope}[xshift=-7cm, yshift=2.5cm]
+        \draw[->, line width=1pt] (0, 0) -- (4, 0) node[below] {$x$};
+        \draw[->, line width=1pt] (0, 0) -- (0, 3.5) node[left] {$y$};
+        \draw[thick, blue] (0, 1.5) -- (4, 3.2) node[above right, blue, font=\small] {Males};
+        \draw[thick, red] (0, 2.0) -- (4, 1.8) node[below right, red, font=\small] {Females};
+        \node[below] at (2, -0.8) {$\delta_0 > 0, \delta_1 < 0$};
+      \end{scope}
+
+      % Top-right: delta0 > 0, delta1 > 0 (both up)
+      \begin{scope}[xshift=0cm, yshift=2.5cm]
+        \draw[->, line width=1pt] (0, 0) -- (4, 0) node[below] {$x$};
+        \draw[->, line width=1pt] (0, 0) -- (0, 3.5) node[left] {$y$};
+        \draw[thick, blue] (0, 1.5) -- (4, 3.2) node[above right, blue, font=\small] {Males};
+        \draw[thick, red] (0, 2.0) -- (4, 4.0) node[above right, red, font=\small] {Females};
+        \node[below] at (2, -0.8) {$\delta_0 > 0, \delta_1 > 0$};
+      \end{scope}
+
+      % Bottom-left: delta0 < 0, delta1 < 0 (both down)
+      \begin{scope}[xshift=-7cm, yshift=-2.5cm]
+        \draw[->, line width=1pt] (0, 0) -- (4, 0) node[below] {$x$};
+        \draw[->, line width=1pt] (0, 0) -- (0, 3.5) node[left] {$y$};
+        \draw[thick, blue] (0, 2.5) -- (4, 4.2) node[above right, blue, font=\small] {Males};
+        \draw[thick, red] (0, 1.0) -- (4, 1.8) node[below right, red, font=\small] {Females};
+        \node[below] at (2, -0.8) {$\delta_0 < 0, \delta_1 < 0$};
+      \end{scope}
+
+      % Bottom-right: delta0 < 0, delta1 > 0 (intercept down, slope up)
+      \begin{scope}[xshift=0cm, yshift=-2.5cm]
+        \draw[->, line width=1pt] (0, 0) -- (4, 0) node[below] {$x$};
+        \draw[->, line width=1pt] (0, 0) -- (0, 3.5) node[left] {$y$};
+        \draw[thick, blue] (0, 2.5) -- (4, 3.2) node[above right, blue, font=\small] {Males};
+        \draw[thick, red] (0, 1.0) -- (4, 4.0) node[above right, red, font=\small] {Females};
+        \node[below] at (2, -0.8) {$\delta_0 < 0, \delta_1 > 0$};
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+
+  \textbf{In each case:} females (red line) have a different intercept (\textit{offset}) and/or a different slope compared to males (blue).
+
+\end{frame}
+
+\begin{frame}[shrink=28]{Example 7.10: Gender and Return to Education}
+
+  \begin{examplebox}{Gender-Education Interaction}
+    Log wage regression with WAGE1 data:
+    \[
+      \widehat{\log(\textit{wage})} = 0.389 - 0.227 \, \textit{female} + 0.082 \, \textit{educ}
+    \]
+    \[
+      (0.119) \quad (0.168) \quad\quad\quad (0.008)
+    \]
+    \[
+      - 0.0056 \, (\textit{female} \times \textit{educ}) + 0.029 \, \textit{exper} - 0.00058 \, \textit{exper}^2
+    \]
+    \[
+      (0.0131) \quad\quad\quad\quad\quad\quad\quad (0.005) \quad\quad (0.00011)
+    \]
+    \[
+      + 0.032 \, \textit{tenure} - 0.00059 \, \textit{tenure}^2
+    \]
+    \[
+      n = 526, \quad R^2 = 0.411
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation:}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Return to education for \textbf{males}: $0.82\%$ per year ($t = 10.25$, highly significant).
+      \item Return for \textbf{females}: $0.82 - 0.56 = 0.76\%$ per year.
+      \item Difference is \textbf{not statistically significant} ($t = -0.0056 / 0.0131 = -0.43$).
+      \item \textbf{Warning:} Large SE on female coeff. (0.168) due to high correlation between \texttt{female} and \texttt{female}×\texttt{educ}.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{The Chow Test: Comparing Regression Functions}
+
+  \textbf{Question:} Do two groups have fundamentally \textit{different} regression relationships?
+
+  \medskip
+
+  \textbf{Setup:} Compare a \textbf{pooled} model vs. separate models by group.
+
+  \medskip
+
+  \begin{highlightbox}
+    \textbf{Chow Test Statistic (eq.\ 7.24):}
+    \[
+      F = \frac{(\text{SSR}_P - (\text{SSR}_1 + \text{SSR}_2))/(k+1)}{(\text{SSR}_1 + \text{SSR}_2)/(n - 2(k+1))}
+    \]
+
+    where:
+    \begin{itemize}
+      \item $\text{SSR}_P$ = sum of squared residuals from pooled (unrestricted) model
+      \item $\text{SSR}_1, \text{SSR}_2$ = SSR from separate regressions for each group
+      \item $k$ = number of slopes (plus intercept $\Rightarrow$ $k+1$ parameters per group)
+      \item Numerator: improvement in fit from allowing different intercepts and slopes
+    \end{itemize}
+  \end{highlightbox}
+
+  \medskip
+
+  \textbf{Null hypothesis:} $H_0: \delta_0 = \delta_1 = \cdots = \delta_k = 0$ (same regression for both groups).
+
+  \textbf{Under} $H_0$: $F \sim F_{k+1, n-2(k+1)}$.
+
+\end{frame}
+
+%% ============================================================
+\section{A Binary Dependent Variable: The Linear Probability Model (\S7-5)}
+%% ============================================================
+
+\begin{frame}[shrink=20]{Binary Dependent Variables: Motivation}
+
+  \textbf{New challenge:} What if the dependent variable is binary (0 or 1)?
+
+  \medskip
+
+  \begin{examplebox}{Examples}
+    \begin{itemize}
+      \item Arrested or not arrested (1 = arrested)
+      \item Employed or not (1 = employed)
+      \item Home ownership: yes or no (1 = owner)
+      \item College attendance: yes or no (1 = attended)
+      \item Loan approval: approved or denied (1 = approved)
+    \end{itemize}
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Question:} Can we still use OLS regression?
+
+  \medskip
+
+  \begin{keybox}
+    Yes! The model makes sense: $\E[y | x]$ = predicted probability of success.
+
+    But OLS has limitations when $y$ is binary (we'll explore these next).
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{The Linear Probability Model (LPM)}
+
+  \begin{definitionbox}{LPM Definition}
+    \[
+      y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u \quad \text{(eq.\ 7.27)}
+    \]
+
+    where $y \in \{0, 1\}$ (binary).
+
+    OLS estimates the conditional probability:
+    \[
+      \E[y | x] = P(y = 1 | x) = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k
+    \]
+  \end{definitionbox}
+
+  \medskip
+
+  \textbf{Slope interpretation:} $\beta_j$ measures the change in \textbf{probability of success} when $x_j$ increases by one unit.
+
+  \medskip
+
+  \begin{highlightbox}
+    \[
+      \Delta P(y=1|x) = \beta_j \, \Delta x_j \quad \text{(eq.\ 7.28)}
+    \]
+
+    Example: If $\beta_j = 0.05$ and $x_j$ increases by 1, the probability of success \textit{increases by 5 percentage points}.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=20]{LPM Drawbacks}
+
+  Despite its simplicity, the LPM has three key limitations:
+
+  \medskip
+
+  \begin{enumerate}
+    \item \textbf{Predicted probabilities can fall outside [0, 1].}
+    \begin{itemize}
+      \item If $\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x_1 + \cdots < 0$ or $> 1$, the prediction is nonsensical.
+      \item Nonlinear models (Probit, Logit) constrain predictions to [0, 1] automatically.
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{The marginal effect must be constant.}
+    \begin{itemize}
+      \item Probability changes linearly in $x$, but logically it should be slower at extremes.
+      \item True effects often have diminishing returns: harder to move probability from 0.9 to 1.0 than from 0.5 to 0.6.
+    \end{itemize}
+
+    \vspace{0.2cm}
+
+    \item \textbf{Inherent heteroskedasticity:}
+    \[
+      \Var(u | x) = p(x) \cdot [1 - p(x)] \quad \text{(eq.\ 7.30)}
+    \]
+    \begin{itemize}
+      \item Variance depends on $x$ (not constant $\sigma^2$, so MLR.5 is violated).
+      \item Standard OLS standard errors are wrong; use robust SEs instead.
+    \end{itemize}
+  \end{enumerate}
+
+\end{frame}
+
+\begin{frame}[shrink=30]{Example 7.12: Linear Probability Model of Arrests}
+
+  \textbf{Dataset:} CRIME1 (n = 2,725 men)
+
+  \textbf{Dependent variable:} \texttt{arr86} = 1 if arrested in 1986, 0 otherwise
+
+  \medskip
+
+  \begin{examplebox}{Arrest Probability Model}
+    \[
+      \widehat{\textit{arr86}} = 0.441 - 0.162 \, \textit{pcnv} + 0.0061 \, \textit{avgsen}
+    \]
+    \[
+      (0.017) \quad (0.021) \quad\quad\quad (0.0065)
+    \]
+    \[
+      - 0.0023 \, \textit{tottime} - 0.022 \, \textit{ptime86} - 0.043 \, \textit{qemp86}
+    \]
+    \[
+      (0.0050) \quad\quad (0.005) \quad\quad (0.005)
+    \]
+    \[
+      R^2 = 0.0474, \quad n = 2725
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation:}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Prior conviction (pcnv): reduces arrest probability by $-16.2$ percentage points (large effect).
+      \item Quarter employed (qemp86): each additional quarter employed reduces arrest probability by $-4.3$ percentage points.
+      \item Predicted $\hat{y}$ ranges from 0.04 to 0.86 (mostly in [0, 1], but some edge cases).
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=20]{When LPM Works Well}
+
+  Despite its drawbacks, LPM is useful when:
+
+  \medskip
+
+  \begin{highlightbox}
+    \begin{itemize}
+      \item You have a large sample (heteroskedasticity less critical with robust SEs).
+      \item Predicted probabilities cluster away from 0 and 1 boundaries.
+      \item Your goal is \textbf{estimation and inference}, not prediction.
+      \item You need a simple, interpretable model with no distributional assumptions.
+    \end{itemize}
+  \end{highlightbox}
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Standard practice:} Report LPM results, but always use robust standard errors to account for heteroskedasticity.
+
+    For comparison: Lecture 15 (Limited Dependent Variables) covers nonlinear alternatives (Probit, Logit, Tobit).
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Policy Analysis and Program Evaluation (\S7-6)}
+%% ============================================================
+
+\begin{frame}[shrink=20]{Program Evaluation: The Fundamental Problem}
+
+  \textbf{Motivating question:} Does a job training program increase earnings?
+
+  \medskip
+
+  \begin{examplebox}{Setting}
+    \begin{itemize}
+      \item Treatment group: workers who receive training.
+      \item Control group: workers who don't.
+      \item Goal: estimate the \textbf{causal effect} of training on future earnings.
+    \end{itemize}
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Challenge:} \textbf{Self-selection bias.}
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Workers who volunteer for training may be more motivated or have higher ability.
+      \item Simply comparing treated and untreated workers confounds the program effect with pre-existing differences.
+      \item Need regression adjustment to \textit{control} for observable differences.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=20]{Restricted Regression Adjustment (RRA)}
+
+  \begin{definitionbox}{RRA Model}
+    \[
+      y_i = \beta_0 + \tau \, w_i + \beta_1 x_{i1} + \cdots + \beta_k x_{ik} + u_i
+    \]
+
+    where $w_i = 1$ if worker $i$ received training, 0 otherwise;
+    $x_1, \ldots, x_k$ are control variables (age, education, prior earnings, etc.);
+    $\tau$ is the treatment effect.
+  \end{definitionbox}
+
+  \medskip
+
+  \textbf{Interpretation:} The coefficient $\hat{\tau}$ is the difference in earnings between trained and untrained workers, \textit{holding controls constant}.
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Assumption:} All variables affecting earnings that differ between trained and untrained are \textit{observed} and included as controls.
+
+    Any unobserved differences bias the estimate (omitted variable bias).
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=20]{Unrestricted Regression Adjustment (URA)}
+
+  \textbf{Question:} Does training effect differ by worker characteristics (age, education)?
+
+  \medskip
+
+  \begin{definitionbox}{URA with Demeaned Interactions}
+    \[
+      y_i = \beta_0 + \tau \, w_i + \sum_j \beta_j (x_{ij} - \bar{x}_j)
+    \]
+    \[
+      + \sum_j \gamma_j \, w_i \cdot (x_{ij} - \bar{x}_j) + u_i
+    \]
+
+    where $(x_{ij} - \bar{x}_j)$ are \textbf{demeaned} controls.
+  \end{definitionbox}
+
+  \medskip
+
+  \textbf{Key insight:} Demeaning allows $\tau$ to be the \textbf{average treatment effect (ATE)} at the sample means of $x_1, \ldots, x_k$.
+
+  \medskip
+
+  \begin{highlightbox}
+    The interaction coefficients $\gamma_j$ reveal how the training effect varies by characteristics.
+
+    Example: If $\gamma_{\text{age}} > 0$, older workers benefit more from training.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=30]{Example 7.13: Job Training Program Evaluation}
+
+  \textbf{Dataset:} JTRAIN98 (n = 1,130 workers); outcome = earnings in 1998
+
+  \medskip
+
+  \begin{small}
+  \begin{examplebox}{Job Training Evaluation}
+    \[
+      \widehat{\textit{earn98}} = 5.08 + 3.11 \, \textit{train} + 0.353 \, (\textit{earn96} - \bar{e}_{96})
+    \]
+    \[
+      + 0.378 \, (\textit{educ} - \bar{e}) - 0.196 \, (\textit{age} - \bar{a})
+    \]
+    \[
+      + 0.133 \, \textit{train} \cdot (\textit{earn96} - \bar{e}_{96}) - 0.035 \, \textit{train} \cdot (\textit{educ} - \bar{e})
+    \]
+    \[
+      + 0.508 \, \textit{train} \cdot (\textit{age} - \bar{a}) - 0.993 \, \textit{train} \cdot (\textit{married} - \bar{m})
+    \]
+    \[
+      n = 1130, \quad R^2 = 0.409
+    \]
+  \end{examplebox}
+  \end{small}
+
+  \medskip
+
+  \begin{keybox}
+    \begin{itemize}
+      \item \textbf{Average treatment effect:} $\hat{\tau} = 3.11$ thousand dollars (se = 0.53).
+      \item Training increases expected earnings by about \$3,110.
+      \item \textbf{Heterogeneous effects:} Training benefit \textit{increases} with prior earnings and age, but \textit{decreases} with education and marriage.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Interpreting Regression with Discrete Dependent Variables (\S7-7)}
+%% ============================================================
+
+\begin{frame}[shrink=20]{Discrete Dependent Variables: Broad Interpretation}
+
+  \textbf{Key principle:} OLS estimates $\E[y | x]$, whether $y$ is continuous or discrete.
+
+  \medskip
+
+  \begin{highlightbox}
+    When $y$ is discrete (e.g., number of children, years of education, job rank), OLS coefficients still have a meaningful interpretation:
+
+    \[
+      \beta_j = \frac{\partial \E[y | x]}{\partial x_j}
+    \]
+
+    This is the change in \textbf{expected value} of $y$ when $x_j$ increases.
+  \end{highlightbox}
+
+  \medskip
+
+  \textbf{Example interpretation:} "Each additional year of education reduces the expected number of children by 0.09."
+
+  \medskip
+
+  \begin{keybox}
+    You do \textit{not} need Probit, Logit, or other nonlinear methods for discrete $y$.
+    OLS still works, as long as you interpret coefficients as effects on the \textit{mean} of $y$.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Example: Fertility and Education}
+
+  \textbf{Dataset:} FERTIL2 (n = 4,361 women)
+
+  \medskip
+
+  \begin{examplebox}{Fertility and Education}
+    \[
+      \widehat{\textit{children}} = -1.997 + 0.175 \, \textit{age} - 0.090 \, \textit{educ} + \ldots
+    \]
+    \[
+      n = 4361, \quad R^2 = 0.560 \quad \text{(eq.\ 7.45)}
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{Interpretation of education coefficient:}
+
+  \begin{keybox}
+    Each additional year of education is associated with $-0.090$ fewer children on average.
+
+    This is a \textit{large} effect: 12 more years of education → $12 \times 0.090 = 1.08$ fewer children.
+  \end{keybox}
+
+  \medskip
+
+  \textbf{Adding a dummy variable:}
+
+  \medskip
+
+  \begin{examplebox}{With Electric Dummy}
+    \[
+      \widehat{\textit{children}} = \ldots - 0.362 \, \textit{electric} + \ldots
+    \]
+
+    Having electricity in the home is associated with 0.36 fewer children (eq.\ 7.47).
+  \end{examplebox}
+
+\end{frame}
+
+%% ============================================================
+\section{Summary and Key Takeaways}
+%% ============================================================
+
+\begin{frame}[shrink=25]{Key Concepts Summary}
+
+  \begin{keybox}
+    \textbf{Dummy Variables:}
+    \begin{itemize}
+      \item Encode qualitative info as 0/1; name clearly (female, not gender).
+      \item For $g$ categories, use $g-1$ dummies; omitted category = base group.
+      \item All coefficients interpreted relative to base group.
+    \end{itemize}
+  \end{keybox}
+
+  \medskip
+
+  \begin{highlightbox}
+    \textbf{Log(y) with Dummies:}
+    \begin{itemize}
+      \item Approximate: $100 \hat{\beta} \approx \%$ change (if $\hat{\beta}$ is small).
+      \item Exact: $100 \times [\exp(\hat{\beta}) - 1] = \%$ change.
+    \end{itemize}
+  \end{highlightbox}
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Interactions:}
+    \begin{itemize}
+      \item Dummy × dummy: allows different intercepts by group.
+      \item Dummy × continuous: allows different slopes by group.
+      \item Chow test: formally test if two groups have different regression functions.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=20]{Key Concepts (continued)}
+
+  \begin{highlightbox}
+    \textbf{Linear Probability Model (Binary y):}
+    \begin{itemize}
+      \item $\hat{y}$ is predicted probability; $\beta_j$ = change in probability per unit of $x_j$.
+      \item Drawbacks: predictions can exceed [0, 1]; constant marginal effects; inherent heteroskedasticity.
+      \item Solution: always use robust standard errors (account for Var$(y|x) = p(1-p)$).
+    \end{itemize}
+  \end{highlightbox}
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Program Evaluation:}
+    \begin{itemize}
+      \item RRA: simple regression adjustment (assumes no unobserved confounders).
+      \item URA: allows treatment effect to vary by controls (demeaned interactions).
+      \item Both require assumption that all confounders are observed.
+    \end{itemize}
+  \end{keybox}
+
+  \medskip
+
+  \begin{examplebox}{Discrete Dependent Variables}
+    OLS is valid even when $y$ is discrete (0/1, count, rank). Coefficients measure effects on $\E[y | x]$.
+  \end{examplebox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Bridge to Lecture 7: Heteroskedasticity}
+
+  \textbf{Why Chapter 8 matters:}
+
+  The Linear Probability Model revealed an important limitation of OLS:
+
+  \vspace{-0.3cm}
+
+  \begin{highlightbox}
+    When $y$ is binary: $\Var(u | x) = p(x) \cdot [1 - p(x)]$ — the error variance \textit{depends on} $x$.
+
+    This violates MLR.5 (\textbf{Homoskedasticity}).
+  \end{highlightbox}
+
+  \medskip
+
+  \textbf{Broader problem:} Many real datasets exhibit \textbf{heteroskedasticity}:
+
+  \begin{examplebox}{Examples}
+    \begin{itemize}
+      \item Household consumption: variance increases with income.
+      \item Firm profit: variance increases with firm size.
+      \item Test scores: variance decreases as study time increases.
+    \end{itemize}
+  \end{examplebox}
+
+  \medskip
+
+  \begin{keybox}
+    When heteroskedasticity is present:
+    \begin{itemize}
+      \item OLS estimates are still \textbf{unbiased} and \textbf{consistent}.
+      \item But standard errors are \textbf{wrong} (too small or too large).
+      \item Solution: \textbf{Robust standard errors} (Lecture 7).
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\end{document}
