@@ -1059,60 +1059,172 @@
 
 \end{frame}
 
-\begin{frame}[shrink=20]{Restricted Regression Adjustment (RRA)}
+\begin{frame}[shrink=22]{Restricted Regression Adjustment (RRA)}
 
   \begin{definitionbox}{RRA Model}
     \[
-      y_i = \beta_0 + \tau \, w_i + \beta_1 x_{i1} + \cdots + \beta_k x_{ik} + u_i
+      y_i = \beta_0 + \tau \, w_i + \beta_1 x_{i1} + \cdots + \beta_k x_{ik} + u_i \quad \text{(eq.\ 7.36)}
     \]
 
-    where $w_i = 1$ if worker $i$ received training, 0 otherwise;
-    $x_1, \ldots, x_k$ are control variables (age, education, prior earnings, etc.);
-    $\tau$ is the treatment effect.
+    where $w_i = 1$ if worker $i$ received training, 0 otherwise.
   \end{definitionbox}
 
   \medskip
 
-  \textbf{Interpretation:} The coefficient $\hat{\tau}$ is the difference in earnings between trained and untrained workers, \textit{holding controls constant}.
+  \textbf{Conditional expectation:}
+  \[
+    \E[y | w, x] = \beta_0 + \tau w + \beta_1 x_1 + \cdots + \beta_k x_k
+  \]
+
+  \medskip
+
+  \textbf{Treatment effect:} Comparing two workers with \textbf{identical} $x_1, \ldots, x_k$ (just one trains, one doesn't):
+  \[
+    \E[y | w=1, x] - \E[y | w=0, x] = \tau
+  \]
 
   \medskip
 
   \begin{keybox}
-    \textbf{Assumption:} All variables affecting earnings that differ between trained and untrained are \textit{observed} and included as controls.
+    \textbf{Assumption (MLR.4):} $\E[u_i | w_i, x_{i1}, \ldots, x_{ik}] = 0$ (no omitted variables).
 
-    Any unobserved differences bias the estimate (omitted variable bias).
+    If unobserved factors (ability, motivation) affect both $w$ and $y$, then $\hat{\tau}$ is biased.
   \end{keybox}
 
 \end{frame}
 
-\begin{frame}[shrink=20]{Unrestricted Regression Adjustment (URA)}
+\begin{frame}[shrink=25]{Why RRA Needs Demeaning (Mathematical Motivation)}
+
+  \textbf{Problem:} Without demeaning, the intercept $\beta_0$ is hard to interpret.
+
+  \medskip
+
+  \textbf{Standard RRA (no demeaning):}
+  \[
+    y_i = \beta_0 + \tau w_i + \sum_j \beta_j x_{ij} + u_i
+  \]
+  where $\beta_0$ = predicted earnings for untreated worker with $x_j = 0$ for all $j$ (unrealistic).
+
+  \medskip
+
+  \textbf{Demeaned RRA (what we actually use):}
+  \[
+    y_i = \beta_0^* + \tau w_i + \sum_j \beta_j (x_{ij} - \bar{x}_j) + u_i
+  \]
+
+  \medskip
+
+  \textbf{Algebraic identity:} If we substitute $x_{ij} = (x_{ij} - \bar{x}_j) + \bar{x}_j$:
+  \[
+    \beta_0^* = \beta_0 + \sum_j \beta_j \bar{x}_j
+  \]
+
+  \medskip
+
+  \begin{highlightbox}
+    Now $\beta_0^*$ = predicted earnings for untreated worker at \textbf{sample mean} of all controls.
+
+    This makes $\beta_0^*$ economically meaningful.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=20]{Unrestricted Regression Adjustment (URA): Heterogeneous Effects}
 
   \textbf{Question:} Does training effect differ by worker characteristics (age, education)?
 
   \medskip
 
-  \begin{definitionbox}{URA with Demeaned Interactions}
+  \begin{definitionbox}{URA with Interactions (eq.\ 7.42)}
     \[
-      y_i = \beta_0 + \tau \, w_i + \sum_j \beta_j (x_{ij} - \bar{x}_j)
-    \]
-    \[
-      + \sum_j \gamma_j \, w_i \cdot (x_{ij} - \bar{x}_j) + u_i
+      y_i = \beta_0 + \tau \, w_i + \sum_j \beta_j x_{ij} + \sum_j \gamma_j \, w_i \cdot x_{ij} + u_i
     \]
 
-    where $(x_{ij} - \bar{x}_j)$ are \textbf{demeaned} controls.
+    This allows both intercepts and slopes to differ by treatment status.
   \end{definitionbox}
 
   \medskip
 
-  \textbf{Key insight:} Demeaning allows $\tau$ to be the \textbf{average treatment effect (ATE)} at the sample means of $x_1, \ldots, x_k$.
+  \textbf{Treatment effect as function of $x$:}
+  \[
+    \tau(x) = \E[y | w=1, x] - \E[y | w=0, x] = \tau + \sum_j \gamma_j x_j
+  \]
 
   \medskip
 
-  \begin{highlightbox}
-    The interaction coefficients $\gamma_j$ reveal how the training effect varies by characteristics.
+  \begin{keybox}
+    \begin{itemize}
+      \item If all $\gamma_j = 0$: training effect is constant (homogeneous).
+      \item If $\gamma_j \neq 0$: effect depends on $x_j$ (heterogeneous).
+      \item $\gamma_j$ = how much training effect changes per unit of $x_j$.
+    \end{itemize}
+  \end{keybox}
 
-    Example: If $\gamma_{\text{age}} > 0$, older workers benefit more from training.
+\end{frame}
+
+\begin{frame}[shrink=22]{URA with Demeaning: ATE Identification}
+
+  \textbf{Problem:} In the standard URA, what does $\tau$ represent?
+
+  \medskip
+
+  \textbf{From previous slide:}
+  \[
+    \tau(x) = \tau + \sum_j \gamma_j x_j
+  \]
+
+  At $x_1 = x_2 = \cdots = x_k = 0$: $\tau(0) = \tau$ (estimated intercept shift).
+
+  But $x = 0$ may be unrealistic (age = 0, education = 0).
+
+  \medskip
+
+  \textbf{Solution: Demean all controls before including interactions.}
+  \[
+    y_i = \beta_0^* + \tau w_i + \sum_j \beta_j (x_{ij} - \bar{x}_j) + \sum_j \gamma_j w_i (x_{ij} - \bar{x}_j) + u_i
+  \]
+
+  \medskip
+
+  \textbf{Now:} $\tau$ = treatment effect at $x = \bar{x}$ (the sample mean).
+
+  \begin{highlightbox}
+    This $\tau$ is the \textbf{Average Treatment Effect (ATE)} evaluated at the sample means.
+
+    This is what we report as the overall program impact; $\gamma_j$ show \textit{how} effects vary around that mean.
   \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=25]{Parameter Interpretation in URA}
+
+  \textbf{Recall the demeaned URA:}
+  \[
+    y_i = \beta_0^* + \tau w_i + \sum_j \beta_j (x_{ij} - \bar{x}_j) + \sum_j \gamma_j w_i (x_{ij} - \bar{x}_j) + u_i
+  \]
+
+  \medskip
+
+  \textbf{Interpretation of each coefficient:}
+
+  \begin{itemize}
+    \item $\tau$ = \textbf{Average Treatment Effect (ATE):} training impact at sample mean of controls.
+
+    \item $\beta_j$ = effect of $x_j$ for untrained workers. Change in $y$ per unit increase in $x_j$.
+
+    \item $\gamma_j$ = \textbf{heterogeneous effect:} how much training benefit changes per unit of $x_j$.
+    \begin{itemize}
+      \item $\gamma_j > 0$: older/more educated workers benefit \textit{more} from training
+      \item $\gamma_j < 0$: older/more educated workers benefit \textit{less}
+    \end{itemize}
+
+  \end{itemize}
+
+  \medskip
+
+  \begin{keybox}
+    Demeaning ensures $\tau$ is the ATE at sample means; $\gamma_j$ are second-order heterogeneity effects.
+  \end{keybox}
 
 \end{frame}
 
