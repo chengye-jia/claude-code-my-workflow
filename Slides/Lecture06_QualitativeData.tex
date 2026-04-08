@@ -57,8 +57,16 @@
     \begin{itemize}
       \item Good: \texttt{female} (1 = female, 0 = male)
       \item Bad: \texttt{gender} (unclear which is 1)
+      \item Good: \texttt{married} (1 = married, 0 = not married)
+      \item Good: \texttt{urban} (1 = urban, 0 = rural)
     \end{itemize}
   \end{highlightbox}
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Why dummies matter:} They allow us to quantify the effect of categorical differences. Instead of analyzing men and women separately, we estimate one model that captures both groups with an intercept shift.
+  \end{keybox}
 
 \end{frame}
 
@@ -115,10 +123,14 @@
   \textbf{Interpretation:}
 
   \begin{itemize}
-    \item $\beta_0$ = hourly wage for a \textbf{male} with 0 education (intercept)
-    \item $\delta_0$ = \textbf{difference in wage} between females and males, holding education fixed
-    \item $\beta_1$ = return to one additional year of education (for both men and women)
+    \item $\beta_0$ = hourly wage for a \textbf{male} with 0 education (intercept; probably not realistic but mathematic necessity)
+    \item $\delta_0$ = \textbf{difference in wage} between females and males, holding education fixed (the \textbf{ceteris paribus gender wage gap})
+    \item $\beta_1$ = return to one additional year of education (for both men and women; assumes same return for both genders)
   \end{itemize}
+
+  \medskip
+
+  \textbf{Key economic insight:} If $\delta_0 \neq 0$, we have evidence of a systematic wage difference unexplained by education alone. This could reflect discrimination, unobserved skill differences, occupational sorting, or other factors.
 
   \medskip
 
@@ -187,7 +199,20 @@
 
   This means: $\texttt{male} + \texttt{female} = 1$ (perfectly collinear with intercept $\beta_0$).
 
-  Result: OLS cannot estimate both $\beta_0$ and $\delta_{\text{male}}$ uniquely (singular matrix).
+  \medskip
+
+  \textbf{Matrix algebra:} The design matrix has linearly dependent columns:
+  \[
+    \begin{bmatrix} 1 & 0 & 1 \\ 1 & 1 & 0 \\ 1 & 1 & 0 \end{bmatrix}
+    \quad \Rightarrow \quad
+    \mathbf{X}^{\prime} \mathbf{X} \text{ is singular}
+  \]
+
+  Result: OLS cannot compute $(\mathbf{X}^{\prime} \mathbf{X})^{-1}$. Software will either:
+  \begin{enumerate}
+    \item Throw an error (singular matrix)
+    \item Drop one dummy automatically (Stata, R do this)
+  \end{enumerate}
 
   \medskip
 
@@ -228,11 +253,19 @@
   \begin{keybox}
     \begin{itemize}
       \item Holding education, experience, and tenure constant, women earn \textbf{\$1.81 per hour less} than men (in 1976 dollars).
-      \item This is the \textbf{controlled gender wage gap} or \textbf{conditional} gap.
-      \item t-statistic for female: $t = -1.81 / 0.26 = -6.96$ (highly significant).
-      \item Causal interpretation requires assuming no omitted variables correlated with both female and wage.
+      \item This is the \textbf{controlled gender wage gap} or \textbf{conditional} gap — the part not explained by these three factors.
+      \item t-statistic for female: $t = -1.81 / 0.26 = -6.96$ (highly significant at any conventional level).
+      \item \textbf{Economic magnitude:} At mean wage of \$5.58/hr, this represents a $1.81/5.58 = 32.4\%$ wage penalty.
     \end{itemize}
   \end{keybox}
+
+  \medskip
+
+  \begin{highlightbox}
+    \textbf{Causality caveat:} Even with controls for educ, exper, tenure, causal interpretation requires $\mathbb{E}[u \mid \textit{female}, \textit{educ}, \textit{exper}, \textit{tenure}] = 0$.
+
+    Omitted factors (ability, motivation, occupational choice, discrimination) bias the estimate.
+  \end{highlightbox}
 
 \end{frame}
 
@@ -547,12 +580,19 @@
 
   \begin{keybox}
     \begin{itemize}
-      \item Base group: schools ranked outside top 100.
-      \item Top-10 schools: $\exp(0.700) - 1 \approx +1.01$ (approximately double salary!).
-      \item Ranks 11-25: $\exp(0.594) - 1 \approx +0.81$ (roughly double).
-      \item Clearly, law school ranking has enormous effect on starting salary.
+      \item Base group: schools ranked outside top 100 (median salary).
+      \item Top-10 schools: $\exp(0.700) - 1 \approx +101\%$ salary premium (median salary roughly doubles!).
+      \item Ranks 11-25: $\exp(0.594) - 1 \approx +81\%$ premium.
+      \item Ranks 26-40: $\exp(0.375) - 1 \approx +46\%$ premium.
+      \item Clear rank order: effect diminishes as ranking worsens (monotonic).
     \end{itemize}
   \end{keybox}
+
+  \medskip
+
+  \begin{highlightbox}
+    \textbf{Economic significance:} School ranking is the dominant determinant of starting salary (other variables like LSAT and GPA are much smaller). Controls for ability (LSAT, GPA) don't eliminate ranking effects → suggests \textit{signaling} or \textit{network effects}, not just ability.
+  \end{highlightbox}
 
 \end{frame}
 
@@ -777,9 +817,27 @@
 
   \medskip
 
-  \textbf{Null hypothesis:} $H_0: \delta_0 = \delta_1 = \cdots = \delta_k = 0$ (same regression for both groups).
+  \textbf{Null hypothesis:} $H_0: \delta_0 = \delta_1 = \cdots = \delta_k = 0$ (both groups follow the same regression).
 
-  \textbf{Under} $H_0$: $F \sim F_{k+1, n-2(k+1)}$.
+  \textbf{Under} $H_0$: $F \sim F_{k+1, n-2(k+1)}$ (F distribution with $k+1$ and $n-2(k+1)$ degrees of freedom).
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Intuition:} The Chow test asks: ``Is the pooled model (restriction) significantly worse than the group-specific models (unrestricted)?''
+
+    If $F$ is large, the groups are \textbf{very different} (different intercepts and/or slopes).
+
+    If $F$ is small, a single regression fits both groups well.
+  \end{keybox}
+
+  \medskip
+
+  \textbf{Two variants:}
+  \begin{itemize}
+    \item \textbf{Full Chow test:} Allow both intercepts and all slopes to differ ($k+1$ restrictions)
+    \item \textbf{Restricted Chow:} Allow only intercepts to differ; slopes same ($1$ restriction: test $\delta_0 = 0$ only)
+  \end{itemize}
 
 \end{frame}
 
@@ -793,13 +851,14 @@
 
   \medskip
 
-  \begin{examplebox}{Examples}
+  \begin{examplebox}{Examples of Binary Outcomes}
     \begin{itemize}
-      \item Arrested or not arrested (1 = arrested)
-      \item Employed or not (1 = employed)
-      \item Home ownership: yes or no (1 = owner)
-      \item College attendance: yes or no (1 = attended)
-      \item Loan approval: approved or denied (1 = approved)
+      \item Criminology: arrested or not arrested (1 = arrested)
+      \item Labor economics: employed or not (1 = employed)
+      \item Urban economics: home ownership: yes or no (1 = owner)
+      \item Education: college attendance: yes or no (1 = attended)
+      \item Finance: loan approval: approved or denied (1 = approved)
+      \item Health: disease present or absent (1 = present)
     \end{itemize}
   \end{examplebox}
 
@@ -809,32 +868,40 @@
 
   \medskip
 
-  \begin{keybox}
-    Yes! The model makes sense: $\E[y | x]$ = predicted probability of success.
+  \begin{highlightbox}
+    Yes! OLS still gives us \textbf{unbiased} estimates of the mean effect (MLR.1–4 sufficient).
 
-    But OLS has limitations when $y$ is binary (we'll explore these next).
+    The predicted value $\hat{y}$ can be interpreted as the \textbf{probability of success} given $x$.
+  \end{highlightbox}
+
+  \medskip
+
+  \begin{keybox}
+    But OLS has \textbf{three key limitations} when $y$ is binary. Understanding these motivates nonlinear methods (Probit, Logit — Chapter 17).
   \end{keybox}
 
 \end{frame}
 
 \begin{frame}[shrink=25]{The Linear Probability Model (LPM)}
 
-  \begin{definitionbox}{LPM Definition}
+  \begin{definitionbox}{Linear Probability Model (LPM)}
     \[
       y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u \quad \text{(eq.\ 7.27)}
     \]
 
-    where $y \in \{0, 1\}$ (binary).
+    where $y \in \{0, 1\}$ (binary outcome).
 
-    OLS estimates the conditional probability:
+    OLS estimates the \textbf{conditional probability}:
     \[
       \E[y | x] = P(y = 1 | x) = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k
     \]
+
+    This assumes $u \in \{-p(x), 1-p(x)\}$ where $p(x) = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k$.
   \end{definitionbox}
 
   \medskip
 
-  \textbf{Slope interpretation:} $\beta_j$ measures the change in \textbf{probability of success} when $x_j$ increases by one unit.
+  \textbf{Slope interpretation:} $\beta_j$ is the marginal effect on the probability of success.
 
   \medskip
 
@@ -843,7 +910,9 @@
       \Delta P(y=1|x) = \beta_j \, \Delta x_j \quad \text{(eq.\ 7.28)}
     \]
 
-    Example: If $\beta_j = 0.05$ and $x_j$ increases by 1, the probability of success \textit{increases by 5 percentage points}.
+    \textbf{Concrete example:} If $\beta_j = 0.05$ and $x_j$ increases by 1 unit, the probability of success \textit{increases by 5 percentage points}.
+
+    Compare to: if $y$ were continuous wage and $\beta_j = 0.05$, wage increases by \$0.05 per unit.
   \end{highlightbox}
 
 \end{frame}
@@ -855,29 +924,32 @@
   \medskip
 
   \begin{enumerate}
-    \item \textbf{Predicted probabilities can fall outside [0, 1].}
+    \item \textbf{Predicted probabilities can fall outside [0, 1] (nonsensical predictions).}
     \begin{itemize}
-      \item If $\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x_1 + \cdots < 0$ or $> 1$, the prediction is nonsensical.
-      \item Nonlinear models (Probit, Logit) constrain predictions to [0, 1] automatically.
+      \item Example: If $\hat{y} = 0.2 - 0.15 \times \text{age}$ and age = 5, then $\hat{y} = 0.2 - 0.75 = -0.55$ (impossible probability!).
+      \item Or if $\hat{\beta}_0 = 1.5$ and $\hat{\beta}_1 = 0.1$, at age = 100, $\hat{y} = 1.5 + 10 = 11.5$ (probability $> 1$).
+      \item Nonlinear models (Probit, Logit) constrain predictions to [0, 1] via sigmoid or CDF function.
     \end{itemize}
 
-    \vspace{0.2cm}
+    \vspace{0.3cm}
 
-    \item \textbf{The marginal effect must be constant.}
+    \item \textbf{Constant marginal effects are unrealistic.}
     \begin{itemize}
-      \item Probability changes linearly in $x$, but logically it should be slower at extremes.
-      \item True effects often have diminishing returns: harder to move probability from 0.9 to 1.0 than from 0.5 to 0.6.
+      \item LPM assumes $\partial P(y=1) / \partial x = \beta_j$ everywhere (constant line).
+      \item Reality: effects should flatten at extremes (diminishing returns).
+      \item Hard to go from 95\% success to 100\% by increasing $x$ (probability ceiling) vs. 50\% to 65\% (linear zone).
     \end{itemize}
 
-    \vspace{0.2cm}
+    \vspace{0.3cm}
 
-    \item \textbf{Inherent heteroskedasticity:}
+    \item \textbf{Inherent heteroskedasticity violates MLR.5:}
     \[
       \Var(u | x) = p(x) \cdot [1 - p(x)] \quad \text{(eq.\ 7.30)}
     \]
     \begin{itemize}
-      \item Variance depends on $x$ (not constant $\sigma^2$, so MLR.5 is violated).
-      \item Standard OLS standard errors are wrong; use robust SEs instead.
+      \item Variance is \textbf{largest} when $p(x) = 0.5$ (most uncertainty); \textbf{smallest} at extremes ($p \approx 0$ or 1).
+      \item OLS standard errors computed assuming $\Var(u) = \sigma^2$ (constant) are \textbf{incorrect}.
+      \item \textbf{Solution:} Use heteroskedasticity-robust standard errors (covered in Lecture 7).
     \end{itemize}
   \end{enumerate}
 
@@ -968,13 +1040,20 @@
 
   \medskip
 
-  \textbf{Challenge:} \textbf{Self-selection bias.}
+  \textbf{Challenge:} \textbf{Self-selection bias} (fundamental identification problem).
 
   \begin{keybox}
     \begin{itemize}
-      \item Workers who volunteer for training may be more motivated or have higher ability.
-      \item Simply comparing treated and untreated workers confounds the program effect with pre-existing differences.
-      \item Need regression adjustment to \textit{control} for observable differences.
+      \item Workers who volunteer for training may be more \textbf{motivated}, have higher \textbf{ability}, or expect greater \textbf{returns}.
+      \item Simply comparing trained vs. untrained confounds:
+      \[
+        \mathbb{E}[\text{earn} \mid \text{trained}] - \mathbb{E}[\text{earn} \mid \text{untrained}]
+      \]
+      \[
+        = \underbrace{\text{Training effect}}_{\text{what we want}} + \underbrace{\text{Selection bias}}_{\text{confounding}}
+      \]
+      \item Regression adjustment (conditioning on observables) can \textit{partially} control for selection.
+      \item But if training choice depends on unobservables (motivation, ability, expectations), bias remains.
     \end{itemize}
   \end{keybox}
 
