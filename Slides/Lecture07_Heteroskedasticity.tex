@@ -256,37 +256,33 @@
 
 \begin{frame}{Robust $t$ and $F$ Statistics}
 
-  Once we have robust SEs, all inference proceeds with the usual formulas:
+  Once we have robust SEs, all inference proceeds with the usual formulas.
 
-  \begin{highlightbox}
-    \textbf{Robust $t$-statistic:}
-    \[
-      t_{\text{rob}} = \frac{\hat{\beta}_j - \beta_j^0}{\widehat{\text{se}}_{\text{rob}}(\hat{\beta}_j)}
-      \overset{d}{\to} \mathcal{N}(0,1) \quad \text{under } H_0 \text{ as } n \to \infty
-    \]
-    Use same critical values as standard $t$-test.
-  \end{highlightbox}
+  \textbf{Robust $t$-statistic:}
+  \[
+    t_{\text{rob}} = \frac{\hat{\beta}_j - \beta_j^0}{\widehat{\text{se}}_{\text{rob}}(\hat{\beta}_j)}
+    \overset{d}{\to} \mathcal{N}(0,1) \quad \text{under } H_0, \; n \to \infty
+  \]
+  Same critical values as the standard $t$-test — only the SE changes.
 
   \smallskip
 
   \begin{highlightbox}
-    \textbf{Robust $F$-statistic (Wald form):}
-
-    For testing $q$ restrictions $H_0: \mathbf{R}\boldsymbol{\beta} = \mathbf{r}$:
+    \textbf{Robust $F$-statistic (Wald form)} — for $q$ restrictions $H_0: \mathbf{R}\boldsymbol{\beta} = \mathbf{r}$:
     \[
       F_{\text{rob}} = \frac{1}{q}(\mathbf{R}\hat{\boldsymbol{\beta}} - \mathbf{r})^{\prime}
       \bigl(\mathbf{R}\,\widehat{V}_{\text{rob}}\,\mathbf{R}^{\prime}\bigr)^{-1}
       (\mathbf{R}\hat{\boldsymbol{\beta}} - \mathbf{r})
       \overset{d}{\to} F_{q,\infty} \text{ under } H_0
     \]
-    where $\widehat{V}_{\text{rob}}$ is the robust variance-covariance matrix of $\hat{\boldsymbol{\beta}}$.
+    $\widehat{V}_{\text{rob}}$: robust variance-covariance matrix using White estimator block.
   \end{highlightbox}
 
 \end{frame}
 
-\begin{frame}[shrink=27]{Example 8.1: OLS vs.\ Robust SEs in Log Wage Equation}
+\begin{frame}{Example 8.1: OLS vs.\ Robust SEs — Log Wage Equation}
 
-  \textbf{Dataset:} WAGE1 ($n=526$). Compare OLS and robust SEs (in brackets).
+  \textbf{Dataset:} WAGE1 ($n=526$, $R^2=0.461$). Compare OLS SE (\ ) and robust SE [\ ].
 
   \begin{examplebox}{Log Wage Regression}
     \begin{center}
@@ -295,29 +291,38 @@
         \toprule
         Variable & Coef. & OLS SE \quad [Robust SE] \\
         \midrule
-        \textit{marrmale}  & $0.213$  & $(0.055)$ \quad $[0.057]$ \\
-        \textit{marrfem}   & $-0.198$ & $(0.058)$ \quad $[0.058]$ \\
-        \textit{singfem}   & $-0.110$ & $(0.056)$ \quad $[0.057]$ \\
-        \textit{educ}      & $0.0789$ & $(0.0067)$ \quad $[0.0074]$ \\
-        \textit{exper}     & $0.0268$ & $(0.0052)$ \quad $[0.0051]$ \\
+        \textit{marrmale}  & $0.213$    & $(0.055)$ \quad $[0.057]$ \\
+        \textit{marrfem}   & $-0.198$   & $(0.058)$ \quad $[0.058]$ \\
+        \textit{singfem}   & $-0.110$   & $(0.056)$ \quad $[0.057]$ \\
+        \textit{educ}      & $0.0789$   & $(0.0067)$ \quad $[0.0074]$ \\
+        \textit{exper}     & $0.0268$   & $(0.0052)$ \quad $[0.0051]$ \\
         $\textit{exper}^2$ & $-0.00054$ & $(0.00011)$ \quad $[0.00011]$ \\
-        \textit{tenure}    & $0.0291$ & $(0.0068)$ \quad $[0.0069]$ \\
+        \textit{tenure}    & $0.0291$   & $(0.0068)$ \quad $[0.0069]$ \\
         $\textit{tenure}^2$& $-0.00053$ & $(0.00023)$ \quad $[0.00024]$ \\
-        intercept          & $0.321$  & $(0.100)$ \quad $[0.109]$ \\
-        \midrule
-        \multicolumn{3}{l}{$R^2 = 0.461$} \\
+        intercept          & $0.321$    & $(0.100)$ \quad $[0.109]$ \\
         \bottomrule
       \end{tabular}
     \end{center}
   \end{examplebox}
 
+\end{frame}
+
+\begin{frame}{Example 8.1: Interpretation}
+
   \begin{keybox}
     \begin{itemize}
-      \item Robust SE for \textit{educ}: $0.0067 \to 0.0074$ (slightly larger — mild heteroskedasticity).
+      \item Robust SE for \textit{educ}: $0.0067 \to 0.0074$ (slightly larger — mild heteroskedasticity present).
       \item Most SEs are nearly identical — significance conclusions unchanged.
-      \item Lesson: always report robust SEs and check if they alter inference.
+      \item \textit{marrmale} premium: 21.3\% wage gap; \textit{marrfem} penalty: $-$19.8\%.
+      \item Lesson: always report robust SEs and verify they do not alter inference.
     \end{itemize}
   \end{keybox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    When OLS and robust SEs are close, heteroskedasticity is \textbf{mild}. When they diverge substantially, inference from usual SEs is unreliable — robust SEs are preferred.
+  \end{highlightbox}
 
 \end{frame}
 
@@ -352,7 +357,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=22]{Heteroskedasticity-Robust LM Test (\S8-2a)}
+\begin{frame}{Heteroskedasticity-Robust LM Test (\S8-2a)}
 
   \textbf{LM tests} can be made robust without matrix algebra.
 
@@ -360,22 +365,36 @@
     \textbf{Robust LM Test Procedure} (for testing $q$ exclusion restrictions):
     \begin{enumerate}
       \item Estimate the \textbf{restricted} model; save residuals $\tilde{u}_i$.
-      \item Regress each \textbf{excluded} variable on all \textbf{included} variables; save residuals $\tilde{r}_{i\ell}$ for $\ell=1,\ldots,q$.
-      \item Regress the constant \textbf{1} on $\tilde{r}_{i1}\tilde{u}_i, \ldots, \tilde{r}_{iq}\tilde{u}_i$ (no intercept); get $\SSR_0$.
+      \item Regress each \textbf{excluded} variable on all \textbf{included} variables; save residuals $\tilde{r}_{i\ell}$ for $\ell = 1,\ldots,q$.
+      \item Regress \textbf{1} on $\tilde{r}_{i1}\tilde{u}_i, \ldots, \tilde{r}_{iq}\tilde{u}_i$ (no intercept); get $\SSR_0$.
       \item $\text{Robust LM} = n - \SSR_0 \overset{d}{\to} \chi^2_q$ under $H_0$.
     \end{enumerate}
   \end{highlightbox}
 
   \smallskip
 
-  \begin{examplebox}{Example 8.3: Arrests (CRIME1)}
-    Test $H_0: \beta_{\textit{avgsen}} = \beta_{\textit{avgsen}^2} = 0$ in the arrest-rate equation.
+  \begin{keybox}
+    Key insight: the procedure uses products $\tilde{r}_{i\ell}\tilde{u}_i$ to ``orthogonalise'' the score. This makes the statistic valid under any form of heteroskedasticity — no variance model is assumed.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Example 8.3: Robust LM vs.\ Usual LM (CRIME1)}
+
+  \textbf{Dataset:} CRIME1 ($n=2725$). Test $H_0: \beta_{\textit{avgsen}} = \beta_{\textit{avgsen}^2} = 0$.
+
+  \begin{examplebox}{Arrest Rate Equation — LM Test Comparison}
     \begin{itemize}
-      \item Usual $LM = 3.52$ ($p\approx0.17$) — fail to reject
-      \item Robust $LM = 5.10$ ($p\approx0.078$) — borderline rejection at 10\%
-      \item Heteroskedasticity \textit{distorts} the usual LM test here.
+      \item Usual $LM = 3.52$ ($p \approx 0.17$) — \textcolor{positive}{\textbf{fail to reject}} $H_0$
+      \item Robust $LM = 5.10$ ($p \approx 0.078$) — \textcolor{negative}{\textbf{borderline reject}} at 10\%
     \end{itemize}
   \end{examplebox}
+
+  \smallskip
+
+  \begin{keybox}
+    Heteroskedasticity \textit{distorts} the usual LM test. The robust version detects evidence against $H_0$ that the usual test misses. Using the wrong test can lead to incorrect conclusions about which variables belong in the model.
+  \end{keybox}
 
 \end{frame}
 
@@ -469,23 +488,17 @@
 
 \end{frame}
 
-\begin{frame}[shrink=18]{Example 8.4: BP Test — Levels vs.\ Logs}
+\begin{frame}{Example 8.4: BP Test — Levels vs.\ Logs}
 
   \begin{columns}[t]
-    \column{0.50\textwidth}
+    \column{0.48\textwidth}
     \begin{examplebox}{Level Model (HPRICE1)}
-      \[
-        \widehat{\textit{price}} = -21.77
-      \]
-      \[
-        + 0.00207\,\textit{lotsize}
-      \]
-      \[
-        + 0.123\,\textit{sqrft} + 13.85\,\textit{bdrms}
-      \]
-      \[
-        n=88,\; R^2=0.672
-      \]
+      \begin{align*}
+        \widehat{\textit{price}} &= -21.77 + 0.00207\,\textit{lotsize} \\
+                                 &\quad + 0.123\,\textit{sqrft} + 13.85\,\textit{bdrms}
+      \end{align*}
+      $n=88$, $R^2=0.672$
+
       \smallskip
       BP $F = 5.34$, $p = 0.002$\\
       BP $LM = 14.09$, $p = 0.003$\\
@@ -493,20 +506,14 @@
       \textcolor{negative}{\textbf{Reject} $H_0$} — heteroskedastic.
     \end{examplebox}
 
-    \column{0.46\textwidth}
+    \column{0.48\textwidth}
     \begin{examplebox}{Log-Log Model (HPRICE1)}
-      \[
-        \widehat{\log(\textit{price})} = -1.30
-      \]
-      \[
-        + 0.168\log(\textit{lotsize})
-      \]
-      \[
-        + 0.700\log(\textit{sqrft}) + 0.037\,\textit{bdrms}
-      \]
-      \[
-        n=88,\; R^2=0.643
-      \]
+      \begin{align*}
+        \widehat{\log(\textit{price})} &= -1.30 + 0.168\log(\textit{lotsize}) \\
+                                       &\quad + 0.700\log(\textit{sqrft}) + 0.037\,\textit{bdrms}
+      \end{align*}
+      $n=88$, $R^2=0.643$
+
       \smallskip
       BP $F = 1.41$, $p = 0.245$\\
       BP $LM = 4.22$, $p = 0.239$\\
@@ -639,31 +646,25 @@
 
   \textbf{Divide the regression equation through by $\sqrt{h_i}$:}
 
+  Starting from (eq.\ 8.24): $y_i = \beta_0 + \beta_1 x_{i1} + \cdots + \beta_k x_{ik} + u_i$
+
   \smallskip
 
-  Starting from (eq.\ 8.24):
+  Dividing through gives the \textbf{transformed model} (eq.\ 8.25--8.26):
   \[
-    y_i = \beta_0 + \beta_1 x_{i1} + \cdots + \beta_k x_{ik} + u_i
+    y_i^* = \beta_0 x_{i0}^* + \beta_1 x_{i1}^* + \cdots + \beta_k x_{ik}^* + u_i^*
   \]
-
-  Dividing by $\sqrt{h_i}$ gives the \textbf{transformed model} (eq.\ 8.25--8.26):
-  \[
-    \underbrace{\frac{y_i}{\sqrt{h_i}}}_{y_i^*}
-    = \beta_0 \underbrace{\frac{1}{\sqrt{h_i}}}_{x_{i0}^*}
-    + \beta_1 \underbrace{\frac{x_{i1}}{\sqrt{h_i}}}_{x_{i1}^*}
-    + \cdots
-    + \underbrace{\frac{u_i}{\sqrt{h_i}}}_{u_i^*}
-  \]
+  where $y_i^* = y_i/\sqrt{h_i}$, \; $x_{ij}^* = x_{ij}/\sqrt{h_i}$, \; $x_{i0}^* = 1/\sqrt{h_i}$, \; $u_i^* = u_i/\sqrt{h_i}$.
 
   \smallskip
 
   \begin{highlightbox}
-    The transformed error satisfies:
+    \textbf{Proof that transformed model is homoskedastic:}
     \[
       \Var(u_i^* \mid x_i) = \frac{\Var(u_i \mid x_i)}{h_i} = \frac{\sigma^2 h_i}{h_i} = \sigma^2
-      \quad \text{(homoskedastic!)}
+      \quad \checkmark
     \]
-    \textbf{OLS on the transformed model is BLUE by Gauss-Markov.}
+    Since MLR.5 now holds for the transformed model, \textbf{OLS on the starred variables is BLUE} (Gauss-Markov).
   \end{highlightbox}
 
 \end{frame}
@@ -694,36 +695,46 @@
 
 \end{frame}
 
-\begin{frame}[shrink=25]{Example 8.6: Financial Wealth with WLS}
+\begin{frame}{Example 8.6: Financial Wealth with WLS}
 
-  \textbf{Setup:} Assume $\Var(u_i \mid \textit{inc}_i) = \sigma^2 \cdot \textit{inc}_i$, so $h_i = \textit{inc}_i$.
+  \textbf{Setup:} Assume $\Var(u_i \mid \textit{inc}_i) = \sigma^2 \cdot \textit{inc}_i$, so $h_i = \textit{inc}_i$. Dataset: 401KSUBS.
 
-  \begin{examplebox}{Financial Wealth Equations (401KSUBS)}
-    \footnotesize
+  \begin{examplebox}{Financial Wealth Equations (SEs in parentheses)}
     \begin{center}
+      \footnotesize
       \begin{tabular}{lcc}
         \toprule
         Variable & OLS & WLS ($w_i = 1/\textit{inc}_i$) \\
         \midrule
-        \textit{inc} & 0.821\;(0.104) & 0.787\;(0.063) \\
-        intercept & $-10.57$\;(2.53) & $-9.58$\;(1.65) \\
+        \textit{inc} (simple) & $0.821\;(0.104)$ & $0.787\;(0.063)$ \\
+        intercept             & $-10.57\;(2.53)$ & $-9.58\;(1.65)$ \\
         \midrule
-        \textit{inc} (expanded) & 0.771\;(0.100) & 0.740\;(0.064) \\
-        $(\textit{age}-25)^2$ & 0.0251\;(0.0043) & 0.0175\;(0.0019) \\
-        \textit{male} & 2.48\;(2.06) & 1.84\;(1.56) \\
-        \textit{e401k} & 6.89\;(2.29) & 5.19\;(1.70) \\
+        \textit{inc} (expanded) & $0.771\;(0.100)$ & $0.740\;(0.064)$ \\
+        $(\textit{age}-25)^2$   & $0.0251\;(0.0043)$ & $0.0175\;(0.0019)$ \\
+        \textit{male}           & $2.48\;(2.06)$ & $1.84\;(1.56)$ \\
+        \textit{e401k}          & $6.89\;(2.29)$ & $5.19\;(1.70)$ \\
         \bottomrule
       \end{tabular}
     \end{center}
   \end{examplebox}
 
+\end{frame}
+
+\begin{frame}{Example 8.6: Interpretation — WLS vs.\ OLS}
+
   \begin{keybox}
     \begin{itemize}
-      \item WLS standard errors are consistently \textbf{smaller} — efficiency gain from correct weighting.
-      \item 401(k) eligibility coefficient drops from 6.89 (OLS) to 5.19 (WLS) — \textit{economically meaningful}.
-      \item WLS is preferred here assuming $\Var(u \mid \textit{inc}) \propto \textit{inc}$.
+      \item WLS SEs are \textbf{uniformly smaller} — efficiency gain from correct weighting.
+      \item 401(k) eligibility (\textit{e401k}): coefficient drops from 6.89 (OLS) to 5.19 (WLS) — \textit{economically meaningful} (roughly \$1,700 wealth difference).
+      \item WLS relies on the assumption $\Var(u \mid \textit{inc}) \propto \textit{inc}$. If wrong, efficiency advantage disappears.
     \end{itemize}
   \end{keybox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    \textbf{Caution:} If the variance function $h_i$ is misspecified, always report \textbf{robust WLS SEs} rather than conventional WLS SEs to protect against invalid inference.
+  \end{highlightbox}
 
 \end{frame}
 
@@ -775,23 +786,23 @@
 
 \end{frame}
 
-\begin{frame}[shrink=28]{Example 8.7: Cigarette Demand — OLS vs.\ FGLS}
+\begin{frame}{Example 8.7: Cigarette Demand — OLS vs.\ FGLS}
 
-  \textbf{Dataset:} SMOKE ($n=807$). BP test: $LM=32.3$ ($p\approx 0$) — strong heteroskedasticity.
+  \textbf{Dataset:} SMOKE ($n=807$). BP test: $LM=32.3$ ($p\approx 0$) — strong heteroskedasticity confirmed.
 
-  \begin{examplebox}{Cigarette Demand: OLS vs. FGLS}
-    \footnotesize
+  \begin{examplebox}{Cigarette Demand: OLS vs. FGLS (SEs in parentheses)}
     \begin{center}
+      \footnotesize
       \begin{tabular}{lcc}
         \toprule
         Variable & OLS & FGLS \\
         \midrule
-        $\log(\textit{income})$ & $0.880\;(0.728)$ & $1.30\;(0.44)$ \\
+        $\log(\textit{income})$   & $0.880\;(0.728)$  & $1.30\;(0.44)$ \\
         $\log(\textit{cigprice})$ & $-0.751\;(5.773)$ & $-2.94\;(4.46)$ \\
-        $\textit{educ}$ & $-0.501\;(0.167)$ & $-0.463\;(0.120)$ \\
-        $\textit{age}$ & $0.771\;(0.160)$ & $0.482\;(0.097)$ \\
-        $\textit{age}^2$ & $-0.0090\;(0.0017)$ & $-0.0056\;(0.0009)$ \\
-        $\textit{restaurn}$ & $-2.83\;(1.11)$ & $-3.46\;(0.80)$ \\
+        \textit{educ}             & $-0.501\;(0.167)$ & $-0.463\;(0.120)$ \\
+        \textit{age}              & $0.771\;(0.160)$  & $0.482\;(0.097)$ \\
+        $\textit{age}^2$          & $-0.0090\;(0.0017)$ & $-0.0056\;(0.0009)$ \\
+        \textit{restaurn}         & $-2.83\;(1.11)$   & $-3.46\;(0.80)$ \\
         \midrule
         $R^2$ & 0.053 & 0.113 \\
         \bottomrule
@@ -799,13 +810,24 @@
     \end{center}
   \end{examplebox}
 
+\end{frame}
+
+\begin{frame}{Example 8.7: Interpretation — FGLS Efficiency Gains}
+
   \begin{keybox}
     \begin{itemize}
-      \item FGLS standard errors are \textbf{uniformly smaller} — efficiency gain from re-weighting.
-      \item Income elasticity doubles from 0.88 to 1.30 (more precisely estimated under FGLS).
-      \item Restaurant restrictions: $-3.46$ cigarettes/day (larger and more precisely estimated).
+      \item FGLS SEs are \textbf{uniformly smaller} — substantial efficiency gain from re-weighting.
+      \item Income elasticity: $0.880 \to 1.30$ (FGLS more precise and estimate shifts — OLS was noisy).
+      \item Restaurant smoking restrictions: $-3.46$ cigs/day under FGLS vs.\ $-2.83$ OLS — larger and more precise.
+      \item $R^2$ nearly doubles: $0.053 \to 0.113$ — FGLS fits the weighted data much better.
     \end{itemize}
   \end{keybox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    When heteroskedasticity is \textbf{strong} (BP $p \approx 0$), FGLS can dramatically improve efficiency and even shift point estimates. But remember: FGLS requires correct specification of $h(x)$.
+  \end{highlightbox}
 
 \end{frame}
 
@@ -868,27 +890,30 @@
 
 \end{frame}
 
-\begin{frame}[shrink=25]{Example 8.8: Married Women's Labor Force Participation}
+\begin{frame}{Example 8.8: Married Women's Labor Force Participation}
 
   \textbf{Dataset:} MROZ ($n=753$). $y = \textit{inlf}$ (1 = in labor force).
 
   \begin{examplebox}{LPM for Labor Force Participation}
-    \[
-      \widehat{\textit{inlf}} = 0.586 - 0.0034\,\textit{nwifeinc} + 0.038\,\textit{educ} + 0.039\,\textit{exper}
-    \]
-    \[
-      (0.154)\;\;(0.0014)\qquad\quad(0.007)\quad(0.006)
-    \]
-    \[
-      [0.151]\;\;[0.0015]\qquad\quad[0.007]\quad[0.006]
-    \]
-    \[
-      - 0.00060\,\textit{exper}^2 - 0.016\,\textit{age} - 0.262\,\textit{kidslt6} + 0.013\,\textit{kidsge6}
-    \]
-    \[
-      n=753,\quad R^2=0.264
-    \]
-    \footnotesize OLS SEs in (\ ); robust SEs in [\ ]
+    \begin{center}
+      \footnotesize
+      \begin{tabular}{lcc}
+        \toprule
+        Variable & Coef. & OLS SE \quad [Robust SE] \\
+        \midrule
+        \textit{nwifeinc} & $-0.0034$ & $(0.0014)$ \quad $[0.0015]$ \\
+        \textit{educ}     & $0.038$   & $(0.007)$ \quad $[0.007]$ \\
+        \textit{exper}    & $0.039$   & $(0.006)$ \quad $[0.006]$ \\
+        $\textit{exper}^2$& $-0.00060$ & $(0.00012)$ \quad $[0.00012]$ \\
+        \textit{age}      & $-0.016$  & $(0.002)$ \quad $[0.002]$ \\
+        \textit{kidslt6}  & $-0.262$  & $(0.034)$ \quad $[0.034]$ \\
+        \textit{kidsge6}  & $0.013$   & $(0.013)$ \quad $[0.013]$ \\
+        intercept         & $0.586$   & $(0.154)$ \quad $[0.151]$ \\
+        \midrule
+        \multicolumn{3}{l}{$n=753$, $R^2=0.264$} \\
+        \bottomrule
+      \end{tabular}
+    \end{center}
   \end{examplebox}
 
   \begin{keybox}
@@ -902,7 +927,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 8.9: PC Ownership — OLS vs.\ WLS for LPM}
+\begin{frame}{Example 8.9: PC Ownership — OLS vs.\ WLS for LPM}
 
   \textbf{Dataset:} GPA1 ($n=141$). $y = \textit{PC}$ (1 = owns computer).
 
@@ -938,97 +963,85 @@
 \section{Summary and Decision Framework}
 %% ============================================================
 
-\begin{frame}{Three-Step Decision Framework}
+\begin{frame}[shrink=8]{Three-Step Decision Framework}
 
   \begin{highlightbox}
-    \textbf{Step 1 — Always estimate by OLS first.}
+    \textbf{Step 1 — Estimate by OLS; report with robust SEs.}
 
-    Report OLS estimates with \textbf{heteroskedasticity-robust SEs}.
+    OLS is unbiased and consistent under MLR.1--4. Robust SEs ensure valid inference regardless of $\sigma_i^2$.
 
-    OLS is unbiased and consistent under MLR.1--4. Robust SEs ensure valid inference.
-  \end{highlightbox}
+    \smallskip
 
-  \smallskip
-
-  \begin{highlightbox}
     \textbf{Step 2 — Test for heteroskedasticity (optional but informative).}
 
-    Run \textbf{BP test} ($\chi^2_k$) and/or \textbf{White test} ($\chi^2_2$ in special case).
+    Run BP test ($\chi^2_k$) and/or White special case ($\chi^2_2$). If rejected, proceed to Step 3.
 
-    If rejected: proceed to Step 3. If not: OLS + usual SEs suffices (but robust SEs still safe).
-  \end{highlightbox}
+    \smallskip
 
-  \smallskip
-
-  \begin{highlightbox}
-    \textbf{Step 3 — Pursue efficiency if heteroskedasticity is confirmed.}
+    \textbf{Step 3 — Pursue efficiency if heteroskedasticity confirmed.}
     \begin{itemize}
-      \item Known $h_i$: use WLS with usual WLS SEs.
-      \item Unknown $h_i$: use FGLS with \textbf{robust} WLS SEs.
-      \item Completely unknown form: stay with OLS + robust SEs.
+      \item \textit{Known} $h_i$: use WLS with conventional WLS SEs.
+      \item \textit{Estimated} $h_i$: use FGLS with \textbf{robust} WLS SEs.
+      \item \textit{Unknown form}: stay with OLS + robust SEs.
     \end{itemize}
   \end{highlightbox}
 
 \end{frame}
 
-\begin{frame}{Key Concepts Reviewed}
+\begin{frame}[shrink=8]{Key Concepts Reviewed}
 
   \begin{keybox}
-    \textbf{The Problem:} Heteroskedasticity ($\sigma_i^2 \neq \sigma^2$) does not bias $\hat{\beta}_j$ but invalidates standard errors and test statistics.
-  \end{keybox}
+    \textbf{The Problem:} Heteroskedasticity ($\sigma_i^2 \neq \sigma^2$) leaves $\hat{\beta}_j$ unbiased but invalidates SEs and tests (MLR.5 violated).
 
-  \smallskip
+    \smallskip
+    \textbf{Fix for Inference:} White robust SE — $\widehat{\Var}(\hat{\beta}_j) = \sum_i \hat{r}_{ij}^2 \hat{u}_i^2 / \SSR_j^2$ — consistent under any $\sigma_i^2$.
 
-  \begin{keybox}
-    \textbf{The Fix for Inference:} Robust (White) SEs — valid asymptotically under any heteroskedasticity. Formula: $\widehat{\Var}(\hat{\beta}_j) = \sum_i \hat{r}_{ij}^2 \hat{u}_i^2 / \SSR_j^2$.
-  \end{keybox}
+    \smallskip
+    \textbf{Testing:} BP test ($\hat{u}^2$ on $x_j$, $\chi^2_k$) or White special case ($\hat{u}^2$ on $\hat{y}, \hat{y}^2$, $\chi^2_2$).
 
-  \smallskip
-
-  \begin{keybox}
-    \textbf{Testing:} BP ($\hat{u}^2$ on $x_j$, $\chi^2_k$) or White ($\hat{u}^2$ on $\hat{y}, \hat{y}^2$, $\chi^2_2$).
-  \end{keybox}
-
-  \smallskip
-
-  \begin{keybox}
-    \textbf{The Fix for Efficiency:} WLS/FGLS — achieves BLUE if $h_i$ correctly specified. Requires variance function $h_i = \Var(u_i \mid x_i)/\sigma^2$ known or estimated.
+    \smallskip
+    \textbf{Fix for Efficiency:} WLS/FGLS achieves BLUE when $h_i = \Var(u_i \mid x_i)/\sigma^2$ is correctly specified. Use robust WLS SEs when $h_i$ is estimated.
   \end{keybox}
 
 \end{frame}
 
 \begin{frame}{Bridge to Lecture 8: Specification and Data Issues}
 
-  \begin{highlightbox}
-    \textbf{Lecture 7 (today)} — violation of MLR.5 only:
-    \begin{itemize}
-      \item OLS is still unbiased and consistent
-      \item Only inference (SEs, tests) is affected
-      \item Fix: robust SEs or WLS
-    \end{itemize}
-  \end{highlightbox}
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+    \begin{highlightbox}
+      \textbf{Lecture 7 (today)} \\
+      MLR.5 violated only:
+      \begin{itemize}
+        \item OLS is still unbiased and consistent
+        \item Only SEs and tests are affected
+        \item Fix: robust SEs or WLS
+      \end{itemize}
+    \end{highlightbox}
 
-  \smallskip
-
-  \begin{highlightbox}
-    \textbf{Lecture 8 (Chapter 9)} — violation of MLR.4 ($\E[u \mid x] \neq 0$):
-    \begin{itemize}
-      \item \textbf{Omitted variable bias} — $\hat{\beta}_j$ is biased and inconsistent
-      \item \textbf{Functional form misspecification} — RESET test
-      \item \textbf{Measurement error} — attenuation bias
-      \item \textbf{Missing data and selection} — selection bias
-    \end{itemize}
-  \end{highlightbox}
+    \column{0.48\textwidth}
+    \begin{highlightbox}
+      \textbf{Lecture 8 (Chapter 9)} \\
+      MLR.4 violated ($\E[u \mid x] \neq 0$):
+      \begin{itemize}
+        \item Omitted variable bias
+        \item Functional form misspecification
+        \item Measurement error (attenuation)
+        \item Missing data / selection bias
+      \end{itemize}
+    \end{highlightbox}
+  \end{columns}
 
   \smallskip
 
   \begin{keybox}
+    \small
     \begin{tabular}{lll}
       \toprule
       Lecture & Assumption violated & Effect on OLS \\
       \midrule
-      7 (today) & MLR.5 only & Biased SEs; consistent $\hat{\beta}$ \\
-      8 (next)  & MLR.4       & Biased and inconsistent $\hat{\beta}$ \\
+      7 (today) & MLR.5 only & Biased SEs; $\hat{\beta}$ consistent \\
+      8 (next)  & MLR.4      & $\hat{\beta}$ biased and inconsistent \\
       \bottomrule
     \end{tabular}
   \end{keybox}
