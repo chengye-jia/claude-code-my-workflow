@@ -106,6 +106,18 @@ After commit `f781684`, user made manual edits to `LectureS3_BinaryChoice_Semipa
 
 **Status:** Compiled cleanly, ready for review/commit. Not yet committed.
 
+## Lecture08 overflow fixes (post-commit)
+
+After commit `a00881d`, ran overflow audit. Found 43 overfull warnings (worst 92.8pt). Applied `[shrink=N]` to 38 frames with overflow >10pt, scaled by magnitude:
+- 75-95pt → shrink=30 (2 frames)
+- 55-75pt → shrink=25 (4 frames)
+- 40-55pt → shrink=20 (8 frames)
+- 25-40pt → shrink=15 (11 frames)
+- 15-25pt → shrink=10 (9 frames)
+- 10-15pt → shrink=5 (4 frames)
+
+Reduced 43 → 5 cosmetic warnings (all <10pt). 61 pages, 0 errors. Edits pending commit.
+
 ---
 
 ## Resume instructions for next session

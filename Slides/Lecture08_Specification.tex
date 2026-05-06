@@ -30,7 +30,7 @@
 \section{Functional Form Misspecification (\S9-1)}
 %% ============================================================
 
-\begin{frame}{Where We Are}
+\begin{frame}[shrink=15]{Where We Are}
 
   \textbf{Chapter 8} dealt with one Gauss--Markov failure: \textbf{heteroskedasticity}.
   This was a mild problem: OLS remained \textbf{unbiased and consistent}, only inference
@@ -59,7 +59,7 @@
 
 \end{frame}
 
-\begin{frame}{Functional Form Misspecification: Definition}
+\begin{frame}[shrink=30]{Functional Form Misspecification: Definition}
 
   \begin{definitionbox}{Functional Form Misspecification}
     A multiple regression suffers from \textbf{functional form misspecification}
@@ -168,7 +168,7 @@
 
 \end{frame}
 
-\begin{frame}{The RESET Test}
+\begin{frame}[shrink=10]{The RESET Test}
 
   Adding quadratics is one approach but uses up many degrees of freedom.
   A more general test: \textbf{Ramsey's RESET (1969)}.
@@ -191,7 +191,7 @@
 
 \end{frame}
 
-\begin{frame}{The RESET Statistic}
+\begin{frame}[shrink=10]{The RESET Statistic}
 
   Let $\hat{y}$ be OLS fitted values from the original model.
   Estimate the \textbf{augmented regression}:
@@ -374,7 +374,7 @@
 
 \end{frame}
 
-\begin{frame}{The Proxy Variable Idea}
+\begin{frame}[shrink=20]{The Proxy Variable Idea}
 
   \begin{definitionbox}{Proxy Variable}
     A \textbf{proxy variable} is something \emph{related to} the unobserved variable, used
@@ -404,7 +404,7 @@
 
 \end{frame}
 
-\begin{frame}{The Plug-in Solution}
+\begin{frame}[shrink=15]{The Plug-in Solution}
 
   \begin{definitionbox}{Plug-in Solution to Omitted Variables}
     Pretend that $x_3$ and $x_3^*$ are the same. Run:
@@ -432,7 +432,7 @@
 
 \end{frame}
 
-\begin{frame}{Why the Plug-in Solution Works}
+\begin{frame}[shrink=10]{Why the Plug-in Solution Works}
 
   Plug \eqref{eq:proxy} into the model:
   \[
@@ -497,7 +497,7 @@
 
 \end{frame}
 
-\begin{frame}{When the Proxy Is Imperfect}
+\begin{frame}[shrink=10]{When the Proxy Is Imperfect}
 
   Suppose the proxy depends on the other regressors:
   \[
@@ -526,7 +526,7 @@
 
 \end{frame}
 
-\begin{frame}{Lagged Dependent Variables as Proxies (\S9-2a)}
+\begin{frame}[shrink=15]{Lagged Dependent Variables as Proxies (\S9-2a)}
 
   \textbf{Sometimes we don't even have a candidate proxy.} A useful alternative:
   \textbf{the lagged dependent variable}.
@@ -551,7 +551,7 @@
 
 \end{frame}
 
-\begin{frame}{Crime Rate Estimates (CRIME2, $n = 46$ cities)}
+\begin{frame}[shrink=20]{Crime Rate Estimates (CRIME2, $n = 46$ cities)}
 
   \begin{center}\footnotesize
   \begin{tabular}{l|cc}
@@ -585,7 +585,7 @@
 
 \end{frame}
 
-\begin{frame}{A Different Slant on Multiple Regression (\S9-2b)}
+\begin{frame}[shrink=20]{A Different Slant on Multiple Regression (\S9-2b)}
 
   \textbf{Alternative interpretation of regression with proxies:}
 
@@ -617,7 +617,7 @@
 \section{Models with Random Slopes (\S9-3)}
 %% ============================================================
 
-\begin{frame}{The Random Slopes Model}
+\begin{frame}[shrink=25]{The Random Slopes Model}
 
   Until now, we have assumed all individuals share the same slope $\beta_j$.
   What if the slope varies across the population by \textbf{unobservable} characteristics?
@@ -644,7 +644,7 @@
 
 \end{frame}
 
-\begin{frame}{When OLS Still Works}
+\begin{frame}[shrink=20]{When OLS Still Works}
 
   Write $a_i = \alpha + c_i$, $b_i = \beta + d_i$ with $\E(c_i) = 0$, $\E(d_i) = 0$.
   Substituting into (9.17):
@@ -675,7 +675,7 @@
 
 \end{frame}
 
-\begin{frame}{Random Slopes: Practical Takeaway}
+\begin{frame}[shrink=5]{Random Slopes: Practical Takeaway}
 
   \begin{keybox}
     \textbf{Key result:} If we just want to estimate the \textbf{average partial effect}
@@ -704,7 +704,7 @@
 \section{Properties of OLS under Measurement Error (\S9-4)}
 %% ============================================================
 
-\begin{frame}{Measurement Error: The Issue}
+\begin{frame}[shrink=20]{Measurement Error: The Issue}
 
   Sometimes we cannot collect data on the variable that truly affects economic behavior.
 
@@ -728,7 +728,7 @@
 
 \end{frame}
 
-\begin{frame}{Measurement Error in the Dependent Variable (\S9-4a)}
+\begin{frame}[shrink=15]{Measurement Error in the Dependent Variable (\S9-4a)}
 
   Let $y^*$ be the true variable, $y$ be the observed (measured) variable. The
   \textbf{measurement error} is
@@ -760,7 +760,7 @@
 
 \end{frame}
 
-\begin{frame}{Example 9.5: Savings Function}
+\begin{frame}[shrink=25]{Example 9.5: Savings Function}
 
   Consider a savings function:
   \[
@@ -789,7 +789,7 @@
 
 \end{frame}
 
-\begin{frame}{Measurement Error in an Explanatory Variable (\S9-4b)}
+\begin{frame}[shrink=30]{Measurement Error in an Explanatory Variable (\S9-4b)}
 
   Now the \textbf{important} case. Let $x_1^*$ be true, $x_1$ observed:
   \[
@@ -822,7 +822,7 @@
 
 \end{frame}
 
-\begin{frame}{The Attenuation Bias under CEV}
+\begin{frame}[shrink=15]{The Attenuation Bias under CEV}
 
   Under CEV: $x_1 = x_1^* + e_1$ with $\Cov(x_1^*, e_1) = 0$. Then:
   \[
@@ -852,7 +852,7 @@
 
 \end{frame}
 
-\begin{frame}{How Big Is the Attenuation?}
+\begin{frame}[shrink=10]{How Big Is the Attenuation?}
 
   Define the \textbf{signal-to-noise ratio} $r = \sigma_{x_1^*}^2 / \sigma_{e_1}^2$.
 
@@ -885,7 +885,7 @@
 
 \end{frame}
 
-\begin{frame}{Multiple Regression with CEV}
+\begin{frame}[shrink=15]{Multiple Regression with CEV}
 
   Suppose only $x_1^*$ is mismeasured:
   \[
@@ -911,7 +911,7 @@
 
 \end{frame}
 
-\begin{frame}{Example 9.7: GPA Equation with Measurement Error}
+\begin{frame}[shrink=15]{Example 9.7: GPA Equation with Measurement Error}
 
   Suppose true model:
   \[
@@ -944,7 +944,7 @@
 \section{Missing Data, Nonrandom Samples, Outliers (\S9-5)}
 %% ============================================================
 
-\begin{frame}{Missing Data (\S9-5a)}
+\begin{frame}[shrink=15]{Missing Data (\S9-5a)}
 
   \begin{definitionbox}{Three Types of Missingness}
     \begin{enumerate}\setlength{\itemsep}{2pt}
@@ -970,7 +970,7 @@
 
 \end{frame}
 
-\begin{frame}{The Missing Indicator Method (MIM)}
+\begin{frame}[shrink=15]{The Missing Indicator Method (MIM)}
 
   Suppose only $x_k$ is sometimes missing. \textbf{MIM creates two new variables:}
   \begin{itemize}\setlength{\itemsep}{1pt}
@@ -1022,7 +1022,7 @@
 
 \end{frame}
 
-\begin{frame}{Nonrandom Samples (\S9-5b)}
+\begin{frame}[shrink=10]{Nonrandom Samples (\S9-5b)}
 
   Even without missing data, the \textbf{sample itself} may be nonrandomly selected.
 
@@ -1048,7 +1048,7 @@
 
 \end{frame}
 
-\begin{frame}{Sample Selection: Examples}
+\begin{frame}[shrink=25]{Sample Selection: Examples}
 
   \begin{examplebox}{Exogenous Selection: Saving Study}
     \[
@@ -1098,7 +1098,7 @@
 
 \end{frame}
 
-\begin{frame}{Outliers and Influential Observations (\S9-5c)}
+\begin{frame}[shrink=5]{Outliers and Influential Observations (\S9-5c)}
 
   \begin{definitionbox}{Outlier vs. Influential Observation}
     \begin{itemize}\setlength{\itemsep}{2pt}
@@ -1123,7 +1123,7 @@
 
 \end{frame}
 
-\begin{frame}{Example 9.8: R\&D Intensity and Firm Size (RDCHEM)}
+\begin{frame}[shrink=5]{Example 9.8: R\&D Intensity and Firm Size (RDCHEM)}
 
   Data: 32 chemical companies, $rdintens$ = R\&D as \% of sales, $sales$ in millions.
 
@@ -1149,7 +1149,7 @@
 
 \end{frame}
 
-\begin{frame}{Detecting Outliers: Studentized Residuals}
+\begin{frame}[shrink=10]{Detecting Outliers: Studentized Residuals}
 
   Are large residuals a reliable sign of outliers? \textbf{Not directly.}
 
@@ -1173,7 +1173,7 @@
 
 \end{frame}
 
-\begin{frame}{Studentized Residuals: Caveats}
+\begin{frame}[shrink=15]{Studentized Residuals: Caveats}
 
   \textbf{In Example 9.8} (32 firms):
   \begin{itemize}\setlength{\itemsep}{1pt}
@@ -1202,7 +1202,7 @@
 
 \end{frame}
 
-\begin{frame}{Example 9.10: Infant Mortality (INFMRT)}
+\begin{frame}[shrink=15]{Example 9.10: Infant Mortality (INFMRT)}
 
   $n = 51$ states + DC. All variables in logs:
   \[
@@ -1231,7 +1231,7 @@
 
 \end{frame}
 
-\begin{frame}{Functional Form and Outlier Sensitivity}
+\begin{frame}[shrink=20]{Functional Form and Outlier Sensitivity}
 
   Some functional forms are \textbf{less sensitive} to outliers.
 
@@ -1291,7 +1291,7 @@
 
 \end{frame}
 
-\begin{frame}{LAD vs.\ OLS: Visual Comparison}
+\begin{frame}[shrink=20]{LAD vs.\ OLS: Visual Comparison}
 
   \begin{center}
   \begin{tikzpicture}[scale=0.95]
@@ -1320,7 +1320,7 @@
 
 \end{frame}
 
-\begin{frame}{LAD Estimates the Conditional Median}
+\begin{frame}[shrink=10]{LAD Estimates the Conditional Median}
 
   \begin{definitionbox}{LAD and the Conditional Median}
     OLS estimates the \textbf{conditional mean}: $\E(y \mid x_1, \ldots, x_k)$.
@@ -1346,7 +1346,7 @@
 
 \end{frame}
 
-\begin{frame}{LAD: Computation and Inference}
+\begin{frame}[shrink=20]{LAD: Computation and Inference}
 
   \begin{keybox}
     \textbf{Computation:}
@@ -1400,7 +1400,7 @@
 
 \end{frame}
 
-\begin{frame}{Quantile Regression Generalization}
+\begin{frame}[shrink=25]{Quantile Regression Generalization}
 
   LAD estimates the \textbf{conditional median}. We can generalize to other quantiles.
 
@@ -1461,7 +1461,7 @@
 
 \end{frame}
 
-\begin{frame}{Chapter 9 Summary}
+\begin{frame}[shrink=20]{Chapter 9 Summary}
 
   \begin{highlightbox}
     \textbf{Specification problems and solutions:}
@@ -1487,7 +1487,7 @@
 
 \end{frame}
 
-\begin{frame}{Looking Ahead}
+\begin{frame}[shrink=15]{Looking Ahead}
 
   \begin{keybox}
     \textbf{Limitation of Chapter 9:} All solutions here use \textbf{OLS on a single
