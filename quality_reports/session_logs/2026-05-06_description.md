@@ -83,6 +83,29 @@ Report saved to `quality_reports/LectureS3_BinaryChoice_Semiparametric_report.md
 - `quality_reports/session_logs/2026-05-06_lectureS3-creation-and-terminology.md`
 - This file
 
+## Post-commit update
+
+After commit `f781684`, user made manual edits to `LectureS3_BinaryChoice_Semiparametric.tex` and requested recompile. PDF re-output: 165 pages, 0 errors. Working tree now has uncommitted edits to the .tex (user-made, not yet inspected).
+
+## Lecture08_Specification creation (later in session)
+
+**Goal:** Create undergraduate slides for Wooldridge Chapter 9 (More on Specification and Data Issues).
+
+**File:** `Slides/Lecture08_Specification.tex` — 61 PDF pages, 0 errors.
+
+**Structure (mirrors Wooldridge Ch.9 exactly):**
+- §9-1 Functional Form Misspecification (RESET, Davidson-MacKinnon) — examples 9.1 Crime, 9.2 Housing
+- §9-2 Proxy Variables (plug-in, lagged $y$) — example 9.3 IQ-as-proxy (WAGE2)
+- §9-3 Random Slopes
+- §9-4 Measurement Error (in $y$ vs $x$, CEV, attenuation bias) — examples 9.5, 9.7
+- §9-5 Missing Data (MCAR, MIM), Nonrandom Samples, Outliers (studentized residuals) — examples 9.8 RDCHEM, 9.10 INFMRT
+- §9-6 LAD with quantile regression generalization
+- Decision tree summary + course outlook
+
+**Style:** English, 12pt, aspectratio=169, matches Lecture07_Heteroskedasticity preamble. No R code per user request. Wooldridge standard datasets used throughout.
+
+**Status:** Compiled cleanly, ready for review/commit. Not yet committed.
+
 ---
 
 ## Resume instructions for next session

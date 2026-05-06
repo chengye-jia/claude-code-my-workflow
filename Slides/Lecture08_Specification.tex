@@ -1,0 +1,1517 @@
+%% ============================================================
+%% Lecture 8: More on Specification and Data Issues
+%% Intermediate Econometrics — SUFE
+%% Wooldridge, Introductory Econometrics, 8th edition, Chapter 9
+%% ============================================================
+\documentclass[aspectratio=169, 12pt]{beamer}
+\input{header}
+
+\title[L8: Specification \& Data Issues]{More on Specification and Data Issues}
+\subtitle{Intermediate Econometrics}
+\author[SUFE Econometrics]{Chengye Jia}
+\institute{%
+  Department of Economics \\
+  Shandong University of Finance and Economics}
+\date{Spring 2026 \\ \smallskip \scriptsize Wooldridge, Chapter 9}
+
+%% ============================================================
+\begin{document}
+%% ============================================================
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}[shrink=10]{Outline}
+  \tableofcontents
+\end{frame}
+
+%% ============================================================
+\section{Functional Form Misspecification (\S9-1)}
+%% ============================================================
+
+\begin{frame}{Where We Are}
+
+  \textbf{Chapter 8} dealt with one Gauss--Markov failure: \textbf{heteroskedasticity}.
+  This was a mild problem: OLS remained \textbf{unbiased and consistent}, only inference
+  needed adjustment.
+
+  \begin{keybox}
+    \textbf{Chapter 9 returns to a much more serious problem:} \textbf{correlation between $u$
+    and one or more explanatory variables} ($\Cov(x_j, u) \neq 0$). This causes
+    \textbf{bias and inconsistency in all OLS estimators}.
+  \end{keybox}
+
+  \textbf{Three main reasons $x_j$ can be endogenous} (this chapter):
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{Functional form misspecification} (§9-1) — omitting nonlinear terms
+    \item \textbf{Omitted variables} (§9-2) — addressed via \emph{proxy variables}
+    \item \textbf{Measurement error} (§9-4) — biases of known sign
+  \end{enumerate}
+
+  \smallskip
+  Plus three \textbf{data problems}:
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Missing data (§9-5a)
+    \item Nonrandom sampling (§9-5b)
+    \item Outliers and the LAD alternative (§9-5c, §9-6)
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Functional Form Misspecification: Definition}
+
+  \begin{definitionbox}{Functional Form Misspecification}
+    A multiple regression suffers from \textbf{functional form misspecification}
+    when it does not properly account for the relationship between the dependent
+    variable and the observed explanatory variables.
+  \end{definitionbox}
+
+  \begin{examplebox}{Example: A Wage Equation}
+    True model:
+    \[
+      \log(wage) = \beta_0 + \beta_1 educ + \beta_2 exper + \beta_3 exper^2 + u.
+    \]
+    If we estimate
+    \[
+      \log(wage) = \beta_0 + \beta_1 educ + \beta_2 exper + u
+    \]
+    (omitting $exper^2$), we have functional form misspecification.
+  \end{examplebox}
+
+  \textbf{Consequence:} Generally biased estimates of $\beta_0$, $\beta_1$, $\beta_2$.
+  The \textbf{return to experience} is no longer $\beta_2$ but $\beta_2 + 2\beta_3 exper$,
+  so a single number cannot capture it.
+
+\end{frame}
+
+\begin{frame}{Another Example: Missing Interactions}
+
+  Consider the wage equation:
+  \[
+    \log(wage) = \beta_0 + \beta_1 educ + \beta_2 exper + \beta_3 exper^2
+    + \beta_4 female + \beta_5 (female \cdot educ) + u.
+  \]
+
+  \smallskip
+  If we \textbf{omit the interaction} $female \cdot educ$:
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item We \textbf{misspecify} the functional form.
+    \item Estimators of \emph{all} other parameters are biased.
+    \item The "return to education" is unclear because it depends on \textbf{gender}.
+  \end{itemize}
+
+  \begin{keybox}
+    \textbf{Key insight:} Functional form misspecification = the
+    \emph{wrong functional form} of \emph{observed} variables. We \textbf{have} the data;
+    we are just not using it correctly.
+
+    \medskip
+    Contrast this with \textbf{omitted variables} (§9-2), where data on a key variable
+    \emph{cannot be collected}.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Detecting Misspecification: The $F$ Test for Quadratics}
+
+  We already have a tool: the \textbf{$F$ test for joint exclusion restrictions}.
+
+  \medskip
+  \textbf{Procedure:}
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item Add \textbf{quadratic terms} for any significant explanatory variable.
+    \item Perform a joint $F$ test of significance.
+    \item If significant: keep the quadratics (at the cost of complicating interpretation).
+  \end{enumerate}
+
+  \begin{keybox}
+    \textbf{Symptomatic warning:} Significant quadratic terms can also indicate
+    other functional form problems — e.g., using the \textbf{level} of a variable
+    when the \textbf{logarithm} would be more appropriate, or vice versa.
+
+    \medskip
+    Adding quadratics + using logarithms covers many nonlinear relationships in economics.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{Example 9.1: Economic Model of Crime (CRIME1)}
+
+  Dependent variable: $narr86$ (number of arrests in 1986). $n = 2{,}725$.
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|cc}
+  \hline
+  Variable & (1) Linear & (2) With quadratics \\
+  \hline
+  $pcnv$ & $-0.133$ (0.040) & $0.553$ (0.154) \\
+  $pcnv^2$ & --- & $-0.730$ (0.156) \\
+  $ptime86$ & $-0.041$ (0.009) & $0.287$ (0.004) \\
+  $ptime86^2$ & --- & $-0.0296$ (0.0039) \\
+  $inc86$ & $-0.0015$ (0.0003) & $-0.0034$ (0.0008) \\
+  $inc86^2$ & --- & $-0.000007$ (0.000003) \\
+  \hline
+  $R^2$ & 0.0723 & 0.1035 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \textbf{Joint $F$ test on the three squared terms:} $F = 31.37$ ($df = 3, 2713$),
+  $p$-value $\approx 0$. The squared terms are \textbf{jointly very significant}.
+
+  \begin{keybox}
+    \textbf{Interpretation:} Initial linear model overlooked important nonlinearities.
+    But interpreting the quadratics is harder: e.g., $pcnv$ has a positive deterrent
+    effect only up to $pcnv = 0.365$, then negative.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{The RESET Test}
+
+  Adding quadratics is one approach but uses up many degrees of freedom.
+  A more general test: \textbf{Ramsey's RESET (1969)}.
+
+  \begin{definitionbox}{RESET Idea}
+    Idea: if the original model
+    \[
+      y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u
+    \]
+    satisfies MLR.4, then \textbf{no nonlinear function of the $x_j$} should be significant
+    when added.
+
+    \medskip
+    \textbf{RESET adds polynomials in the OLS fitted values $\hat{y}$} to detect general
+    forms of misspecification. Squared and cubed terms are commonly used.
+  \end{definitionbox}
+
+  Why $\hat{y}$ instead of all the $x_j$'s? $\hat{y}$ summarizes \emph{all} the regressors
+  in one variable, saving degrees of freedom.
+
+\end{frame}
+
+\begin{frame}{The RESET Statistic}
+
+  Let $\hat{y}$ be OLS fitted values from the original model.
+  Estimate the \textbf{augmented regression}:
+  \[
+    y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + \delta_1 \hat{y}^2 + \delta_2 \hat{y}^3 + error.
+  \]
+
+  \begin{highlightbox}
+    \textbf{RESET test:}
+    $$\text{H}_0:\ \delta_1 = 0,\ \delta_2 = 0\quad\text{(model correctly specified)}$$
+    \[
+      F \sim F_{2,\,n-k-3}\quad\text{(approximately, in large samples)}.
+    \]
+    A \textbf{significant} $F$ statistic suggests functional form misspecification.
+  \end{highlightbox}
+
+  \textbf{Notes:}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item An LM version is also available (chi-square distribution, 2 df).
+    \item Both versions are easily made robust to heteroskedasticity (Ch. 8 methods).
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Example 9.2: Housing Price Equation (HPRICE1, $n = 88$)}
+
+  \textbf{Model 1 (levels):}
+  \[
+    price = \beta_0 + \beta_1 lotsize + \beta_2 sqrft + \beta_3 bdrms + u.
+  \]
+
+  \textbf{Model 2 (log--log):}
+  \[
+    \log(price) = \beta_0 + \beta_1 \log(lotsize) + \beta_2 \log(sqrft) + \beta_3 bdrms + u.
+  \]
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|cc}
+  \hline
+  & RESET $F$ statistic & $p$-value \\
+  \hline
+  Model 1 (levels) & 4.67 & \textbf{0.012} \\
+  Model 2 (log--log) & 2.56 & 0.084 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{Verdict:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Reject Model 1 at the 5\% level $\Rightarrow$ misspecification.
+      \item Do not reject Model 2 at the 5\% level (would reject at 10\%).
+      \item \textbf{The log--log model is preferred} based on RESET.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Cautions about RESET}
+
+  \begin{keybox}
+    \textbf{What RESET can do:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Detect general functional form misspecification (conditional mean).
+      \item Compare two non-nested specifications informally.
+    \end{itemize}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{What RESET cannot do:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Detect \textbf{omitted variables} when those variables have linear conditional
+      expectations in the included regressors.
+      \item Detect \textbf{heteroskedasticity} (RESET is for the conditional \emph{mean}).
+    \end{itemize}
+    Bottom line: RESET is a functional form test, \textbf{nothing more}.
+  \end{highlightbox}
+
+  \textbf{Practical limitation:} If RESET rejects, it does \emph{not} tell you what to do next.
+  You must investigate further (try logs, add interactions, use quadratics, etc.).
+
+\end{frame}
+
+\begin{frame}{Tests against Nonnested Alternatives (\S9-1b)}
+
+  Some specifications are not nested in each other. Consider:
+
+  \[
+    \text{Model A:}\quad y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u
+    \tag{9.6}
+  \]
+  \[
+    \text{Model B:}\quad y = \beta_0 + \beta_1 \log(x_1) + \beta_2 \log(x_2) + u
+    \tag{9.7}
+  \]
+
+  \begin{definitionbox}{Nonnested Models}
+    Two models are \textbf{nonnested} if neither can be obtained from the other by imposing
+    parameter restrictions. (Here: levels vs. logs.)
+  \end{definitionbox}
+
+  \textbf{Cannot use a standard $F$ test.} Two approaches:
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{Comprehensive (Mizon--Richard 1986):} construct a model nesting both, test restrictions.
+    \item \textbf{Davidson--MacKinnon (1981):} an auxiliary $t$ test (next slide).
+  \end{enumerate}
+
+\end{frame}
+
+\begin{frame}{The Davidson--MacKinnon Test}
+
+  \textbf{Idea:} If Model A is correct, then fitted values from the \emph{other} model
+  (Model B) should be \textbf{insignificant} when added to Model A.
+
+  \medskip
+  \textbf{Procedure (testing A against B):}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item Estimate Model B by OLS, save fitted values $\check{y}$.
+    \item Run the auxiliary regression:
+    \[
+      y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \theta_1 \check{y} + error.
+    \]
+    \item \textbf{$t$-statistic on $\theta_1$} is the Davidson--MacKinnon statistic.
+  \end{enumerate}
+
+  \begin{highlightbox}
+    \textbf{Decision:} A significant $t$-statistic (two-sided alternative)
+    is \textbf{evidence against Model A}.
+
+    \medskip
+    To test Model B against Model A: swap roles. Save fitted values $\hat{y}$ from A,
+    add to B as a regressor.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Caveats of Nonnested Testing}
+
+  \begin{keybox}
+    \textbf{Three problems with nonnested tests:}
+    \begin{enumerate}\setlength{\itemsep}{2pt}
+      \item \textbf{No clear winner needed:} Both models could be rejected, or neither
+      rejected. If both rejected: more work needed. If neither: report both, use adjusted $R^2$
+      or theoretical considerations.
+
+      \item \textbf{Rejecting A doesn't validate B:} Model A can be rejected for any
+      number of reasons, not just the one B captures.
+
+      \item \textbf{Different dependent variables:} Comparing $y$ vs.\ $\log(y)$ requires
+      additional adjustments. Goodness-of-fit comparisons need care (Wooldridge 1994a).
+    \end{enumerate}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Proxy Variables for Unobserved Variables (\S9-2)}
+%% ============================================================
+
+\begin{frame}{Omitted Variables: A Bigger Problem}
+
+  Functional form misspecification is mild: we have all the data, just need the right form.
+
+  \begin{highlightbox}
+    \textbf{Omitted variables} are harder: a key variable is unobserved, often because data
+    \emph{cannot be collected}.
+
+    \medskip
+    \textbf{Wage equation example:}
+    \[
+      \log(wage) = \beta_0 + \beta_1 educ + \beta_2 exper + \beta_3 abil + u
+    \]
+    where $abil$ = ability — \textbf{unobservable}. If $educ$ is correlated with $abil$,
+    putting $abil$ in the error causes \textbf{omitted variable bias}.
+  \end{highlightbox}
+
+  \textbf{Question:} Can we mitigate this bias if we cannot directly observe $abil$?
+
+  \textbf{Answer:} Sometimes — using a \textbf{proxy variable}.
+
+\end{frame}
+
+\begin{frame}{The Proxy Variable Idea}
+
+  \begin{definitionbox}{Proxy Variable}
+    A \textbf{proxy variable} is something \emph{related to} the unobserved variable, used
+    as a \textbf{substitute} in the regression.
+
+    \smallskip
+    Example: \textbf{IQ score} as a proxy for \emph{ability}.
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Does \emph{not} require IQ $=$ ability.
+      \item Requires IQ to be \textbf{correlated} with ability.
+    \end{itemize}
+  \end{definitionbox}
+
+  \textbf{Setup:} Consider the model with three explanatory variables (two observed):
+  \[
+    y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3^* + u, \tag{9.10}
+  \]
+  where $x_3^*$ is \textbf{unobserved} but we have a proxy $x_3$:
+  \[
+    x_3^* = \delta_0 + \delta_3 x_3 + v_3. \tag{9.11}
+  \]
+
+  \begin{keybox}
+    The intercept $\delta_0$ allows $x_3^*$ and $x_3$ to have different scales (e.g., ability
+    has no natural scale, but IQ has mean 100).
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{The Plug-in Solution}
+
+  \begin{definitionbox}{Plug-in Solution to Omitted Variables}
+    Pretend that $x_3$ and $x_3^*$ are the same. Run:
+    \[
+      y \text{ on } x_1,\ x_2,\ x_3. \tag{9.12}
+    \]
+    Use $x_3$ as a \textbf{stand-in} for the unobservable $x_3^*$.
+  \end{definitionbox}
+
+  \textbf{When does this work?} Two assumptions are sufficient:
+
+  \begin{assumptionbox}
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{$u$ uncorrelated with $x_1,\ x_2,\ x_3^*,\ x_3$:}
+    The first three are standard. The new requirement: $u$ uncorrelated with $x_3$.
+    Holds if $x_3$ is \textbf{irrelevant} once $x_3^*$ is controlled for.
+
+    \item \textbf{$v_3$ uncorrelated with $x_1,\ x_2,\ x_3$:}
+    Means $x_3$ is a \textbf{good proxy} for $x_3^*$:
+    \[
+      \E(x_3^* \mid x_1, x_2, x_3) = \E(x_3^* \mid x_3) = \delta_0 + \delta_3 x_3. \tag{9.13}
+    \]
+  \end{enumerate}
+  \end{assumptionbox}
+
+\end{frame}
+
+\begin{frame}{Why the Plug-in Solution Works}
+
+  Plug \eqref{eq:proxy} into the model:
+  \[
+    y = (\beta_0 + \beta_3 \delta_0) + \beta_1 x_1 + \beta_2 x_2
+    + \beta_3 \delta_3 x_3 + (u + \beta_3 v_3).
+  \]
+
+  Define the composite error $e = u + \beta_3 v_3$. Then:
+  \[
+    y = \alpha_0 + \beta_1 x_1 + \beta_2 x_2 + \alpha_3 x_3 + e,
+  \]
+  where $\alpha_0 = \beta_0 + \beta_3 \delta_0$ and $\alpha_3 = \beta_3 \delta_3$.
+
+  \begin{highlightbox}
+    \textbf{What we get:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Unbiased estimates of $\beta_1$ and $\beta_2$} (the parameters of interest).
+      \item \textbf{Unbiased estimate of $\alpha_3 = \beta_3 \delta_3$} (interpretable as the partial effect of the proxy on $y$).
+      \item \textbf{Cannot recover $\beta_3$ alone} (we don't observe $\delta_3$).
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{Often $\alpha_3$ is more interesting anyway:} e.g., the wage premium per IQ point
+  is more directly useful than the wage premium per "unit of ability."
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 9.3: IQ as a Proxy for Ability (WAGE2)}
+
+  Data: WAGE2 (Blackburn--Neumark 1992), $n = 935$ men. Includes monthly earnings,
+  education, demographics, and IQ scores from 1980.
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|ccc}
+  \hline
+  & (1) No IQ & (2) With IQ & (3) With IQ + interaction \\
+  \hline
+  $educ$ & 0.065 (0.006) & 0.054 (0.007) & 0.053 (0.007) \\
+  $exper$ & 0.014 (0.003) & 0.014 (0.003) & 0.014 (0.003) \\
+  $tenure$ & 0.012 (0.002) & 0.011 (0.002) & 0.011 (0.002) \\
+  $IQ$ & --- & 0.0036 (0.0010) & 0.0036 (0.0010) \\
+  $(educ - \overline{educ})(IQ - \overline{IQ})$ & --- & --- & 0.00034 (0.00038) \\
+  \hline
+  $R^2$ & 0.253 & 0.263 & 0.263 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \textbf{Key finding:}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item Without IQ: estimated return to education = \textbf{6.5\%}.
+    \item With IQ as proxy: return falls to \textbf{5.4\%}.
+    \item The drop ($1.1$ percentage points) corresponds to omitted ability bias.
+    \item IQ premium: 3.6\% per 10 IQ points (since SD of IQ $\approx 15$, a one-SD
+    increase $\Rightarrow$ 5.4\% higher earnings).
+  \end{itemize}
+
+  \begin{keybox}
+    The interaction $(educ \cdot IQ)$ in column (3) is insignificant ($t \approx 0.89$):
+    no convincing evidence of an interactive effect.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{When the Proxy Is Imperfect}
+
+  Suppose the proxy depends on the other regressors:
+  \[
+    x_3^* = \delta_0 + \delta_1 x_1 + \delta_2 x_2 + \delta_3 x_3 + v_3.
+    \tag{9.14}
+  \]
+
+  Then plugging in:
+  \[
+    y = (\beta_0 + \beta_3 \delta_0) + (\beta_1 + \beta_3 \delta_1) x_1
+    + (\beta_2 + \beta_3 \delta_2) x_2 + \beta_3 \delta_3 x_3 + (u + \beta_3 v_3).
+  \]
+
+  \begin{highlightbox}
+    \textbf{Bias formula:}
+    \[
+      \plim(\hat{\beta}_1) = \beta_1 + \beta_3 \delta_1,\qquad
+      \plim(\hat{\beta}_2) = \beta_2 + \beta_3 \delta_2.
+    \]
+    Bias remains, but \textbf{should be smaller} than ignoring the omitted variable entirely.
+  \end{highlightbox}
+
+  \textbf{Wage example:} If $\delta_1 > 0$ (more education $\Rightarrow$ higher ability) and
+  $\beta_3 > 0$ (ability $\Rightarrow$ higher wage), then $\hat{\beta}_1$ remains
+  upward biased \emph{even with IQ as proxy}. But less than without IQ.
+
+\end{frame}
+
+\begin{frame}{Lagged Dependent Variables as Proxies (\S9-2a)}
+
+  \textbf{Sometimes we don't even have a candidate proxy.} A useful alternative:
+  \textbf{the lagged dependent variable}.
+
+  \begin{examplebox}{Example 9.4: City Crime Rates}
+    \[
+      crime = \beta_0 + \beta_1 unem + \beta_2 expend + \beta_3 crime_{-1} + u. \tag{9.16}
+    \]
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $crime_{-1}$ = crime rate from an earlier year.
+      \item $\beta_3 > 0$ expected: crime has \textbf{inertia}.
+      \item Including $crime_{-1}$ controls for \textbf{historical unobservables} that
+      drive both past and current crime.
+    \end{itemize}
+  \end{examplebox}
+
+  \begin{keybox}
+    \textbf{Reading $\beta_2$:} The effect on crime of an extra dollar of law enforcement,
+    \textbf{holding constant prior crime rate}. This is a much cleaner causal interpretation
+    than a pure cross-sectional regression.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Crime Rate Estimates (CRIME2, $n = 46$ cities)}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|cc}
+  \hline
+  Variable & (1) No lag & (2) With lagged crime \\
+  \hline
+  $unem_{87}$ & $-0.029$ (0.032) & $0.009$ (0.020) \\
+  $\log(lawexpc_{87})$ & 0.203 (0.173) & $-0.140$ (0.109) \\
+  $\log(crmrte_{82})$ & --- & $1.194$ (0.132) \\
+  $intercept$ & 3.34 (1.25) & 0.076 (0.821) \\
+  \hline
+  $R^2$ & 0.057 & 0.680 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{Findings:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Without} lagged crime: counterintuitive — more law enforcement spending
+      seems to \emph{increase} crime ($t \approx 1.17$).
+      \item \textbf{With} lagged crime: elasticity of crime w.r.t.\ enforcement becomes
+      $-0.14$ ($t \approx -1.28$).
+      \item Lagged crime is highly significant (elasticity $\approx 1$): cities with high
+      past crime tend to have high current crime.
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{Why the original sign was wrong:} Cities with high recent crime spend more on law
+  enforcement, creating reverse correlation. Lagged crime "soaks up" this confounding.
+
+\end{frame}
+
+\begin{frame}{A Different Slant on Multiple Regression (\S9-2b)}
+
+  \textbf{Alternative interpretation of regression with proxies:}
+
+  \begin{keybox}
+    Instead of seeing IQ as a proxy for the latent concept "ability," interpret the wage
+    equation more modestly:
+
+    \medskip
+    \emph{"Among workers with the same IQ, experience, etc., what is the expected difference
+    in log wage from one more year of education?"}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Predictive perspective:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Sometimes the goal is \textbf{prediction}, not causal inference.
+      \item Then "omitted variable bias" loses its meaning.
+      \item Focus instead on building a good predictive model with available regressors.
+      \item Don't include variables \textbf{unobserved at the time of prediction}.
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{Example:} A college admissions office uses high school GPA, SAT, etc. to predict
+  college GPA. They are not concerned about omitted variable bias from omitting "motivation."
+
+\end{frame}
+
+%% ============================================================
+\section{Models with Random Slopes (\S9-3)}
+%% ============================================================
+
+\begin{frame}{The Random Slopes Model}
+
+  Until now, we have assumed all individuals share the same slope $\beta_j$.
+  What if the slope varies across the population by \textbf{unobservable} characteristics?
+
+  \begin{definitionbox}{Random Coefficient (Random Slope) Model}
+    For unit $i$ in the population:
+    \[
+      y_i = a_i + b_i x_i, \tag{9.17}
+    \]
+    where:
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $a_i$ = unit-specific \textbf{intercept}
+      \item $b_i$ = unit-specific \textbf{slope}
+      \item Both vary across the population
+    \end{itemize}
+  \end{definitionbox}
+
+  \textbf{Example:} Wage equation with $b_i$ = individual return to education. Different people
+  benefit differently from another year of schooling depending on \textbf{unobserved ability,
+  motivation,} etc.
+
+  Define $\alpha = \E(a_i)$ and $\beta = \E(b_i)$ — the \textbf{average intercept} and
+  \textbf{average partial effect (APE)}.
+
+\end{frame}
+
+\begin{frame}{When OLS Still Works}
+
+  Write $a_i = \alpha + c_i$, $b_i = \beta + d_i$ with $\E(c_i) = 0$, $\E(d_i) = 0$.
+  Substituting into (9.17):
+  \[
+    y_i = \alpha + \beta x_i + (c_i + d_i x_i) = \alpha + \beta x_i + u_i, \tag{9.18}
+  \]
+  where the new error is $u_i = c_i + d_i x_i$.
+
+  \begin{highlightbox}
+    \textbf{Sufficient conditions for OLS to estimate $\alpha$ and $\beta$ unbiasedly:}
+    \[
+      \E(a_i \mid x_i) = \E(a_i),\qquad \E(b_i \mid x_i) = \E(b_i). \tag{9.19}
+    \]
+    That is: $a_i$ and $b_i$ are \textbf{mean independent} of $x_i$.
+
+    \medskip
+    Then OLS recovers the \textbf{population averages} of the unit-specific slopes.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Inevitable side effect:} The error $u_i = c_i + d_i x_i$ is
+    \textbf{heteroskedastic}:
+    \[
+      \Var(u_i \mid x_i) = \sigma_c^2 + \sigma_d^2 x_i^2. \tag{9.20}
+    \]
+    Use \textbf{heteroskedasticity-robust standard errors} (Ch. 8).
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Random Slopes: Practical Takeaway}
+
+  \begin{keybox}
+    \textbf{Key result:} If we just want to estimate the \textbf{average partial effect}
+    of $x$ on $y$ (the APE), and $a_i, b_i$ are independent of $x_i$, then
+    \textbf{OLS works}.
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Use OLS as before.
+      \item Always use heteroskedasticity-robust standard errors.
+      \item Interpretation changes: $\hat\beta$ is the \textbf{average} return, not the return
+      for any specific person.
+    \end{itemize}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{When OLS fails:} If $b_i$ is correlated with $x_i$ (e.g., people who benefit
+    more from education \emph{select into} more education), OLS is biased.
+    Solution: instrumental variables (Ch. 15).
+  \end{highlightbox}
+
+  \textbf{Connection to Ch. 7--8:} Random slopes provide \textbf{another justification} for
+  using interaction terms or heteroskedasticity-robust SEs in standard regression analysis.
+
+\end{frame}
+
+%% ============================================================
+\section{Properties of OLS under Measurement Error (\S9-4)}
+%% ============================================================
+
+\begin{frame}{Measurement Error: The Issue}
+
+  Sometimes we cannot collect data on the variable that truly affects economic behavior.
+
+  \begin{examplebox}{Example: Marginal Tax Rate}
+    A family chooses charitable contributions based on their \textbf{marginal income tax rate}.
+    But the marginal rate depends on income brackets and is hard to compute.
+    Researchers often use \textbf{average tax rate} as a substitute — measurement error.
+  \end{examplebox}
+
+  \begin{definitionbox}{Measurement Error vs.\ Proxy Variables}
+    Both involve a substitute for an unobserved variable, but:
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Proxy:} the unobserved variable is \emph{vague} (e.g., "ability"); the
+      proxy (e.g., IQ) is just \emph{associated} with it.
+      \item \textbf{Measurement error:} the unobserved variable has a \emph{well-defined,
+      quantitative meaning}; we just cannot measure it precisely.
+    \end{itemize}
+  \end{definitionbox}
+
+  This section: \textbf{when does measurement error cause problems for OLS?}
+
+\end{frame}
+
+\begin{frame}{Measurement Error in the Dependent Variable (\S9-4a)}
+
+  Let $y^*$ be the true variable, $y$ be the observed (measured) variable. The
+  \textbf{measurement error} is
+  \[
+    e_0 = y - y^*, \tag{9.24}
+  \]
+  so $y = y^* + e_0$. Substituting into the true model:
+  \[
+    y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + (u + e_0). \tag{9.25}
+  \]
+
+  \begin{highlightbox}
+    \textbf{Standard assumption:} $e_0$ is \textbf{independent of} the $x_j$'s.
+
+    \medskip
+    Under this assumption:
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\E(e_0) = 0$ (or absorbed in intercept).
+      \item OLS is \textbf{unbiased and consistent}.
+      \item Inference ($t$, $F$, LM tests) is valid.
+      \item \textbf{Only cost:} larger error variance $\Rightarrow$ larger SEs.
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Bottom line:} Random measurement error in $y$ is innocuous — it only inflates
+    standard errors. Cannot fix without better data.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Example 9.5: Savings Function}
+
+  Consider a savings function:
+  \[
+    sav^* = \beta_0 + \beta_1 inc + \beta_2 size + \beta_3 educ + \beta_4 age + u.
+  \]
+
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Observed savings $sav$ may differ from true $sav^*$ due to reporting error.
+    \item \textbf{If} measurement error is uncorrelated with $inc, size, educ, age$ —
+    OLS is fine.
+    \item \textbf{But} families with higher income or more education may report savings
+    \emph{more accurately} — measurement error correlated with regressors $\Rightarrow$ bias.
+  \end{itemize}
+
+  \begin{keybox}
+    \textbf{Logarithmic case:} If the dependent variable is $\log(y^*)$:
+    \[
+      \log(y) = \log(y^*) + e_0,
+    \]
+    which corresponds to a \textbf{multiplicative} measurement error in $y$:
+    $y = y^* a_0$ with $e_0 = \log(a_0)$.
+    \medskip
+    Common in firm-level data, where reported figures may be a multiplicative fraction
+    of true values.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Measurement Error in an Explanatory Variable (\S9-4b)}
+
+  Now the \textbf{important} case. Let $x_1^*$ be true, $x_1$ observed:
+  \[
+    e_1 = x_1 - x_1^*. \tag{9.28}
+  \]
+
+  Standard assumptions:
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item $\E(e_1) = 0$.
+    \item $u$ uncorrelated with $x_1^*$ \emph{and} $x_1$ (i.e., once $x_1^*$ is controlled
+    for, $x_1$ has no separate effect on $y$).
+  \end{itemize}
+
+  \begin{definitionbox}{Two Polar Cases}
+    \begin{enumerate}\setlength{\itemsep}{2pt}
+      \item \textbf{$e_1$ uncorrelated with the \emph{observed} $x_1$:}
+      \[
+        \Cov(x_1, e_1) = 0. \tag{9.29}
+      \]
+      Like proxy variable case. OLS is consistent (with larger variance).
+
+      \item \textbf{Classical Errors-in-Variables (CEV):}
+      \[
+        \Cov(x_1^*, e_1) = 0. \tag{9.31}
+      \]
+      The error is uncorrelated with the \textbf{true} variable. \textbf{Standard textbook
+      assumption}.
+    \end{enumerate}
+  \end{definitionbox}
+
+\end{frame}
+
+\begin{frame}{The Attenuation Bias under CEV}
+
+  Under CEV: $x_1 = x_1^* + e_1$ with $\Cov(x_1^*, e_1) = 0$. Then:
+  \[
+    \Cov(x_1, e_1) = \Cov(x_1^* + e_1, e_1) = \sigma_{e_1}^2.
+  \]
+
+  Substituting $x_1^* = x_1 - e_1$ into $y = \beta_0 + \beta_1 x_1^* + u$:
+  \[
+    y = \beta_0 + \beta_1 x_1 + (u - \beta_1 e_1). \tag{9.30}
+  \]
+
+  The composite error $u - \beta_1 e_1$ is \textbf{correlated with $x_1$}. Hence OLS is biased.
+
+  \begin{highlightbox}
+    \textbf{The bias formula:}
+    \[
+      \plim(\hat{\beta}_1) = \beta_1 \cdot \frac{\sigma_{x_1^*}^2}{\sigma_{x_1^*}^2 + \sigma_{e_1}^2}. \tag{9.33}
+    \]
+
+    \medskip
+    The factor $\frac{\sigma_{x_1^*}^2}{\sigma_{x_1^*}^2 + \sigma_{e_1}^2}$ is between 0 and 1.
+
+    \medskip
+    \textbf{Conclusion:} $\hat{\beta}_1$ is \textbf{always closer to zero} than $\beta_1$. This
+    is the \textbf{attenuation bias}.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{How Big Is the Attenuation?}
+
+  Define the \textbf{signal-to-noise ratio} $r = \sigma_{x_1^*}^2 / \sigma_{e_1}^2$.
+
+  \[
+    \plim(\hat{\beta}_1) = \beta_1 \cdot \frac{r}{r + 1}.
+  \]
+
+  \begin{center}\footnotesize
+  \begin{tabular}{c|c|c}
+  \hline
+  Signal-to-noise $r$ & Attenuation factor & Bias if $\beta_1 = 1$ \\
+  \hline
+  $r = 1$ (50\% noise) & $0.50$ & $\hat\beta_1 \to 0.50$ \\
+  $r = 4$ (20\% noise) & $0.80$ & $\hat\beta_1 \to 0.80$ \\
+  $r = 9$ (10\% noise) & $0.90$ & $\hat\beta_1 \to 0.90$ \\
+  $r = 99$ (1\% noise) & $0.99$ & $\hat\beta_1 \to 0.99$ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{Implications:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Sign of $\hat\beta_1$ is preserved (only magnitude shrinks).
+      \item If $\beta_1 > 0$, $\hat\beta_1$ \textbf{understates} the true effect.
+      \item Hypothesis test of $\text{H}_0: \beta_1 = 0$ has \textbf{less power}.
+      \item More variation in $x_1^*$ relative to $e_1$ $\Rightarrow$ less bias.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Multiple Regression with CEV}
+
+  Suppose only $x_1^*$ is mismeasured:
+  \[
+    y = \beta_0 + \beta_1 x_1^* + \beta_2 x_2 + \beta_3 x_3 + u, \tag{9.34}
+  \]
+  with $x_2, x_3$ measured perfectly. Under CEV:
+
+  \begin{highlightbox}
+    \textbf{Bias on the mismeasured variable:}
+    \[
+      \plim(\hat{\beta}_1) = \beta_1 \cdot \frac{\sigma_{r_1^*}^2}{\sigma_{r_1^*}^2 + \sigma_{e_1}^2}, \tag{9.36}
+    \]
+    where $r_1^*$ is the \textbf{population residual} from regressing $x_1^*$ on $x_2, x_3$.
+
+    \medskip
+    \textbf{Bias on the other coefficients:} Generally, $\hat\beta_2$ and $\hat\beta_3$ are
+    \textbf{also inconsistent} (due to indirect correlation). Sizes and signs of these biases
+    are hard to predict.
+  \end{highlightbox}
+
+  \textbf{Bottom line:} Measurement error in \emph{one} regressor contaminates \emph{all} OLS
+  estimates.
+
+\end{frame}
+
+\begin{frame}{Example 9.7: GPA Equation with Measurement Error}
+
+  Suppose true model:
+  \[
+    colGPA = \beta_0 + \beta_1 faminc^* + \beta_2 hsGPA + \beta_3 SAT + u,
+  \]
+  where $faminc^*$ = actual annual family income (mismeasured if students self-report).
+
+  \medskip
+  Observed: $faminc = faminc^* + e_1$.
+
+  \begin{keybox}
+    \textbf{If CEV holds:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item OLS estimate of $\beta_1$ is \textbf{biased toward zero}.
+      \item Reduced power for $\text{H}_0: \beta_1 = 0$.
+      \item Practical fear: cannot reject "family income has no effect on college GPA"
+      even if the true effect is nontrivial.
+    \end{itemize}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Solution preview:} If a second \emph{noisy measurement} of family income is
+    available (or another instrument), \textbf{instrumental variables} (Ch.~15) can correct
+    the attenuation bias.
+  \end{highlightbox}
+
+\end{frame}
+
+%% ============================================================
+\section{Missing Data, Nonrandom Samples, Outliers (\S9-5)}
+%% ============================================================
+
+\begin{frame}{Missing Data (\S9-5a)}
+
+  \begin{definitionbox}{Three Types of Missingness}
+    \begin{enumerate}\setlength{\itemsep}{2pt}
+      \item \textbf{Missing Completely At Random (MCAR):} the probability of missingness is
+      \emph{independent of} all observed and unobserved factors affecting $y$.
+
+      \item \textbf{Missing At Random (MAR):} probability of missingness can depend on
+      observed regressors but not on unobservables.
+
+      \item \textbf{Not Missing At Random (NMAR):} missingness depends on the unobserved
+      value itself.
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{If MCAR holds:} dropping observations with missing data (the
+    \textbf{complete cases estimator}) is OLS-consistent. Just a smaller sample.
+  \end{highlightbox}
+
+  \textbf{Example:} If 196 of 1{,}388 observations in BWGHT are missing $faminc$, simply drop
+  them. As long as missingness is unrelated to factors affecting $y$, the remaining sample
+  is still random.
+
+\end{frame}
+
+\begin{frame}{The Missing Indicator Method (MIM)}
+
+  Suppose only $x_k$ is sometimes missing. \textbf{MIM creates two new variables:}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item $z_{ik}$: equals $x_{ik}$ when observed, \textbf{0 otherwise}.
+    \item $m_{ik}$: a "missing indicator" — 1 if missing, 0 if observed.
+  \end{itemize}
+
+  \begin{definitionbox}{Missing Indicator Method}
+    Run the regression
+    \[
+      y_i \text{ on } x_{i1}, \ldots, x_{i,k-1}, z_{ik}, m_{ik},\ i = 1, \ldots, n.
+    \]
+    Use the \textbf{full sample} of $n$ observations.
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{Appeal:} Uses all $n$ observations rather than just the complete cases.
+
+    \medskip
+    \textbf{Catch:} Statistically valid \textbf{only under strong assumptions} — essentially
+    requires $x_k$ uncorrelated with other regressors (Jones 1996; Abrevaya \& Donald 2017).
+    These conditions \textbf{rarely hold} in practice.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{MCAR vs.\ MIM: Which to Use?}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|l|l}
+  \hline
+  Property & Complete Cases (MCAR) & Missing Indicator Method \\
+  \hline
+  Sample size used & Smaller & Full $n$ \\
+  Required assumption & MCAR & MCAR + $x_k \perp$ other regressors \\
+  Robustness & More robust & Less robust \\
+  Bias if assumption fails & Inconsistent & Inconsistent \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{Wooldridge's recommendation:} The complete cases estimator is generally preferred
+    because it requires \textbf{weaker assumptions}. MIM should be used cautiously — it can
+    cause more harm than good if its assumptions fail.
+  \end{highlightbox}
+
+  \textbf{More advanced:} Multiple imputation, EM algorithm — beyond scope.
+
+\end{frame}
+
+\begin{frame}{Nonrandom Samples (\S9-5b)}
+
+  Even without missing data, the \textbf{sample itself} may be nonrandomly selected.
+
+  \begin{definitionbox}{Two Types of Sample Selection}
+    \begin{enumerate}\setlength{\itemsep}{2pt}
+      \item \textbf{Exogenous sample selection:} Selection based on the \emph{independent}
+      variables.
+      \\ Example: We sample only people over 35 in a savings study.
+
+      \item \textbf{Endogenous sample selection:} Selection based on the \emph{dependent}
+      variable (or unobservables affecting $y$).
+      \\ Example: We sample only households with wealth $< \$250{,}000$.
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{Statistical consequence:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Exogenous selection $\Rightarrow$ OLS is \textbf{still unbiased and consistent}.
+      \item Endogenous selection $\Rightarrow$ OLS is \textbf{biased and inconsistent}.
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Sample Selection: Examples}
+
+  \begin{examplebox}{Exogenous Selection: Saving Study}
+    \[
+      saving = \beta_0 + \beta_1 income + \beta_2 age + \beta_3 size + u.
+    \]
+    Sample only people over 35. Selection is on $age$ (a regressor). \textbf{OLS is
+    unbiased.} Just a smaller, less general sample.
+  \end{examplebox}
+
+  \begin{examplebox}{Endogenous Selection: Wealth Equation}
+    \[
+      wealth = \beta_0 + \beta_1 educ + \beta_2 exper + \beta_3 age + u.
+    \]
+    Sample only households with $wealth < \$250{,}000$. Selection is on $y$. \textbf{OLS is
+    biased.} The conditional expectation in the truncated population is not the same as in
+    the full population.
+  \end{examplebox}
+
+  \begin{keybox}
+    \textbf{Stratified sampling:} If sampling weights vary by strata defined by
+    \textbf{exogenous} variables, OLS on the unweighted data is consistent.
+    If strata are defined by endogenous variables, special methods are needed.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Wage Equations and Working Samples}
+
+  A subtle case: estimating wage equations using \textbf{only working individuals}.
+
+  \[
+    \log(wage^o) = \beta_0 + \beta_1 educ + \beta_2 exper + u, \tag{9.39}
+  \]
+  where $wage^o$ = wage \emph{offer} (wage someone could earn if they worked).
+
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item For non-workers, $wage^o$ is unobserved.
+    \item We estimate using only those who chose to work.
+    \item If the choice to work depends on \textbf{unobserved factors} affecting wage offers
+    (motivation, family circumstances) $\Rightarrow$ \textbf{endogenous selection}.
+  \end{itemize}
+
+  \begin{highlightbox}
+    \textbf{Heckman's solution:} The Heckman two-step procedure (Ch.~17) corrects for sample
+    selection bias when the selection mechanism can be modeled.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Outliers and Influential Observations (\S9-5c)}
+
+  \begin{definitionbox}{Outlier vs. Influential Observation}
+    \begin{itemize}\setlength{\itemsep}{2pt}
+      \item \textbf{Outlier:} An observation with unusual $y$ and/or $x$ values relative to
+      the rest of the sample.
+      \item \textbf{Influential observation:} An outlier whose removal substantially
+      \emph{changes} the OLS estimates.
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{Why OLS is sensitive:} OLS minimizes the \emph{sum of squared} residuals. Large
+    residuals are weighted heavily ($u^2$ grows quadratically), so single observations can
+    dominate the fit.
+  \end{keybox}
+
+  \textbf{Two sources of outliers:}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{Data entry errors} — always check summary statistics (min, max).
+    \item \textbf{Genuine extreme cases} — small populations, mixtures of distributions.
+  \end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Example 9.8: R\&D Intensity and Firm Size (RDCHEM)}
+
+  Data: 32 chemical companies, $rdintens$ = R\&D as \% of sales, $sales$ in millions.
+
+  \medskip
+  \textbf{All 32 firms:}
+  \[
+    \widehat{rdintens} = 2.625 + 0.000053\,sales + 0.0446\,profmarg,
+  \]
+  with $\hat\sigma$'s 0.586, 0.000044, 0.0462. $R^2 = 0.076$. \textbf{No coefficient is
+  significant at 10\%.}
+
+  \medskip
+  \textbf{Drop largest firm} ($sales \approx \$40$ billion, twice the next largest):
+  \[
+    \widehat{rdintens} = 2.297 + 0.000186\,sales + 0.0478\,profmarg,
+  \]
+  with new $\hat\sigma$'s 0.592, 0.000084, 0.0445. $R^2 = 0.173$.
+
+  \begin{highlightbox}
+    \textbf{Striking result:} Coefficient on $sales$ \textbf{more than triples}, becomes
+    \textbf{significant at 5\%}. The single large firm was masking the relationship.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Detecting Outliers: Studentized Residuals}
+
+  Are large residuals a reliable sign of outliers? \textbf{Not directly.}
+
+  \begin{keybox}
+    \textbf{Why raw residuals mislead:} OLS \emph{fits} to outliers, so the residual at an
+    outlier may actually be \textbf{small} (the line is dragged toward the outlier).
+  \end{keybox}
+
+  \begin{definitionbox}{Studentized Residuals}
+    The \textbf{studentized residual} for observation $h$ is the OLS residual divided by an
+    estimate of its standard deviation, computed \textbf{leaving observation $h$ out}.
+
+    \medskip
+    \textbf{Easy computation trick:} Add a dummy variable $d_h$ for observation $h$ to the
+    full regression. The \textbf{$t$-statistic} on $d_h$ \emph{is} the studentized residual
+    for $h$, with a $t_{n-k-2}$ distribution.
+  \end{definitionbox}
+
+  \textbf{Decision rule:} A large absolute studentized residual ($|t| > 2$ or 3) flags
+  observation $h$ as an outlier.
+
+\end{frame}
+
+\begin{frame}{Studentized Residuals: Caveats}
+
+  \textbf{In Example 9.8} (32 firms):
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item Largest firm's studentized residual: $-1.82$ ($p = 0.08$). Marginally significant
+    but not extreme.
+    \item First observation ($rdintens \approx 9.42$) has studentized residual $4.56$ — much
+    larger.
+  \end{itemize}
+
+  \begin{highlightbox}
+    \textbf{Surprise:} Dropping the first observation \emph{barely} changes the estimates.
+    The largest studentized residual is \textbf{not} the most influential observation.
+
+    \medskip
+    \textbf{Lesson:} Studentized residuals identify \emph{extreme residuals}, not necessarily
+    \emph{influential observations}.
+  \end{highlightbox}
+
+  \textbf{Best practice:}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item Plot the data — visualize before computing.
+    \item Run regression \textbf{with and without} suspect observations.
+    \item Report differences honestly; let readers judge.
+    \item \textbf{Don't just delete} unless the observation is clearly a data entry error.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Example 9.10: Infant Mortality (INFMRT)}
+
+  $n = 51$ states + DC. All variables in logs:
+  \[
+    \widehat{infmort} = 33.86 - 4.68 \log(pcinc) + 4.15 \log(physic) - 0.088 \log(popul).
+  \]
+  Standard errors: 20.4, 2.6, 1.5, 0.29. $R^2 = 0.139$.
+
+  \medskip
+  \textbf{Surprise:} more physicians per capita $\Rightarrow$ \emph{higher} infant mortality?
+
+  \begin{keybox}
+    \textbf{DC is unusual:} highest infant mortality (20.7 vs. 12.4 max elsewhere) AND
+    most physicians (615 vs.\ 337 max elsewhere). Both extreme.
+  \end{keybox}
+
+  \textbf{Drop DC:}
+  \[
+    \widehat{infmort} = 23.95 - 0.57 \log(pcinc) - 2.74 \log(physic) + 0.629 \log(popul).
+  \]
+  Now $\log(physic)$ has the \textbf{expected negative sign} and is significant.
+
+  \begin{highlightbox}
+    \textbf{Conclusion:} DC was \textbf{driving} the wrong sign. Reasonable to exclude (DC
+    has unique demographic concentrations).
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Functional Form and Outlier Sensitivity}
+
+  Some functional forms are \textbf{less sensitive} to outliers.
+
+  \begin{keybox}
+    \textbf{Logarithmic transformations} narrow the range of economic variables and reduce
+    outlier influence.
+
+    \medskip
+    \textbf{Example 9.9 redux:} Re-estimate the R\&D model in log--log:
+    \[
+      \log(rd) = \beta_0 + \beta_1 \log(sales) + \beta_2 profmarg + u.
+    \]
+  \end{keybox}
+
+  \textbf{All 32 firms:}
+  \[
+    \widehat{\log(rd)} = -4.378 + 1.084 \log(sales) + 0.0217\,profmarg,\ R^2 = 0.918.
+  \]
+  \textbf{Drop largest firm:}
+  \[
+    \widehat{\log(rd)} = -4.404 + 1.088 \log(sales) + 0.0218\,profmarg,\ R^2 = 0.904.
+  \]
+
+  \begin{highlightbox}
+    \textbf{Practically identical results.} The log--log specification is much more robust
+    to outliers — a strong argument for using logs in skewed economic data.
+  \end{highlightbox}
+
+\end{frame}
+
+%% ============================================================
+\section{Least Absolute Deviations Estimation (\S9-6)}
+%% ============================================================
+
+\begin{frame}{Least Absolute Deviations (LAD)}
+
+  Rather than identifying and removing outliers, an alternative: use an estimator
+  \textbf{less sensitive} to outliers.
+
+  \begin{definitionbox}{LAD Estimator}
+    The LAD estimators of $\beta_0, \beta_1, \ldots, \beta_k$ \textbf{minimize the sum of
+    absolute residuals}:
+    \[
+      \min_{b_0, b_1, \ldots, b_k}\ \sum_{i=1}^n |y_i - b_0 - b_1 x_{i1} - \cdots - b_k x_{ik}|.
+      \tag{9.45}
+    \]
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{Key contrast with OLS:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{OLS} minimizes $\sum (residual)^2$ — large residuals heavily penalized.
+      \item \textbf{LAD} minimizes $\sum |residual|$ — outliers receive \textbf{linear}
+      penalty, not quadratic.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{LAD vs.\ OLS: Visual Comparison}
+
+  \begin{center}
+  \begin{tikzpicture}[scale=0.95]
+    \draw[->, thick] (-4.5, 0) -- (4.5, 0) node[right] {$u$ (residual)};
+    \draw[->, thick] (0, -0.3) -- (0, 4.5) node[above] {Loss};
+    % Grid markings
+    \foreach \x in {-4, -2, 2, 4} \draw (\x, 0.05) -- (\x, -0.05) node[below] {\scriptsize \x};
+    % OLS: parabola u^2 (scaled)
+    \draw[domain=-3.5:3.5, samples=80, smooth, very thick, orange!90!black]
+      plot (\x, {0.3*\x*\x});
+    \node[orange!90!black] at (3.0, 3.5) {OLS: $u^2$};
+    % LAD: |u|
+    \draw[very thick, blue!70!black] (-3.5, 3.5) -- (0, 0) -- (3.5, 3.5);
+    \node[blue!70!black] at (-2.5, 1.8) {LAD: $|u|$};
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{Reading the picture:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item OLS loss grows \textbf{quadratically} — large residuals dominate.
+      \item LAD loss grows \textbf{linearly} — large residuals get bounded weight.
+      \item LAD is \textbf{robust to outliers} in $y$.
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{LAD Estimates the Conditional Median}
+
+  \begin{definitionbox}{LAD and the Conditional Median}
+    OLS estimates the \textbf{conditional mean}: $\E(y \mid x_1, \ldots, x_k)$.
+
+    \medskip
+    LAD estimates the \textbf{conditional median}: $\text{Med}(y \mid x_1, \ldots, x_k)$.
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{Why this matters:} The median is not affected by extreme observations in the
+    same way as the mean. So LAD estimates are \textbf{resilient} to outliers in $y$.
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Symmetry caveat:} If the conditional distribution of $y$ given $x$'s is
+    \textbf{symmetric}, then \textbf{mean = median}, and LAD and OLS estimate the same
+    parameters.
+
+    \medskip
+    \textbf{If asymmetric:} LAD and OLS estimate \emph{different} quantities. The choice
+    depends on \textbf{whether you care about the mean or the median} effect.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{LAD: Computation and Inference}
+
+  \begin{keybox}
+    \textbf{Computation:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item No closed-form solution (unlike OLS).
+      \item Requires \textbf{linear programming}.
+      \item Historically computationally heavy; modern computers handle large samples easily.
+    \end{itemize}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Inference:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item No \textbf{exact} small-sample distributions ($t$, $F$).
+      \item Statistical inference is \textbf{asymptotic} (large-sample).
+      \item Software reports asymptotic standard errors based on the conditional density of
+      the error at zero.
+      \item Formulas are more complex than OLS — see Koenker (2005) for treatment.
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{Practical note:} For modest samples ($n < 200$) the asymptotic approximation may be
+  poor — bootstrap is often preferred.
+
+\end{frame}
+
+\begin{frame}{When to Choose LAD over OLS}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|l|l}
+  \hline
+  Scenario & Use OLS & Use LAD \\
+  \hline
+  No outliers, symmetric errors & ✓ (more efficient) & — \\
+  Outliers in $y$ & risky & ✓ (robust) \\
+  Asymmetric errors & estimates mean & estimates median \\
+  Skewed dependent variable & risky & ✓ (often more interpretable) \\
+  Need exact small-sample inference & ✓ & ✗ \\
+  Large samples & ✓ & ✓ \\
+  Mean is the policy quantity & ✓ & ✗ \\
+  Median is the policy quantity & ✗ & ✓ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{Recommendation:} Always run \textbf{both OLS and LAD} as a robustness check on
+    important results. Differences between them \emph{point to specific problems} (outliers,
+    asymmetry).
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Quantile Regression Generalization}
+
+  LAD estimates the \textbf{conditional median}. We can generalize to other quantiles.
+
+  \begin{definitionbox}{Quantile Regression (Koenker--Bassett 1978)}
+    For quantile $\tau \in (0, 1)$, the $\tau$-th quantile regression minimizes:
+    \[
+      \min_{b_0, \ldots, b_k}\ \sum_{i=1}^n \rho_\tau\bigl(y_i - b_0 - b_1 x_{i1} - \cdots - b_k x_{ik}\bigr),
+    \]
+    where $\rho_\tau(u) = u\bigl(\tau - \mathbf{1}\{u < 0\}\bigr)$ is the
+    \textbf{check function}.
+
+    \medskip
+    \textbf{Special case:} $\tau = 0.5$ gives LAD (median regression).
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{Why useful:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Different effect at the \textbf{bottom} ($\tau = 0.1$) vs.\ \textbf{top}
+      ($\tau = 0.9$) of the conditional distribution of $y$.
+      \item E.g., effect of education on \emph{low-wage} workers vs.\ \emph{high-wage} workers
+      can be very different.
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Practical Decision Tree}
+
+  \begin{center}\footnotesize
+  \begin{tikzpicture}[scale=0.85, every node/.style={font=\scriptsize, align=center}]
+    \node[draw, fill=blue!10] (root) at (0, 5) {\textbf{Diagnosis: Does my regression have problems?}};
+
+    \node[draw, fill=orange!10] (q1) at (-4, 4) {Functional form?};
+    \node[draw, fill=blue!20] (s1) at (-4, 3) {RESET / DM test\\Add quadratics, logs};
+
+    \node[draw, fill=orange!10] (q2) at (0, 4) {Omitted variable?};
+    \node[draw, fill=blue!20] (s2) at (0, 3) {Find proxy or\\lagged $y$};
+
+    \node[draw, fill=orange!10] (q3) at (4, 4) {Mismeasured $x$?};
+    \node[draw, fill=blue!20] (s3) at (4, 3) {Use IV (Ch.~15)};
+
+    \node[draw, fill=orange!10] (q4) at (-4, 1.5) {Missing data?};
+    \node[draw, fill=blue!20] (s4) at (-4, 0.5) {Use complete cases\\if MCAR};
+
+    \node[draw, fill=orange!10] (q5) at (0, 1.5) {Sample selection?};
+    \node[draw, fill=blue!20] (s5) at (0, 0.5) {Heckman (Ch.~17)\\if endogenous};
+
+    \node[draw, fill=orange!10] (q6) at (4, 1.5) {Outliers?};
+    \node[draw, fill=blue!20] (s6) at (4, 0.5) {Use logs, LAD,\\or robust SEs};
+
+    \draw[->] (root) -- (q1); \draw[->] (root) -- (q2); \draw[->] (root) -- (q3);
+    \draw[->] (q1) -- (s1); \draw[->] (q2) -- (s2); \draw[->] (q3) -- (s3);
+    \draw[->] (root) -- (q4); \draw[->] (root) -- (q5); \draw[->] (root) -- (q6);
+    \draw[->] (q4) -- (s4); \draw[->] (q5) -- (s5); \draw[->] (q6) -- (s6);
+  \end{tikzpicture}
+  \end{center}
+
+\end{frame}
+
+\begin{frame}{Chapter 9 Summary}
+
+  \begin{highlightbox}
+    \textbf{Specification problems and solutions:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Functional form:} RESET, Davidson--MacKinnon, add quadratics/logs.
+      \item \textbf{Omitted variables:} Proxy variables, lagged dependent variables.
+      \item \textbf{Random slopes:} OLS works (with robust SEs) for the average effect.
+      \item \textbf{Measurement error in $y$:} OLS unbiased; just larger SEs.
+      \item \textbf{Measurement error in $x$ (CEV):} attenuation bias toward zero.
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{highlightbox}
+    \textbf{Data problems:}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Missing data (MCAR):} complete cases works; MIM is risky.
+      \item \textbf{Exogenous selection:} OLS unbiased.
+      \item \textbf{Endogenous selection:} OLS biased — needs Heckman or similar.
+      \item \textbf{Outliers:} Detect with studentized residuals; use logs or LAD for
+      robustness.
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Looking Ahead}
+
+  \begin{keybox}
+    \textbf{Limitation of Chapter 9:} All solutions here use \textbf{OLS on a single
+    cross-section}. Some problems (especially measurement error in $x$, endogenous
+    selection) cannot be fully fixed this way.
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Tools we'll add later:}
+    \begin{itemize}\setlength{\itemsep}{2pt}
+      \item \textbf{Time series} (Chs.~10--12): repeated observations over time.
+      \item \textbf{Panel data} (Chs.~13--14): cross-section + time series.
+      \item \textbf{Instrumental variables / 2SLS} (Ch.~15): direct fix for endogeneity.
+      \item \textbf{Limited dependent variables} (Ch.~17): selection corrections, censored
+      data.
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{center}
+  \vspace{0.5em}
+  {\Huge \textcolor{SUFEGold}{\textbf{Thank you!}}}\\[0.5em]
+  \large Next: Chapter 10 (Time Series Basics)
+  \end{center}
+
+\end{frame}
+
+\end{document}
