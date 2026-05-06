@@ -1,0 +1,4693 @@
+%% ============================================================
+%% 专题讲座 S3：二元选择模型——半参数方法
+%% Special Topics S3: Binary Choice Models — Semiparametric Methods
+%% 中级计量经济学（研究生）— 山东财经大学
+%% 主要参考：Caetano Nonparametric Lecture Notes Class 5-6;
+%%           Hansen Econometrics Ch.25;
+%%           Li & Racine (2007) Nonparametric Econometrics;
+%%           Ichimura (1993) JOE; Klein & Spady (1993) Econometrica;
+%%           Manski (1975, 1985) JOE; Horowitz (1992) Econometrica;
+%%           Newey (1990) JEcon; Kim & Pollard (1990) Annals.
+%% ============================================================
+\documentclass[aspectratio=169, 10pt]{beamer}
+\input{header}
+\usepackage{dsfont}             % Double-struck digits: \mathds{1}
+\usepackage{cancel}             % Strikethrough in math
+\usepackage{multirow}
+% Override Beamer body sans-serif with CJK-capable font
+\setsansfont[BoldFont=Microsoft YaHei Bold]{Microsoft YaHei}
+
+% Narrow the gap between frame title and body; tighten list/paragraph spacing.
+\setbeamertemplate{frametitle}[default][left]
+\addtobeamertemplate{frametitle}{\vspace{-0.1em}}{%
+  \vspace{-0.5em}{\color{SUFEGold}\rule{\textwidth}{0.5pt}}\vspace{-0.8em}}
+\setbeamersize{text margin left=6mm, text margin right=6mm}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+\setlength{\itemsep}{1pt}
+\setlength{\parsep}{0pt}
+\tolerance=2000
+\setlength{\emergencystretch}{3em}
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+\title[Binary Choice -- Semiparametric]{%
+  二元选择模型：半参数方法 \\[4pt]
+  {\normalsize\itshape Binary Choice Models: Semiparametric Methods}}
+\subtitle{Intermediate Econometrics}
+\author[Jia Chengye / SUFE]{Jia Chengye}
+\institute{%
+  School of Economics \\
+  Shandong University of Finance and Economics}
+\date{Spring 2026}
+
+%% ============================================================
+\begin{document}
+%% ============================================================
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+%% ------------------------------------------------------------
+\begin{frame}{本讲目录}
+  \footnotesize
+  \begin{columns}[t]
+    \column{0.5\textwidth}
+    \tableofcontents[hideallsubsections, sections={1-8}]
+    \column{0.5\textwidth}
+    \tableofcontents[hideallsubsections, sections={9-16}]
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\section{半参数方法的动因与定位}
+%% ============================================================
+
+%% ----- Frame 1 -----
+\begin{frame}{三方法回顾：参数 / 非参数 / 半参数}
+
+  本系列三讲从不同角度估计二元选择模型 $\Pr(Y=1\mid X)$：
+
+  \begin{center}\scriptsize
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{p{2.5cm}|p{4cm}|p{4cm}|p{4cm}}
+  \hline
+   & \textbf{参数 (S1)} & \textbf{非参数 (S2)} & \textbf{半参数 (S3)} \\
+  \hline
+  模型形式 & $\Pr(Y=1\mid X)=G(X'\beta)$，$G$ \textbf{已知} & $\Pr(Y=1\mid X)=m(X)$，$m$ 完全未知 & $\Pr(Y=1\mid X)=G(X'\beta)$，$G$ \textbf{未知} \\
+  \hline
+  待估对象 & 有限维 $\beta$ & 无穷维函数 $m(\cdot)$ & 有限维 $\beta$ + 未知函数 $G(\cdot)$ \\
+  \hline
+  $\beta$ 收敛速度 & $\sqrt{n}$ & --- & $\sqrt{n}$ \\
+  \hline
+  函数收敛速度 & --- & $n^{-2/(4+d)}$ & $n^{-2/5}$（一维 $G$）\\
+  \hline
+  错设定风险 & 高（$G$ 错则不一致） & 几乎无（无函数假设） & 中（$G$ 自由，但单指数结构需正确）\\
+  \hline
+  \end{tabular}%
+  }
+  \end{center}
+
+  \begin{keybox}
+    \textbf{半参数方法的承诺：}保留参数模型对 $\beta$ 的 $\sqrt{n}$ 速度，
+    同时放松对 $G$ 的分布假设——\textbf{兼顾速度与稳健}。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 2 -----
+\begin{frame}{维数诅咒：完全非参数方法的代价}
+
+  完全非参数估计 $m(x) = \Pr(Y=1\mid X=x)$ 时，
+  最优收敛速度依赖回归元维数 $d$：
+  $$\text{MSE}\{\hat m(x)\} = O\!\left(n^{-\frac{4}{4+d}}\right) \qquad
+  \text{即} \qquad \hat m(x) - m(x) = O_p\!\left(n^{-\frac{2}{4+d}}\right).$$
+
+  \vspace{-0.5em}
+  \begin{center}\footnotesize
+  \begin{tabular}{c|c|c|c}
+  \hline
+  维数 $d$ & 收敛速度 & 达到 $\hat m$ 误差 0.01 所需样本 & 实际可行性 \\
+  \hline
+  $1$ & $n^{-2/5}$  & $\approx 10^5$  & 容易 \\
+  $2$ & $n^{-1/3}$  & $\approx 10^6$  & 可行 \\
+  $4$ & $n^{-1/4}$  & $\approx 10^8$  & 困难 \\
+  $6$ & $n^{-1/5}$  & $\approx 10^{10}$ & 几乎不可能 \\
+  $10$ & $n^{-1/7}$  & $\approx 10^{14}$ & 不可能 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{结论：}经济应用中 $d$ 经常 $\geq 5$。完全非参数方法\textbf{不可行}。
+    必须\textbf{施加部分结构}以恢复实用收敛速度——这是半参数方法的根本动机。
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 3 -----
+\begin{frame}{偏误—方差权衡：模型结构的价值}
+
+  \textbf{核心权衡：}施加结构假设 $\Leftrightarrow$ 加快收敛速度，但承担错设定偏误风险。
+
+  \vspace{0.3em}
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3.5cm}|c|c|p{4cm}}
+  \hline
+  方法 & 结构假设 & 速度 & 错设定后果 \\
+  \hline
+  Probit / Logit (S1) & $G$ 已知（$\Phi$ 或 $\Lambda$） & $\sqrt{n}$ & $\hat\beta$ \textbf{不一致}（偏误不消失）\\
+  完全非参数 (S2) & 无 & $n^{-2/(4+d)}$ & 几乎无（仅维数诅咒）\\
+  半参数 (S3) & 仅单指数结构 & $\sqrt{n}$ & 单指数错则不一致；\\
+  & & & $G$ 错无关紧要\\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3em}
+  \begin{keybox}
+    \textbf{半参数方法的智慧：}在\textbf{单指数}这一较弱、可解释的结构假设下，
+    把分布形态 $G$ 留给数据决定。当此假设大致正确时，
+    我们既\textbf{规避维数诅咒}（$\beta$ 是 $\sqrt{n}$），
+    又\textbf{规避分布错设定}（$G$ 由非参数恢复）。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 4 -----
+\begin{frame}{半参数方法的核心思想}
+
+  \begin{definitionbox}{{半参数模型 (Semiparametric Model)}}
+    模型可表示为
+    $$m(X, Z; \theta) = m(X, Z; \beta, g)$$
+    其中：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{$\beta \in \mathbb{R}^k$}：有限维参数（待估，目标对象）
+      \item \textbf{$g(\cdot)$}：未知函数（无穷维干扰参数 / nuisance parameter）
+    \end{itemize}
+  \end{definitionbox}
+
+  \vspace{-0.3em}
+  \begin{highlightbox}
+    \textbf{关键理论性质：}在适当条件下，
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\hat\beta$ 以 $\sqrt{n}$ 速度收敛，且渐近正态；
+      \item $\hat g$ 以非参数速度（如 $n^{-2/5}$）收敛；
+      \item $\hat\beta$ 的渐近分布\textbf{不受 $\hat g$ 估计误差影响}（\emph{adaptive}）。
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{两个收敛速度共存：}虽然 $g$ 估计较慢，但 $\beta$ 仍可达到参数速度——
+    因为 $\beta$ 是有限维，而 $g$ 的估计误差在 $\beta$ 的均值层面相互抵消。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 5 -----
+\begin{frame}{二元选择中的半参数动机}
+
+  \textbf{为什么对二元选择特别重要？}
+
+  \vspace{0.3em}
+  在 S1（参数）中我们假设
+  $$\Pr(Y=1\mid X) = G(X'\beta), \qquad G \in \{\Phi, \Lambda\}.$$
+
+  但 $G$ 来自误差项分布的假设：
+  $$\varepsilon \sim \mathcal{N}(0,1) \;\Rightarrow\; G = \Phi; \qquad
+  \varepsilon \sim \text{Logistic} \;\Rightarrow\; G = \Lambda.$$
+
+  \vspace{-0.2em}
+  \begin{highlightbox}
+    \textbf{若误差分布错设定：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Probit MLE $\hat\beta_{\text{Probit}}$ 不一致（除非偶然 $G$ 真的是 $\Phi$）
+      \item 边际效应 APE 也不一致
+      \item 异方差性下 Probit 全面失灵
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{半参数解决方案：}假设 $\Pr(Y=1\mid X) = G(X'\beta)$，但让 $G$ 由数据决定。
+    保留单指数结构（即效用函数线性）以避免维数诅咒，
+    但放弃 $G = \Phi$ 这一不可验证的分布假设。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 6 -----
+\begin{frame}{收敛速度二元性：为什么这能工作？}
+
+  \textbf{$\sqrt{n}$ 与非参数速度并存看似矛盾，实际由"信息聚合"机制保证。}
+
+  \vspace{0.3em}
+  \begin{definitionbox}{收敛速度的双层结构}
+    在单指数模型 $\Pr(Y=1\mid X) = G(X'\beta)$ 中：
+    \begin{itemize}\setlength{\itemsep}{2pt}
+      \item \textbf{$\beta$ 的估计}：将 $n$ 个观测的信息合并为一个 $k$ 维向量的估计；
+      平均效应使个别误差相互抵消 $\Rightarrow$ $\hat\beta - \beta_0 = O_p(n^{-1/2})$.
+      \item \textbf{$G(\cdot)$ 的估计}：要在每个 $u$ 点估计 $G(u)$，
+      只能利用邻近 $u$ 的观测；局部样本量 $\approx nh \ll n$ $\Rightarrow$
+      $\hat G(u) - G(u) = O_p((nh)^{-1/2})$，加上偏误项后整体速度 $n^{-2/5}$.
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{核心洞察：}当我们关心 $\beta$ 时，$\hat G$ 的估计误差被\textbf{平均掉}，
+    具体表现为 $\hat\beta - \beta_0$ 的渐近方差中，
+    $\hat G$ 的估计误差以\emph{二阶项}形式出现，可被忽略。
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 7 -----
+\begin{frame}{三种半参数模型预览}
+
+  本讲将主要研究单指数模型，但首先简介两个重要相关模型：
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{2.8cm}|p{4cm}|p{4.5cm}|c}
+  \hline
+  模型类别 & 函数形式 & 适用场景 & 本讲位置 \\
+  \hline
+  部分线性模型 (PLM) & $Y = X'\beta + g(Z) + u$ &
+  $X$ 为线性效应，$Z$ 为非参数控制 & Part 2（简介）\\
+  \hline
+  单指数模型 (SIM) & $Y = G(X'\beta) + u$ &
+  $Y$ 仅通过 $X'\beta$ 依赖 $X$ & Part 3-7（核心）\\
+  \hline
+  加法模型 & $Y = \sum_l g_l(X_l) + u$ &
+  各回归元加法分离 & Part 9（简介）\\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{为什么聚焦单指数模型？}它是\textbf{二元选择半参数化的自然推广}：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Probit/Logit 已经是单指数（$G = \Phi$ 或 $\Lambda$）
+      \item 半参数化 $\Leftrightarrow$ 仅放松 $G$ 的形态
+      \item 经济学解释力强：$X'\beta$ 为效用、净收益的线性近似
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 8 -----
+\begin{frame}{半参数效率界（Newey 1990 简介）}
+
+  \textbf{效率界 (efficiency bound)}：在给定模型类下渐近方差的下界。
+
+  \vspace{0.3em}
+  \begin{definitionbox}{半参数效率界}
+    设 $\hat\beta$ 是任意 $\sqrt{n}$ 一致渐近正态估计量。
+    在半参数模型 $\Pr(Y=1\mid X) = G(X'\beta)$ 下，存在最小可能的渐近方差矩阵
+    $V^{*}(\beta_0)$，使得对任何"正则"估计量 $\hat\beta$：
+    $$\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} \mathcal{N}(0, V),
+    \qquad V \succeq V^{*}(\beta_0).$$
+    $V^{*}$ 称为\textbf{半参数效率下界}。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{Newey (1990) 关键结论：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 当 $G$ 已知时（参数模型）：效率界 = Cramér-Rao 下界
+      \item 当 $G$ 未知时（半参数）：效率界 \textbf{严格大于} 参数 CR 下界
+      \item Klein-Spady (1993) 估计量\textbf{达到}半参数效率界
+      \item Ichimura (1993) 估计量一般\textbf{不达到}效率界
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{含义：}放弃 $G$ 已知的假设有"信息代价"，但 Klein-Spady 的代价最小。
+
+  \hypertarget{main-c10}{}
+  \hfill{\scriptsize\hyperlink{proof-c10}{\beamergotobutton{效率界推导}}}
+
+\end{frame}
+
+%% ----- Frame 9 -----
+\begin{frame}{什么是"未知函数 $G$"？——形态展示}
+
+  Probit/Logit 假设 $G$ 是特定 CDF；半参数方法允许 $G$ 是任何
+  $[0,1]$ 单调函数。
+
+  \begin{center}
+  \begin{tikzpicture}[scale=0.95]
+    \draw[->, thick] (-3, 0) -- (3.3, 0) node[right] {$u = x'\beta$};
+    \draw[->, thick] (0, -0.3) -- (0, 1.6) node[above] {$G(u)$};
+    \draw[dashed, gray] (-3, 1.2) -- (3, 1.2);
+    \node[gray] at (3.3, 1.2) {\scriptsize $1$};
+    % Probit (Phi)
+    \draw[domain=-3:3, samples=80, smooth, very thick, blue!70!black]
+      plot (\x, {1.2/(1+exp(-1.6*\x))});
+    \node[blue!70!black] at (-2.5, 1.05) {\scriptsize Probit $G=\Phi$};
+    % Logit (steeper near 0)
+    \draw[domain=-3:3, samples=80, smooth, dashed, thick, red!60!black]
+      plot (\x, {1.2/(1+exp(-1.0*\x))});
+    \node[red!60!black] at (2.5, 0.6) {\scriptsize Logit $G=\Lambda$};
+    % Asymmetric / nonparametric example
+    \draw[domain=-3:3, samples=120, smooth, very thick, orange!80!black]
+      plot (\x, {0.6 + 0.6*tanh(\x - 0.5) - 0.15*sin(deg(2*\x))});
+    \node[orange!80!black] at (1.8, 1.4) {\scriptsize 真实 $G$（未知）};
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{半参数自由度：}允许 $G$ 是非对称（如左偏、右偏）、
+    具有平台、尾部肥厚等任何符合 $[0,1]$ 单调性的形态。
+    Probit / Logit 都是\textbf{两种特定情形}，事先无法知道哪个对真实数据合适。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 10 -----
+\begin{frame}{本讲结构概览}
+
+  本讲围绕"二元选择模型的半参数估计"展开：
+
+  \begin{center}\scriptsize
+  \begin{tabular}{p{1cm}|p{6.5cm}|p{6cm}}
+  \hline
+  Part & 内容 & 核心估计量 \\
+  \hline
+  1 & 动机与定位 & — \\
+  2 & 部分线性模型简介 & Robinson (1988) \\
+  3 & 单指数模型：定义与识别 & SIM 框架 \\
+  4 & Ichimura 半参数最小二乘 + PSS 加权平均导数 & Ichimura (1993); PSS (1989) \\
+  5 & Klein-Spady 半参数 MLE + Han MRC & Klein \& Spady (1993); Han (1987) \\
+  6 & Manski 最大得分 & Manski (1975) \\
+  7 & Horowitz 平滑最大得分 + Lewbel 特殊回归元 & Horowitz (1992); Lewbel (2000) \\
+  8 & 检验与诊断 & Hausman 类、链接函数检验 \\
+  9 & 其他半参数模型 & 加法、变系数、多指数 \\
+  10 & 倾向得分与 IPW & Hirano-Imbens-Ridder (2003) \\
+  11 & 实证应用：MROZ & 八种方法对比 \\
+  12 & 总结 & 决策树 \\
+  附录 & 17 个证明帧 & 重要定理推导 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{学习目标：}理解 $\sqrt{n}$ 一致性如何在 $G$ 未知下保持；
+    掌握八种估计量的识别条件、渐近性质、计算方法、适用情境。
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{部分线性模型（简介）}
+%% ============================================================
+
+%% ----- Frame 11 -----
+\begin{frame}{部分线性模型 (PLM)：作为半参数的概念桥梁}
+
+  \begin{definitionbox}{{部分线性模型 (Partially Linear Model, Robinson 1988)}}
+    $$Y = X'\beta + g(Z) + u, \qquad \mathbb{E}[u\mid X, Z] = 0.$$
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $X \in \mathbb{R}^k$：以\textbf{线性形式}进入模型的回归元
+      \item $Z \in \mathbb{R}^q$：以\textbf{未知函数 $g(\cdot)$ 形式}进入的回归元
+      \item 允许异方差：$\sigma^2(X, Z) = \mathrm{Var}(u\mid X, Z)$
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{重要说明（适用范围）：}PLM 的标准形式是为\textbf{连续 $Y$} 设计的（如工资、对数房价）。
+    对二元 $Y$，直接套用 PLM 等价于线性概率模型 + 非参数控制——
+    继承 LPM 的所有问题（预测概率超出 $[0,1]$、异方差）。
+  \end{keybox}
+
+  \textbf{为什么本讲仍要简介 PLM？}它展示了所有半参数方法共享的核心思想：
+  \textbf{条件化 + 双残差 + $\sqrt{n}$ 估计 $\beta$}——这些思想在 Ichimura、KS 中以变体形式重现。
+  \hfill{\scriptsize\textit{Robinson (1988) Econometrica}}
+
+\end{frame}
+
+%% ----- Frame 12 -----
+\begin{frame}{Robinson (1988) 识别策略：条件化技巧}
+
+  \textbf{Robinson 的关键洞察：}对原模型两侧条件 $Z$，
+  $$\mathbb{E}[Y\mid Z] = \mathbb{E}[X\mid Z]'\beta + g(Z).$$
+
+  从原模型减去此式：
+  $$\boxed{\;Y - \mathbb{E}[Y\mid Z] \;=\; \bigl(X - \mathbb{E}[X\mid Z]\bigr)'\beta + u\;}$$
+
+  \begin{highlightbox}
+    \textbf{两点同时成立：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 未知函数 $g(Z)$ \textbf{被消去}！
+      \item 剩余模型是\textbf{线性回归}：将 $\tilde Y = Y - \mathbb{E}[Y\mid Z]$ 对
+      $\tilde X = X - \mathbb{E}[X\mid Z]$ 做 OLS 即可。
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{识别条件}（Class 5 §2）：
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item $\Phi := \mathbb{E}[\tilde X \tilde X']$ 必须正定。
+    \item 必要条件：(a) $X$ 不含常数项；(b) $X$ 的任何分量不是 $Z$ 的确定函数。
+    \item 否则 $\tilde X = X - \mathbb{E}[X\mid Z] = 0$，$\Phi$ 退化。
+  \end{itemize}
+
+\end{frame}
+
+%% ----- Frame 13 -----
+\begin{frame}{Robinson 估计量与渐近正态性}
+
+  \textbf{两步估计程序：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{第一步}：用核回归（或 series）估计 $\hat{\mathbb{E}}[Y\mid Z]$ 与 $\hat{\mathbb{E}}[X\mid Z]$
+    \item \textbf{第二步}：构造 $\hat Y_i = Y_i - \hat{\mathbb{E}}[Y\mid Z_i]$，$\hat X_i = X_i - \hat{\mathbb{E}}[X\mid Z_i]$
+    \item \textbf{第三步}：OLS 回归 $\hat Y_i$ 对 $\hat X_i$，得到
+  \end{enumerate}
+  $$\hat\beta = \left[\sum_{i=1}^n \hat X_i \hat X_i'\right]^{-1} \sum_{i=1}^n \hat X_i \hat Y_i.$$
+
+  \begin{definitionbox}{{Robinson 定理（√n 渐近正态性）}}
+    在适当正则条件下（高阶核、$h \to 0$、$nh^4 \to \infty$、$nb^4 h^{4\nu} \to 0$ 等）：
+    $$\sqrt{n}(\hat\beta - \beta) \overset{d}{\to} \mathcal{N}(0, \Phi^{-1}\Psi\Phi^{-1}),$$
+    其中 $\Phi = \mathbb{E}[\tilde X \tilde X']$，$\Psi = \mathbb{E}[\sigma^2(X,Z) \tilde X \tilde X']$.
+  \end{definitionbox}
+
+  \hypertarget{main-c2}{}
+  \hfill{\scriptsize\hyperlink{proof-c2}{\beamergotobutton{Robinson PLM 推导}}}
+
+\end{frame}
+
+%% ----- Frame 14 -----
+\begin{frame}{Robinson 估计量的核心机制}
+
+  \textbf{为什么 $\hat\beta$ 仍能达到 $\sqrt{n}$ 速度？}
+
+  考虑分解：
+  $$\hat\beta - \beta = \left[\sum_i \hat X_i \hat X_i'\right]^{-1}
+  \sum_i \hat X_i \bigl\{u_i - [\hat{\mathbb{E}}(Y\mid Z_i) - \mathbb{E}(Y\mid Z_i)]
+  + [\hat{\mathbb{E}}(X\mid Z_i) - \mathbb{E}(X\mid Z_i)]'\beta\bigr\}.$$
+
+  \begin{highlightbox}
+    \textbf{三类项的渐近行为：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $u_i$ 项：均值零、独立 $\Rightarrow$ 给出主项 $O_p(n^{-1/2})$
+      \item 非参估计误差项：$O_p((nh^q)^{-1/2}) + O_p(h^{2\nu})$
+      \item \textbf{关键：}非参估计误差与 $\hat X_i$ 的乘积\textbf{被平均掉}，
+      贡献 $o_p(n^{-1/2})$
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{使用高阶核 (higher-order kernel)：}用 $\nu \geq 2$ 阶核可使偏误降为 $O(h^{2\nu})$，
+    再配合带宽 $h \sim n^{-1/(4\nu)}$ 即可保证 $nh^{4\nu} \to 0$，
+    \textbf{削掉}非参估计的偏误 $\Rightarrow$ $\sqrt{n}$ 速度成立。
+  \end{keybox}
+
+  \hypertarget{main-c3}{}
+  \hfill{\scriptsize\hyperlink{proof-c3}{\beamergotobutton{高阶核降偏证明}}}
+
+\end{frame}
+
+%% ----- Frame 15 -----
+\begin{frame}{PLM 与二元选择：过渡到单指数模型}
+
+  \textbf{为什么 PLM 不直接用于二元选择？}
+
+  \vspace{0.3em}
+  设 $Y \in \{0, 1\}$。直接套用 PLM 给出
+  $$\Pr(Y=1\mid X, Z) = X'\beta + g(Z),$$
+  这等价于 \textbf{线性概率模型 + 非参数控制}。问题：
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item 预测概率可能超出 $[0,1]$
+    \item 误差天然异方差，且似然不正确
+    \item 边际效应可能不合理（例如对 $X$ 的导数恒等于 $\beta_j$，与 Probit/Logit 边际效应"凹形"不符）
+  \end{itemize}
+
+  \begin{keybox}
+    \textbf{二元选择的自然推广：}将参数 $G(X'\beta)$ 中已知的 $G$ 改为未知函数：
+    $$\boxed{\;\Pr(Y=1\mid X) = G(X'\beta), \qquad G \text{ 未知}.\;}$$
+    这就是\textbf{单指数模型 (Single-Index Model)}——本讲核心。
+  \end{keybox}
+
+  \textbf{从 PLM 到 SIM 的逻辑跳跃：}
+  PLM 中"$X'\beta$"\textbf{加}入 $g(Z)$；
+  SIM 中"$X'\beta$"\textbf{进入} $G(\cdot)$ 的指标。后者天然适配二元选择的非线性。
+
+\end{frame}
+
+%% ============================================================
+\section{单指数模型：定义与识别}
+%% ============================================================
+
+%% ----- Frame 16 -----
+\begin{frame}{单指数模型 (Single-Index Model, SIM)}
+
+  \begin{definitionbox}{{单指数模型（一般形式）}}
+    $$Y = G(X'\beta_0) + u, \qquad \mathbb{E}[u\mid X] = 0,$$
+    其中：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{$\beta_0 \in \mathbb{R}^k$}：未知有限维参数（待估）
+      \item \textbf{$G(\cdot): \mathbb{R} \to \mathbb{R}$}：未知函数（待估）
+      \item \textbf{单指数}：$Y$ 仅通过\textbf{标量} $X'\beta_0$ 依赖 $X$
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{definitionbox}{{单指数模型（二元选择特例）}}
+    $$\Pr(Y=1\mid X) = G(X'\beta_0), \qquad Y \in \{0, 1\}.$$
+    此处 $G: \mathbb{R} \to [0, 1]$ 单调（一般取连续 CDF）。
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{语言对应：}
+    Probit/Logit 是单指数模型当 $G = \Phi$ 或 $\Lambda$ 为已知；
+    Ichimura、Klein-Spady、Manski、Horowitz 是单指数模型当 $G$ 未知。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 17 -----
+\begin{frame}{为什么用单指数？降维洞察}
+
+  \textbf{完全非参数} $\Pr(Y=1\mid X)$ 是 $k$ 维函数，需估计
+  $m: \mathbb{R}^k \to [0,1]$，速度 $n^{-2/(4+k)}$.
+
+  \textbf{单指数}假设 $\Pr(Y=1\mid X) = G(X'\beta_0)$ 把 $k$ 维"压缩"为一维：
+  $$\underbrace{m(x)}_{k\text{-dim}}
+  = \underbrace{G}_{1\text{-dim}}\!\bigl(\underbrace{x'\beta_0}_{k \text{ vars} \to 1\text{ scalar}}\bigr).$$
+
+  \begin{highlightbox}
+    \textbf{速度对比（$k=5$）：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 完全非参数：$n^{-2/9} \approx n^{-0.22}$
+      \item 单指数 $G$：$n^{-2/5} \approx n^{-0.40}$（$G$ 是\textbf{1 维}函数！）
+      \item 单指数 $\beta$：$n^{-1/2} \approx n^{-0.50}$（参数速度）
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{这是 SIM 的核心价值：}通过将 $X$ 压缩为标量 $X'\beta$，
+    把 $k$ 维平滑问题变为 1 维平滑问题——\textbf{彻底规避维数诅咒}。
+    代价：必须假设单指数结构正确。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 18 -----
+\begin{frame}{SIM 的两个识别问题：位置与尺度}
+
+  \textbf{未加约束时，单指数模型不可识别。}考虑两种"等价表达"：
+
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{位置}：$G(X'\beta_0) = G^{*}(X'\beta_0 + c) = \tilde G(X'\beta_0)$
+    其中 $\tilde G(u) := G^{*}(u + c)$，所以 $\beta_0$ 中的常数项无法识别。
+
+    \item \textbf{尺度}：$G(X'\beta_0) = G^{**}(X' \cdot c\beta_0) = \tilde{\tilde G}(X'\beta_0 \cdot c)$
+    其中 $\tilde{\tilde G}(u) := G^{**}(u/c)$，所以 $\beta_0$ 的整体尺度无法识别。
+  \end{enumerate}
+
+  \begin{highlightbox}
+    \textbf{两类正规化必须施加：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{位置正规化 (location normalization)}：$X$ \textbf{不}含常数项（无截距）
+      \item \textbf{尺度正规化 (scale normalization)}：$\|\beta_0\| = 1$，
+      或令第一分量 $\beta_{01} = 1$，或固定某分量为已知值
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{含义：}SIM 估计的 $\hat\beta$ 是\textbf{方向}（unit vector），不是绝对水平。
+  \hfill{\scriptsize\textit{Ichimura (1993); Hansen (2022) Ch.25}}
+  \hypertarget{main-c1}{}
+  \hfill{\scriptsize\hyperlink{proof-c1}{\beamergotobutton{识别详细推导}}}
+
+\end{frame}
+
+%% ----- Frame 19 -----
+\begin{frame}{识别条件：完整列表}
+
+  \begin{assumptionbox}
+  \textbf{识别假设 (SIM Identification, Ichimura 1993)：}
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{(位置正规化)} $X$ 不含常数项
+    \item \textbf{(尺度正规化)} $\|\beta_0\| = 1$ 或某分量固定
+    \item \textbf{(连续型回归元)} $X$ 中至少有一个连续分布的分量，且其对应 $\beta$ 系数不为零
+    \item \textbf{($G$ 非平凡)} $G(\cdot)$ 不是常数函数
+    \item \textbf{(参数空间紧)} $\beta_0$ 在紧集 $\Theta \subset \mathbb{R}^k$ 内部
+    \item \textbf{(支撑条件)} $X$ 的支撑非奇异（如 $\mathbb{E}[XX']$ 满秩）
+  \end{enumerate}
+  \end{assumptionbox}
+
+  \begin{keybox}
+    \textbf{为什么需要连续回归元？}如果 $X$ 全是离散变量（如二元、分类），
+    则 $X'\beta$ 仅取有限多个值，$G(\cdot)$ 在这些点之间不可识别。
+    至少一个连续 $X$ 让 $X'\beta$ 取连续值，使 $G$ 在足够丰富的点集上可估。
+  \end{keybox}
+
+  \textbf{为什么需要 $G$ 非平凡？}若 $G \equiv c$ 常数，则任何 $\beta$ 都给同样的 $\Pr(Y=1\mid X) = c$.
+
+\end{frame}
+
+%% ----- Frame 20 -----
+\begin{frame}{识别条件：连续回归元的关键作用}
+
+  \textbf{反例：所有 $X$ 离散。}设 $k=2$，$X_1, X_2 \in \{0, 1\}$。
+  那么 $X'\beta = \beta_1 X_1 + \beta_2 X_2$ 仅取 4 个值：$\{0, \beta_1, \beta_2, \beta_1+\beta_2\}$.
+
+  \vspace{0.3em}
+  对每种 $(X_1, X_2)$ 组合，我们只能识别概率 $\Pr(Y=1\mid X_1, X_2)$.
+  共 4 个概率值。但单指数方程
+  $$G(\beta_1 X_1 + \beta_2 X_2) = \Pr(Y=1\mid X)$$
+  本质上是 4 个标量方程对 $(\beta_1, \beta_2, G(\cdot))$ 的约束。
+
+  \begin{highlightbox}
+    \textbf{识别失败：}$G(\cdot)$ 是无穷维（一个函数），即使我们只关心其在 4 个点的取值，
+    仍有无穷多种 $(\beta_1, \beta_2, G)$ 组合产生相同的 4 个概率。\textbf{$\beta$ 不可识别}。
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{修复方法：}至少加一个连续 $X_3$（如年龄、收入），
+    使 $X'\beta = \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3$ 取连续多个值。
+    $G$ 在连续区间上被识别 $\Rightarrow$ 通过形态约束 $\beta_1, \beta_2$ 也被识别。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 21 -----
+\begin{frame}{识别的几何直观：等指标面}
+
+  $\Pr(Y=1\mid X) = G(X'\beta_0)$ 意味着\textbf{条件概率沿等指标面恒定}：
+  $$X_a'\beta_0 = X_b'\beta_0 \;\Rightarrow\; \Pr(Y=1\mid X_a) = \Pr(Y=1\mid X_b).$$
+
+  \vspace{-0.2em}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.85]
+    \draw[->, thick] (0, 0) -- (5.5, 0) node[right] {$X_1$};
+    \draw[->, thick] (0, 0) -- (0, 4.2) node[above] {$X_2$};
+    % Iso-index lines: X'β = const, with β = (1, 2)
+    \foreach \c in {1, 2, 3, 4} {
+      \draw[thick, blue!50!black, dashed] (0, \c/2) -- ({\c}, 0);
+    }
+    \node[blue!50!black] at (1.3, 0.4) {\scriptsize $X'\beta=1$};
+    \node[blue!50!black] at (2.5, 0.7) {\scriptsize $=2$};
+    \node[blue!50!black] at (3.7, 1.0) {\scriptsize $=3$};
+    \node[blue!50!black] at (4.5, 1.7) {\scriptsize $=4$};
+    % Sample points along one iso line
+    \fill[red!80] (0.6, 1.7) circle (2pt);
+    \fill[red!80] (1.6, 1.2) circle (2pt);
+    \fill[red!80] (2.4, 0.8) circle (2pt);
+    \draw[->, thick, red!70] (0.7, 1.7) to[bend left=15] (2.4, 0.8);
+    \node[red!70] at (3.3, 1.4) {\scriptsize 同等概率 $G(3)$};
+    % Direction of beta
+    \draw[->, very thick, orange] (4.3, 3.0) -- (4.9, 3.6) node[above right] {\scriptsize $\beta_0$};
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{识别的几何含义：}方向 $\beta_0$ 决定等概率超平面的法向量；
+    $G$ 沿该法向量描述概率随指标值变化的形态。
+    数据中相同 $X'\beta$ 的观测应有相同的 $\Pr(Y=1)$——这是 SIM 的核心可检验含义。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 22 -----
+\begin{frame}{收敛速度对比：参数 vs 半参数 vs 非参数}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3cm}|p{2.5cm}|p{2.5cm}|p{4cm}}
+  \hline
+  方法 & $\hat\beta$ 速度 & $\hat G$ 速度 & 说明 \\
+  \hline
+  Probit / Logit (S1) & $n^{-1/2}$ & 不估 ($G$ 已知) & MLE 效率 \\
+  \hline
+  Ichimura (1993) & $n^{-1/2}$ & $n^{-2/5}$ & SLS；不必效率 \\
+  Klein-Spady (1993) & $n^{-1/2}$ & $n^{-2/5}$ & MLE 类；达到效率界 \\
+  Manski (1975) & $n^{-1/3}$ & 不估 & 仅识别方向 \\
+  Horowitz (1992) & $n^{-2/5}$ & 不估 & Manski 的平滑改进 \\
+  \hline
+  完全非参数 (S2) & — & $n^{-2/(4+k)}$ & 无结构假设 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{速度对比解读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Ichimura、KS：$\beta$ 与参数 MLE 同速 $\Rightarrow$ \textbf{半参数化几乎没有速度代价}
+      \item Manski：$n^{-1/3}$ 立方根速率，远慢于 $\sqrt{n}$，因目标函数不光滑
+      \item Horowitz：通过平滑恢复至 $n^{-2/5}$，介于 Manski 与 Ichimura 之间
+      \item 完全非参数随 $k$ 增加而严重恶化（$k=5$ 时 $n^{-0.22}$）
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 23 -----
+\begin{frame}{半参数效率：Klein-Spady 的角色}
+
+  \textbf{在所有 $\sqrt{n}$ 一致估计量中，谁最有效？}
+
+  \vspace{0.3em}
+  \begin{definitionbox}{{半参数效率界 (Newey 1990)}}
+    在二元选择 SIM 模型 $\Pr(Y=1\mid X) = G(X'\beta_0)$ 中，
+    任何\textbf{正则}估计量 $\hat\beta$ 满足
+    $$\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} \mathcal{N}(0, V),
+    \qquad V \succeq V^{*}_{KS}(\beta_0).$$
+
+    其中 $V^{*}_{KS}$ 由"半参数信息矩阵"决定：
+    $$V^{*}_{KS} = \left(\mathbb{E}\!\left[
+    \frac{(G'(X'\beta_0))^2}{G(X'\beta_0)(1 - G(X'\beta_0))}
+    \tilde X \tilde X'\right]\right)^{-1}, \quad \tilde X = X - \mathbb{E}[X\mid X'\beta_0].$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{Klein-Spady 是有效的：}KS 估计量\textbf{达到}效率界 $V^{*}_{KS}$，
+    与 Probit MLE（$G$ 已知时的效率界）相比，仅相差 $\tilde X$ 替代 $X$ 这一调整。
+    Ichimura 估计量\textbf{不达到}效率界（除非异方差性特殊）。
+  \end{highlightbox}
+
+  \hfill{\scriptsize\hyperlink{proof-c10}{\beamergotobutton{效率界推导}}}
+
+\end{frame}
+
+%% ----- Frame 24 -----
+\begin{frame}{识别的可检验含义}
+
+  SIM 模型 $\Pr(Y=1\mid X) = G(X'\beta_0)$ 蕴含\textbf{可检验的限制}：
+
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{单指数限制}：$\Pr(Y=1\mid X) = \Pr(Y=1\mid X'\beta_0)$，
+    即条件概率仅依赖标量指标。可通过非参数估计 $\hat m(X)$ 与 SIM 估计 $\hat G(X'\hat\beta)$
+    的差异检验。
+
+    \item \textbf{$G$ 单调性}（若假设）：可通过非参数估计 $\hat G$ 的形态检验。
+
+    \item \textbf{Probit / Logit 嵌套限制}：参数模型 $G = \Phi$ 或 $\Lambda$ 是 SIM 的特例，
+    可通过 Hausman 检验比较 SIM 估计与参数估计。
+  \end{enumerate}
+
+  \begin{keybox}
+    \textbf{建模流程建议（Härdle 2004）：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item 用 SIM 估计 $\hat\beta$ 与 $\hat G$
+      \item 检验 $\hat G$ 是否近似 $\Phi$ / $\Lambda$
+      \item 若是，用 Probit / Logit（更高效）；若否，保留 SIM
+    \end{enumerate}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 25 -----
+\begin{frame}{从 SIM 框架到具体估计量：本部分总结}
+
+  截至此处，我们已建立 SIM 框架的所有要素：
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{4cm}|p{8cm}}
+  \hline
+  概念 & 内容 \\
+  \hline
+  \textbf{模型} & $\Pr(Y=1\mid X) = G(X'\beta_0)$，$G$ 未知，$\beta_0$ 待估 \\
+  \hline
+  \textbf{识别条件} & 位置 + 尺度正规化 + 连续回归元 + $G$ 非平凡 \\
+  \hline
+  \textbf{速度承诺} & $\hat\beta$ 在 $\sqrt{n}$，$\hat G$ 在 $n^{-2/5}$ \\
+  \hline
+  \textbf{效率上限} & Klein-Spady 达到效率界 \\
+  \hline
+  \textbf{几何直观} & $\beta_0$ 决定等概率面法向，$G$ 描述沿法向的概率形态 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{下一步：}如何在数据中估计 $(\beta, G)$？三大思路：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Part 4 — Ichimura (1993)}：最小化 $\sum_i (Y_i - \hat G(X_i'\beta))^2$
+      \item \textbf{Part 5 — Klein \& Spady (1993)}：最大化 $\sum_i [Y_i \log \hat G + (1-Y_i)\log(1-\hat G)]$
+      \item \textbf{Parts 6-7 — Manski / Horowitz}：直接最大化得分 $\sum_i (2Y_i - 1)\,\mathbf{1}\{X_i'\beta \geq 0\}$
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Ichimura (1993) 半参数最小二乘}
+%% ============================================================
+
+%% ----- Frame 26 -----
+\begin{frame}{Ichimura 估计量：核心思想}
+
+  \textbf{动机：}单指数模型 $Y = G(X'\beta) + u$ 中，若 $G$ 已知，
+  非线性最小二乘 (NLS) 给出
+  $$\hat\beta_{\text{NLS}} = \arg\min_{\beta} \sum_{i=1}^n [Y_i - G(X_i'\beta)]^2.$$
+
+  \begin{keybox}
+    \textbf{Ichimura (1993) 的洞察：}既然 $G$ 未知，
+    用\textbf{非参数估计 $\hat G$ 替换}它，再做最小二乘：
+    $$\hat\beta_{\text{Ich}} = \arg\min_{\beta} \sum_{i=1}^n [Y_i - \hat G(X_i'\beta; \beta)]^2.$$
+    其中 $\hat G(\cdot; \beta)$ 是给定 $\beta$ 时对函数 $G$ 的核估计。
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{两个层次的优化}（嵌套结构）：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{内层}：给定 $\beta$，用核回归估计 $\hat G(\cdot; \beta)$
+      \item \textbf{外层}：在 $\beta$ 上最小化平方误差和
+    \end{itemize}
+    内层是非参数估计，速率慢；外层是参数估计，速率 $\sqrt{n}$。
+  \end{highlightbox}
+
+  \hfill{\scriptsize\textit{Ichimura (1993) JOE; Class 5 §3.3}}
+
+\end{frame}
+
+%% ----- Frame 27 -----
+\begin{frame}[shrink=8]{留一核估计 (Leave-one-out kernel) $\hat G_{-i}$}
+
+  \textbf{为什么要"留一"？}避免 $Y_i$ 同时出现在内层 $\hat G$ 与外层 $Y_i - \hat G(X_i'\beta)$ 中——
+  否则会人为减小拟合误差，造成估计量\textbf{不一致}。
+
+  \begin{definitionbox}{{留一核估计 (Leave-one-out Nadaraya-Watson)}}
+    给定 $\beta$，对每个 $i$ 定义\textbf{留一核估计}：
+    $$\hat G_{-i}(z; \beta) \;=\;
+    \frac{\sum_{j \neq i} K\!\left(\dfrac{z - X_j'\beta}{h}\right) Y_j}
+         {\sum_{j \neq i} K\!\left(\dfrac{z - X_j'\beta}{h}\right)},$$
+    其中 $K$ 是核函数，$h$ 是带宽。
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{留一估计的关键性质：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\hat G_{-i}$ 不使用观测 $i$ 自己的 $Y_i$ $\Rightarrow$ 与 $Y_i$ 独立
+      \item $\hat G_{-i}(X_i'\beta; \beta)$ 是 $G(X_i'\beta_0)$ 的一致估计（在 $\beta = \beta_0$）
+      \item 但它仍依赖 $\beta$（出现在指数中），所以外层最小化对 $\beta$ 敏感
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 28 -----
+\begin{frame}{Ichimura 的目标函数 (SLS Criterion)}
+
+  \begin{definitionbox}{{Ichimura 半参数最小二乘 (SLS)}}
+    Ichimura 估计量是
+    $$\hat\beta \;=\; \arg\min_{\beta \in \Theta} \;
+    Q_n(\beta), \qquad
+    Q_n(\beta) = \frac{1}{n}\sum_{i=1}^n
+    \bigl[Y_i - \hat G_{-i}(X_i'\beta; \beta)\bigr]^2 \cdot w(X_i)\cdot \mathbf{1}\{X_i \in A_n\}.$$
+
+    其中：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $w(X_i) \geq 0$：权重函数（默认 $w \equiv 1$；可加权以提高效率）
+      \item $\mathbf{1}\{X_i \in A_n\}$：\textbf{修剪指示函数}，仅在密度足够高的区域 $A_n$ 计算
+      \item $h = h_n$：带宽，满足 $h \to 0$，$nh^q \to \infty$
+    \end{itemize}
+  \end{definitionbox}
+
+  \textbf{解读：}与 NLS 的形式完全相同，唯一区别是把 $G(X_i'\beta)$ 换成
+  其非参数估计 $\hat G_{-i}(X_i'\beta; \beta)$。
+
+  \hfill{\scriptsize\textit{Ichimura (1993) §3, equation (2.7)}}
+
+\end{frame}
+
+%% ----- Frame 29 -----
+\begin{frame}{修剪 (Trimming) 与权重函数 $w(X)$}
+
+  \textbf{为什么需要修剪？}在 $X$ 密度低的区域，$\hat G_{-i}$ 的分母
+  $\sum_j K((z - X_j'\beta)/h)$ 接近 $0$，导致估计不稳定。
+
+  \begin{definitionbox}{{修剪集 (Trimming Set)}}
+    定义 $A_n = \{x: \hat f(x'\beta) \geq b_n\}$，其中 $\hat f$ 是
+    $X'\beta$ 的密度核估计，$b_n \to 0$ 缓慢。
+    仅对 $X_i \in A_n$ 的观测计入目标函数。
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{Class 5 §3.3 实务注解（Caetano）：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 理论上 $b_n \to 0$ 才保证渐近行为
+      \item 实际上当样本足够大时，可以\textbf{不修剪}（$A_n = \mathbb{R}^k$）
+      \item 修剪主要用于\textbf{剔除离群值}（outliers），而非渐近必需
+    \end{itemize}
+  \end{keybox}
+
+  \textbf{权重 $w(X)$ 的作用：}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item 默认 $w \equiv 1$：等权 SLS
+    \item 选择 $w(X) = 1/\sigma^2(X)$（条件方差倒数）：\textbf{加权 SLS (WSLS)}，渐近效率高
+    \item 但 $\sigma^2(X)$ 也需估计 $\Rightarrow$ 实际中 $w \equiv 1$ 更常用
+  \end{itemize}
+
+\end{frame}
+
+%% ----- Frame 30 -----
+\begin{frame}{算法：内—外双层优化}
+
+  \textbf{算法（伪代码）：}
+
+  \begin{examplebox}{{Ichimura 估计量计算流程}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{初始化}：取初值 $\beta^{(0)}$（例如 OLS 或 Probit MLE）
+      \item \textbf{外层循环}（对 $\beta$ 优化）：
+      \begin{enumerate}
+        \item 给定当前 $\beta$，计算指标 $z_i = X_i'\beta$，$i = 1, \ldots, n$
+        \item \textbf{内层}：用 $\{(z_j, Y_j)\}_{j \neq i}$ 计算留一核估计 $\hat G_{-i}(z_i; \beta)$
+        \item 计算目标 $Q_n(\beta) = \tfrac{1}{n}\sum_i [Y_i - \hat G_{-i}(z_i; \beta)]^2$
+        \item 用梯度法（或 Newton/BFGS）更新 $\beta \to \beta + \Delta$
+      \end{enumerate}
+      \item \textbf{终止}：当 $\|\Delta\| < $ 容差，输出 $\hat\beta$
+      \item \textbf{后处理}：用最终 $\hat\beta$ 重新计算 $\hat G(z; \hat\beta)$ 作为函数估计
+    \end{enumerate}
+  \end{examplebox}
+
+  \begin{keybox}
+    \textbf{计算成本：}每次外层迭代需\textbf{重新计算 $n$ 个核回归值}（因 $\beta$ 改变 $\Rightarrow$ 指标 $z_i$ 改变）。
+    总计算量 $O(n^2 \cdot M)$，$M$ 为外层迭代次数。中等样本（$n \approx 1000$）下可行。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 31 -----
+\begin{frame}{Ichimura 一致性：定理与假设}
+
+  \begin{assumptionbox}
+  \textbf{Ichimura 一致性假设 (A1-A6)：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{(模型)} $Y = G(X'\beta_0) + u$，$\mathbb{E}[u \mid X] = 0$，$\beta_0 \in$ 紧集 $\Theta$
+    \item \textbf{(识别)} 单指数模型识别条件成立（位置+尺度+连续元）
+    \item \textbf{(光滑)} $G$ 是 $r$ 次连续可微，$r \geq 2$
+    \item \textbf{(分布)} $X$ 的密度 $f_X$ 有界，$X'\beta$ 的密度 $f_{X'\beta}$ 在 $A_n$ 上有界离零
+    \item \textbf{(矩条件)} $\mathbb{E}[u^2 \mid X] = \sigma^2(X)$ 有界
+    \item \textbf{(带宽)} $h \to 0$，$nh^q \to \infty$，$nh^{2r} \to 0$
+  \end{enumerate}
+  \end{assumptionbox}
+
+  \begin{highlightbox}
+    \textbf{一致性定理 (Ichimura 1993, Theorem 5.1)：}
+    在 (A1)-(A6) 下，
+    $$\hat\beta_{\text{Ich}} \overset{p}{\to} \beta_0.$$
+  \end{highlightbox}
+
+  \hypertarget{main-c5}{}
+  \hfill{\scriptsize\hyperlink{proof-c5}{\beamergotobutton{Ichimura 一致性证明}}}
+
+\end{frame}
+
+%% ----- Frame 32 -----
+\begin{frame}{Ichimura $\sqrt{n}$ 渐近正态性定理}
+
+  \begin{definitionbox}{{Ichimura 渐近正态性 (Theorem)}}
+    在假设 (A1)-(A6) 加上以下额外条件：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item (A7) $G$ 在 $\beta_0$ 处导数 $G'(X'\beta_0)$ 不为零
+      \item (A8) 矩条件加强：$\mathbb{E}[\|X\|^4] < \infty$
+      \item (A9) 带宽进一步约束：$nh^{2r+1} \to 0$，$nh^{2q+1} \to \infty$（$q = \dim Z$）
+    \end{itemize}
+
+    则
+    $$\sqrt{n}\,(\hat\beta_{\text{Ich}} - \beta_0) \;\overset{d}{\to}\;
+    \mathcal{N}\!\bigl(\mathbf{0},\; V^{-1}\Sigma V^{-1}\bigr),$$
+
+    其中 $V$ 与 $\Sigma$ 由下页给出。
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{重要性质：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\hat\beta$ 的渐近分布与\textbf{已知 $G$ 时的 NLS 完全相同形式}——
+      只是 $V$, $\Sigma$ 的具体表达式不同
+      \item $\hat G$ 的估计误差以\textbf{二阶项}进入，不影响 $\hat\beta$ 的一阶分布
+      \item 这就是"adaptive"（自适应）性质：$\hat\beta$ 仿佛知道 $G$
+    \end{itemize}
+  \end{keybox}
+
+  \hypertarget{main-c6}{}
+  \hfill{\scriptsize\hyperlink{proof-c6}{\beamergotobutton{渐近正态性证明}}}
+
+\end{frame}
+
+%% ----- Frame 33 -----
+\begin{frame}{Ichimura 渐近方差公式}
+
+  \begin{definitionbox}{{$V$ 与 $\Sigma$ 的具体形式}}
+    \begin{align*}
+    V &= \mathbb{E}\Bigl\{w(X)\,[G'(X'\beta_0)]^2 \cdot
+    [X - \mathbb{E}(X \mid X'\beta_0)]\,[X - \mathbb{E}(X \mid X'\beta_0)]'\Bigr\} \\[2pt]
+    \Sigma &= \mathbb{E}\Bigl\{w(X)^2\,\sigma^2(X)\,[G'(X'\beta_0)]^2 \cdot
+    [X - \mathbb{E}(X \mid X'\beta_0)]\,[X - \mathbb{E}(X \mid X'\beta_0)]'\Bigr\}
+    \end{align*}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{关键观察：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item 出现\textbf{部分残差}：$\tilde X = X - \mathbb{E}[X \mid X'\beta_0]$
+      （沿等指数面投影后的剩余）
+      \item 出现\textbf{$G'$ 的权重}：链接函数斜率 $G'(X'\beta_0)$
+      在每个观测点对信息量加权
+      \item 当 $w \equiv 1$，$V = \Sigma / \sigma^2$（同方差）$\Rightarrow$
+      $V^{-1}\Sigma V^{-1} = \sigma^2 V^{-1}$
+    \end{enumerate}
+  \end{highlightbox}
+
+  \hypertarget{main-c7}{}
+  \hfill{\scriptsize\hyperlink{proof-c7}{\beamergotobutton{方差公式推导}}}
+
+\end{frame}
+
+%% ----- Frame 34 -----
+\begin{frame}{渐近方差的解读：与 NLS 比较}
+
+  \textbf{已知 $G$ 时 NLS 的渐近方差：}
+  $$V_{\text{NLS}} = \mathbb{E}\Bigl\{[G'(X'\beta_0)]^2 X X'\Bigr\}, \qquad
+  \text{Avar}(\hat\beta_{\text{NLS}}) = V_{\text{NLS}}^{-1} \cdot \mathbb{E}[\sigma^2(X) (G')^2 X X'] \cdot V_{\text{NLS}}^{-1}.$$
+
+  \begin{highlightbox}
+    \textbf{Ichimura 与 NLS 的差异：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item NLS 用 $X X'$；Ichimura 用 $\tilde X \tilde X'$，$\tilde X = X - \mathbb{E}[X \mid X'\beta_0]$
+      \item 这是\textbf{效率代价}：因为 $\hat G$ 必须靠数据估计，
+      $\beta$ 中对 $X'\beta_0$ 平行的方向\textbf{已被 $\hat G$ 吸收}，无信息可用
+      \item $\tilde X$ 投影掉这个方向，留下\textbf{正交于 $X'\beta_0$ 的部分}
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{直观：}非参数估计 $\hat G$ "用掉了"指数方向的信息，
+    $\beta_0$ 只能由\textbf{垂直于指数的协变量变化}识别——
+    这是\textbf{半参数效率代价}的几何意义。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 35 -----
+\begin{frame}{推导 Sketch：Taylor 展开 + 一致收敛}
+
+  \textbf{核心证明步骤：}
+
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{一阶条件}：$\nabla_\beta Q_n(\hat\beta) = 0$，即
+    $$\frac{1}{n}\sum_i \bigl[Y_i - \hat G_{-i}(X_i'\hat\beta; \hat\beta)\bigr]
+    \cdot \nabla_\beta \hat G_{-i}(X_i'\hat\beta; \hat\beta) \cdot w(X_i) = 0.$$
+
+    \item \textbf{Taylor 展开}于 $\beta_0$：
+    $$0 = \frac{1}{n}\sum_i \nabla_\beta \hat G_{-i} \cdot u_i + V_n \cdot (\hat\beta - \beta_0) + o_p(\|\hat\beta - \beta_0\|).$$
+
+    \item \textbf{一致收敛}：$V_n \overset{p}{\to} V$；$\frac{1}{n}\sum_i \nabla_\beta \hat G_{-i} \cdot u_i \overset{d}{\to} \mathcal{N}(0, \Sigma/n)$.
+
+    \item \textbf{两项关键引理}（Ichimura 1993 §6）：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\nabla_\beta \hat G_{-i}(X_i'\beta; \beta) \overset{p}{\to} G'(X_i'\beta_0) \tilde X_i$
+      （投影到正交空间）
+      \item $\hat G$ 估计偏误 $O(h^r)$ 加随机项 $O((nh)^{-1/2})$ 在求和后降为 $o_p(n^{-1/2})$
+    \end{itemize}
+  \end{enumerate}
+
+  \begin{keybox}
+    \textbf{关键洞察：}非参数项 $\hat G - G$ 的误差通过\textbf{逐 $i$ 平均与高阶核}组合，
+    被压缩到 $o_p(n^{-1/2})$，不污染 $\hat\beta$ 的 $\sqrt{n}$ 极限分布。
+  \end{keybox}
+
+  \hfill{\scriptsize\hyperlink{proof-c6}{\beamergotobutton{完整推导}}}
+
+\end{frame}
+
+%% ----- Frame 36 -----
+\begin{frame}{与参数 NLS 的对比：从已知到未知 $G$}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3cm}|p{5.5cm}|p{5.5cm}}
+  \hline
+  & \textbf{参数 NLS}（$G$ 已知） & \textbf{Ichimura SLS}（$G$ 未知） \\
+  \hline
+  目标函数 & $\sum_i [Y_i - G(X_i'\beta)]^2$ & $\sum_i [Y_i - \hat G_{-i}(X_i'\beta; \beta)]^2$ \\
+  \hline
+  $G$ 处理 & 直接代入解析式 & 留一核估计 $\hat G_{-i}$ \\
+  \hline
+  $\hat\beta$ 速度 & $\sqrt{n}$ & $\sqrt{n}$ \\
+  \hline
+  $\hat\beta$ 渐近方差 & $V_{\text{NLS}}^{-1}\Sigma_{\text{NLS}} V_{\text{NLS}}^{-1}$（用 $X X'$）& $V^{-1}\Sigma V^{-1}$（用 $\tilde X \tilde X'$）\\
+  \hline
+  错设定后果 & $G$ 错则\textbf{不一致} & $G$ 自由 $\Rightarrow$ \textbf{始终一致} \\
+  \hline
+  计算成本 & 单层优化 & 双层（内核回归 + 外层 $\beta$）\\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{核心信息：}Ichimura 用\textbf{多一层非参数估计}和\textbf{微小的渐近方差代价}
+    （从 $X X'$ 到 $\tilde X \tilde X'$）换取\textbf{对 $G$ 形态的鲁棒性}。
+    当我们对 $G$ 的形态没有把握时，这是非常划算的交易。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 37 -----
+\begin{frame}{Ichimura 在二元选择中的应用}
+
+  \textbf{二元选择 SIM：}$Y \in \{0, 1\}$，$\Pr(Y=1 \mid X) = G(X'\beta_0)$。
+
+  \begin{definitionbox}{{二元选择 Ichimura 估计量}}
+    将一般 Ichimura 公式应用于二元 $Y$：
+    $$\hat\beta = \arg\min_{\beta \in \Theta} \frac{1}{n}\sum_{i=1}^n
+    \bigl[Y_i - \hat G_{-i}(X_i'\beta; \beta)\bigr]^2 \cdot \mathbf{1}\{X_i \in A_n\}.$$
+
+    其中 $\hat G_{-i}(z; \beta)$ 是 $\Pr(Y=1 \mid X'\beta = z)$ 的留一核估计——
+    它给出了一个介于 $[0,1]$ 的"经验 CDF 形态"。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{二元选择特例的优良性质：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $Y \in \{0,1\} \Rightarrow Y^2 = Y \Rightarrow$ 目标函数可重写为
+      $\sum_i [Y_i - \hat G_{-i}]^2 = \sum_i Y_i + \sum_i \hat G_{-i}^2 - 2\sum_i Y_i \hat G_{-i}$
+      \item $\sigma^2(X) = G(X'\beta_0)[1 - G(X'\beta_0)]$（伯努利方差）$\Rightarrow$
+      自然异方差
+      \item Ichimura 一致估计 $\beta_0$，但非有效（KS 才效率）
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 38 -----
+\begin{frame}{带宽选择}
+
+  \textbf{Ichimura 的带宽选择问题：}
+  内层核回归带宽 $h$ 控制\textbf{偏误—方差权衡}和\textbf{$\hat\beta$ 的渐近性质}。
+
+  \begin{definitionbox}{{常用带宽选择方法}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{交叉验证 (LSCV)}：
+      $h^{*} = \arg\min_h \sum_i [Y_i - \hat G_{-i}(X_i'\hat\beta; h)]^2$
+      （需迭代：$\beta$ 与 $h$ 联合）
+      \item \textbf{Silverman 经验法则}：$h = c \cdot \hat\sigma_{X'\hat\beta} \cdot n^{-1/(2r+1)}$
+      \item \textbf{Sheather-Jones 插入法}：基于二阶导数估计
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{理论 vs 实务：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 理论上 $\hat\beta$ 的 $\sqrt{n}$ 速度对 $h$ 不敏感（一阶不依赖于 $h$）
+      \item 实际中 $h$ 的选择影响小样本表现
+      \item \textbf{欠平滑 (undersmooth)}：取比 LSCV 略小的 $h$，加快偏误消失，
+      帮助保证 $\sqrt{n}$ 速度（Class 5 Note 4）
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 39 -----
+\begin{frame}[fragile]{实际计算细节}
+
+  \textbf{R 实现示例（伪代码）：}
+
+  \footnotesize
+  \begin{verbatim}
+  library(np)  # nonparametric package
+
+  # 二元选择 Ichimura via np::npindex
+  bw <- npindexbw(formula = y ~ x1 + x2 + x3,
+                  method = "ichimura",
+                  data = mroz_data)
+  fit <- npindex(bws = bw)
+  summary(fit)  # 输出 hat beta 与渐近方差
+  \end{verbatim}
+  \normalsize
+
+  \begin{keybox}
+    \textbf{计算注意事项：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 外层优化\textbf{非凸}（$\hat G$ 通过 $\beta$ 进入指标），可能多个局部最优解
+      \item 用多个起始点（OLS, Probit, Logit）以避开局部解
+      \item 大样本下计算密集——核回归对每个 $z_i$ 需 $O(n)$ 评估
+      \item 加速：使用 FFT 加速核估计（np 包内置）
+    \end{itemize}
+  \end{keybox}
+
+  \hfill{\scriptsize\textit{R package: \texttt{np} (Hayfield \& Racine 2008)}}
+
+\end{frame}
+
+%% ----- Frame 40 -----
+\begin{frame}{当 $G$ 真的是 $\Phi$ 时：与 Probit 对比}
+
+  \textbf{情境：}假设真实模型 $\Pr(Y=1 \mid X) = \Phi(X'\beta_0)$（即 Probit 正确）。
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3cm}|c|c|p{4cm}}
+  \hline
+  方法 & 一致性 & 渐近正态性 & 渐近方差 \\
+  \hline
+  Probit MLE & ✓ & ✓ & 达到 Cramér-Rao 下界 $V^{*}_{P}$ \\
+  \hline
+  Ichimura SLS & ✓ & ✓ & $V^{*}_{I} \succeq V^{*}_{P}$（可能严格大于）\\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{效率代价：}当 Probit 设定正确时，Ichimura 的渐近方差严格大于 Probit。
+    比值 $V^{*}_{I} / V^{*}_{P} > 1$ 取决于：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 协变量分布
+      \item $G$ 的形态（Probit 的 $\Phi$ 在尾部信息密度高，Ichimura 难以充分利用）
+      \item 通常代价 1\%--30\%（Newey-McFadden 1994 Table 1）
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{结论：}当 $G$ 已知且正确，Probit 更高效。但代价 1\%-30\% 在
+    "若 $G$ 错则 Probit 不一致"风险面前微不足道。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 41 -----
+\begin{frame}{当 $G \neq \Phi$ 时：Probit 的偏误 vs Ichimura}
+
+  \textbf{情境：}假设真实 $G$ 是 Logistic CDF $\Lambda$ 而非 $\Phi$。
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{2.5cm}|c|c|p{6cm}}
+  \hline
+  方法 & 一致性 & 渐近方差 & 性质 \\
+  \hline
+  Probit MLE & \textcolor{red}{\textbf{✗}} & \textcolor{red}{无意义} & $\hat\beta_P \to \beta^{*} \neq \beta_0$（伪真值）\\
+  \hline
+  Ichimura SLS & \textbf{✓} & 正常 $V^{-1}\Sigma V^{-1}$ & 始终一致，分布不依赖 $G$ 设定 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{偏误的具体表现：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Probit $\hat\beta_P$ 不等于 $\beta_0$，差异可达 30\%-100\%
+      \item 边际效应 APE 同样偏误
+      \item $t$ 统计量、置信区间均失效
+      \item 即使样本无穷大，Probit 仍系统性偏误 $\Rightarrow$ \textbf{偏误不消失}
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{数值例子（Horowitz 1993 Table 1）：}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item 真实 $G$: 异方差对数 logistic
+    \item Probit $\hat\beta$ 偏误: 部分系数 65\%
+    \item Ichimura $\hat\beta$ 偏误: $< 5\%$
+  \end{itemize}
+
+\end{frame}
+
+%% ----- Frame 42 -----
+\begin{frame}{Ichimura 的优点总结}
+
+  \begin{highlightbox}
+    \textbf{Ichimura 的核心优点：}
+    \begin{enumerate}\setlength{\itemsep}{2pt}
+      \item \textbf{对 $G$ 鲁棒}：仅需单指数结构，不依赖 $G$ 的具体形式
+      \item \textbf{$\sqrt{n}$ 速度}：与参数估计同速，无收敛速度损失
+      \item \textbf{形式简单}：NLS 的直接推广，便于理解与编程
+      \item \textbf{分布无关}：渐近正态分布（推断容易）
+      \item \textbf{二元选择 / 连续 / 受限因变量统一}：单一框架处理多种受限因变量模型
+      \item \textbf{异方差自动适应}：通过 $\sigma^2(X)$ 进入渐近方差，但不需估计 $\sigma^2$
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{适用情境：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 你对 $G$ 没有强先验（不确定 $\Phi$ 还是 $\Lambda$ 还是其他）
+      \item 你愿意接受 1\%-30\% 的渐近效率代价以换取鲁棒性
+      \item 你拥有至少 $n \geq 200$ 的样本（小样本下核估计不可靠）
+      \item 你的回归元包含至少一个连续变量
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 43 -----
+\begin{frame}{Ichimura 的局限与过渡：Klein-Spady}
+
+  \textbf{Ichimura 不是终点：}它一致、$\sqrt{n}$ 收敛，但\textbf{不达到}半参数效率界。
+
+  \begin{highlightbox}
+    \textbf{效率差距的来源：}Ichimura 用\textbf{平方误差准则}：
+    $$Q_n(\beta) = \sum_i [Y_i - \hat G(X_i'\beta)]^2.$$
+    这对所有观测等权处理。但二元 $Y$ 中：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 当 $G(X_i'\beta)$ 接近 $0$ 或 $1$ 时，观测信息量更高（更确定的预测）
+      \item 但平方误差准则\textbf{忽略}这种信息差异
+      \item \textbf{似然准则}才能正确加权这些观测
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Klein-Spady (1993) 的解决方案：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 用\textbf{半参数似然}替代平方误差
+      \item 准则函数：$\sum_i [Y_i \log \hat G + (1-Y_i)\log(1 - \hat G)]$
+      \item 渐近方差达到\textbf{半参数效率界} $V^{*}_{KS}$
+      \item 与 Probit MLE 在已知 $G$ 时的关系，对应 Klein-Spady 与 Ichimura 在未知 $G$ 时的关系
+    \end{itemize}
+  \end{keybox}
+
+  \textbf{下一部分：}Klein-Spady 的构造、性质、效率证明。
+
+\end{frame}
+
+%% ============================================================
+\section{PSS 加权平均导数估计量}
+%% ============================================================
+
+%% ----- Frame 44 -----
+\begin{frame}[shrink=10]{PSS 估计量：基于平均导数的识别}
+
+  \textbf{Powell, Stock \& Stoker (1989)} 提出一种巧妙的识别策略：
+  不通过准则最小化（如 Ichimura），而通过一个\textbf{矩条件}直接给出 $\beta$ 的解析表达。
+
+  \begin{keybox}
+    \textbf{核心恒等式：}对单指数模型 $\Pr(Y=1\mid X) = G(X'\beta_0)$，
+    条件期望函数 $m(X) = G(X'\beta_0)$ 关于 $X_j$ 的偏导数为
+    $$\frac{\partial m(X)}{\partial X_j} = G'(X'\beta_0) \cdot \beta_{0,j}.$$
+    取期望：
+    $$\mathbb{E}\!\left[\frac{\partial m(X)}{\partial X_j}\right]
+    = \mathbb{E}[G'(X'\beta_0)] \cdot \beta_{0,j}.$$
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{识别洞察：}向量等式
+    $$\boxed{\;\delta_0 \;:=\; \mathbb{E}[\nabla_X m(X)] \;=\; \mathbb{E}[G'(X'\beta_0)] \cdot \beta_0.\;}$$
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 标量 $c_0 := \mathbb{E}[G'(X'\beta_0)]$ 不可识别（$G$ 未知）
+      \item 但\textbf{方向} $\delta_0 / \|\delta_0\| = \beta_0 / \|\beta_0\|$ 完全识别
+      \item $\delta_0$ 仅依赖\textbf{可观测的} $m(X)$ 的导数
+    \end{itemize}
+  \end{highlightbox}
+
+  \hfill{\scriptsize\textit{Powell, Stock \& Stoker (1989) Econometrica}}
+
+\end{frame}
+
+%% ----- Frame 45 -----
+\begin{frame}{平均导数的等价表达：从导数到密度}
+
+  \textbf{问题：}直接估计 $\partial m / \partial X_j$ 需对 $\hat m$ 求导——
+  数值微分对核估计不稳定（带宽敏感、收敛慢）。
+
+  \textbf{PSS 的关键技巧：}用\textbf{分部积分}把"对回归函数求导"转换为"对密度求导"。
+
+  \begin{definitionbox}{{平均导数的密度等价形式}}
+    设 $X$ 有密度 $f_X(x)$，且 $f_X$ 在 $X$ 支撑边界上为零（$f_X \to 0$）。则
+    $$\delta_0 = \mathbb{E}[\nabla_X m(X)]
+    = -\mathbb{E}\!\left[m(X) \cdot \frac{\nabla f_X(X)}{f_X(X)}\right]
+    = -\mathbb{E}\!\left[Y \cdot \frac{\nabla f_X(X)}{f_X(X)}\right].$$
+
+    最后一步用了 $\mathbb{E}[Y \mid X] = m(X)$.
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{为什么这有用？}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 右边只需估计\textbf{密度}（与其对数导数 $\nabla \log f_X$）
+      \item 不需要直接估计 $\nabla m$（导数估计速度慢）
+      \item $\nabla f_X / f_X$ 可在所有数据点用核估计高效计算
+    \end{itemize}
+  \end{keybox}
+
+  \textbf{推导：}$\int \nabla m \cdot f_X \, dx = -\int m \cdot \nabla f_X \, dx$
+  （分部积分，假设边界项为零）$= -\int m \cdot (\nabla f_X / f_X) \cdot f_X \, dx
+  = -\mathbb{E}[m(X) \cdot \nabla \log f_X(X)]$.
+
+\end{frame}
+
+%% ----- Frame 46 -----
+\begin{frame}{PSS 估计量的构造}
+
+  \begin{definitionbox}{{PSS 加权平均导数估计量}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{核密度估计}：$\hat f_X(x) = \frac{1}{n h^k} \sum_i K\!\left(\frac{x - X_i}{h}\right)$
+      \item \textbf{密度对数导数估计}：
+      $$\widehat{\nabla \log f_X}(X_i) = \widehat{\nabla f_X}(X_i) / \hat f_X(X_i)$$
+      \item \textbf{PSS 估计量}：
+      $$\hat\delta_{\text{PSS}} = -\frac{1}{n}\sum_{i=1}^n Y_i \cdot
+      \widehat{\nabla \log f_X}(X_i) \cdot \mathbf{1}\{X_i \in A_n\}.$$
+      \item \textbf{标准化}：$\hat\beta_{\text{PSS}} = \hat\delta_{\text{PSS}} / \|\hat\delta_{\text{PSS}}\|$
+      （或选定某分量为 1）
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{PSS 的"一步式"特征：}与 Ichimura 的迭代优化不同，
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item PSS \textbf{有解析解}（无需迭代）
+      \item 一次核密度估计 + 一次平均 = 完成
+      \item 计算成本 $O(n^2)$（核估计），无需双层循环
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 47 -----
+\begin{frame}[shrink=10]{PSS 渐近正态性定理}
+
+  \begin{definitionbox}{{PSS 渐近性质 (Powell-Stock-Stoker 1989)}}
+    在适当的正则条件下（密度光滑、矩条件、高阶核、带宽 $h \sim n^{-1/(2r+k)}$）：
+    $$\sqrt{n}\,(\hat\delta_{\text{PSS}} - \delta_0) \overset{d}{\to} \mathcal{N}(0, V_{\text{PSS}}),$$
+
+    其中
+    $$V_{\text{PSS}} = \mathbb{E}\Bigl\{[Y - m(X)]^2 \cdot
+    [\nabla \log f_X(X)] \cdot [\nabla \log f_X(X)]'\Bigr\}
+    + \text{Var}[\nabla m(X)].$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{$\sqrt{n}$ 速度的关键：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 求平均（$\frac{1}{n}\sum_i$）使核估计的非参数误差被\textbf{平滑掉}
+      \item 与 Ichimura 同理：$\beta$ 是有限维 $\Rightarrow$ 平均效应使估计速度恢复
+      \item 需要\textbf{高阶核}（$r \geq 2$）以削减偏误偏差
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{实务注意：}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item PSS 对带宽\textbf{较敏感}（密度估计的常见问题）
+    \item 修剪 $A_n$ 通常必要（密度低区域估计不稳）
+    \item 标准误推断：估计 $\hat V_{\text{PSS}}$ 后用 delta 方法
+  \end{itemize}
+
+  \hypertarget{main-c8}{}
+  \hfill{\scriptsize\hyperlink{proof-c8}{\beamergotobutton{PSS 渐近正态推导}}}
+
+\end{frame}
+
+%% ----- Frame 48 -----
+\begin{frame}{PSS 的优点：从计算简洁到理论清晰}
+
+  \begin{highlightbox}
+    \textbf{PSS 的核心优点：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{无迭代}：解析公式，无收敛性问题
+      \item \textbf{$\sqrt{n}$ 收敛}：与 Ichimura/KS 同速
+      \item \textbf{对模型形态宽容}：不需要 $G$ 单调，仅需可微
+      \item \textbf{自适应}：渐近方差中含 $\nabla \log f_X$（密度信息），
+      隐式利用 $X$ 的分布
+      \item \textbf{自然识别尺度}：$\hat\delta$ 给出 $\beta_0$ 的方向 + 一个未知比例 $\mathbb{E}[G']$
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{适用情境：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 当样本量不太大（迭代成本是问题）
+      \item 当计算工具有限（解析估计实现简单）
+      \item 当回归元密度光滑（高阶核可用）
+      \item 不适合：$X$ 包含多个离散变量（密度不光滑、$\nabla \log f_X$ 失效）
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 49 -----
+\begin{frame}{PSS vs Ichimura：互补的两种识别策略}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{2.8cm}|p{5.5cm}|p{5.5cm}}
+  \hline
+  & \textbf{Ichimura SLS} & \textbf{PSS 加权平均导数} \\
+  \hline
+  识别策略 & 最小化 $\sum [Y - \hat G(X'\beta)]^2$ & 矩条件 $\delta_0 = c_0 \beta_0$ \\
+  \hline
+  形式 & 迭代优化（无解析解） & 解析估计（一步式） \\
+  \hline
+  关键非参对象 & $\hat G(\cdot)$（链接函数）& $\nabla \log f_X(\cdot)$（密度对数导数）\\
+  \hline
+  $G$ 假设 & 任意可微 & 任意可微 \\
+  \hline
+  $X$ 假设 & 至少一个连续 + 适当矩 & 全部连续，密度光滑 \\
+  \hline
+  $\hat\beta$ 速度 & $\sqrt{n}$ & $\sqrt{n}$ \\
+  \hline
+  典型计算 & 双层循环 + 优化 & 一次核估计 + 一次平均 \\
+  \hline
+  对带宽敏感性 & 较低 & 较高（密度估计）\\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{选择建议：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 全连续协变量、样本中等大：PSS 更快
+      \item 含离散协变量（如年龄分组、地区）：Ichimura 更稳
+      \item 需要 $\hat G$（如做预测）：Ichimura 自然产生 $\hat G$
+      \item 需要快速结果：PSS 一步到位
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Klein-Spady (1993) 半参数 MLE}
+%% ============================================================
+
+%% ----- Frame 50 -----
+\begin{frame}{Klein-Spady：动机——追求半参数效率}
+
+  \textbf{回顾：}Ichimura 估计量一致、$\sqrt{n}$ 收敛，但\textbf{不达到}半参数效率界。
+  原因是平方误差对所有观测等权处理。
+
+  \begin{keybox}
+    \textbf{Klein \& Spady (1993) 的洞察：}
+    在二元选择中，\textbf{似然函数}才是最优准则。
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Probit MLE（已知 $G = \Phi$）达到\textbf{Cramér-Rao 下界}——已知 $G$ 时的最优
+      \item 半参数化时，应用类似的\textbf{半参数似然}思路构造估计量
+      \item Klein-Spady 估计量达到\textbf{半参数效率界 $V^{*}_{KS}$}
+    \end{itemize}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Klein-Spady 估计量的核心：}
+    用\textbf{留一核估计 $\hat G$ 替换似然中的 $G$}，最大化半参数对数似然：
+    $$\hat\beta_{\text{KS}} = \arg\max_\beta \frac{1}{n}\sum_i \Bigl\{
+    Y_i \log \hat G_{-i}(X_i'\beta) + (1 - Y_i) \log [1 - \hat G_{-i}(X_i'\beta)]\Bigr\}.$$
+  \end{highlightbox}
+
+  \hfill{\scriptsize\textit{Klein \& Spady (1993) Econometrica 61(2)}}
+
+\end{frame}
+
+%% ----- Frame 51 -----
+\begin{frame}[shrink=15]{半参数似然函数}
+
+  \textbf{先回顾参数 Probit MLE：}假设 $G = \Phi$（已知）：
+  $$\ell^{P}(\beta) = \frac{1}{n}\sum_i \bigl\{Y_i \log \Phi(X_i'\beta) + (1-Y_i)\log[1 - \Phi(X_i'\beta)]\bigr\}.$$
+
+  \textbf{半参数化：}保留似然形式，把 $\Phi$ 换成由\textbf{数据}估计的 $\hat G$：
+  $$\ell^{KS}(\beta) = \frac{1}{n}\sum_i \bigl\{Y_i \log \hat G_{-i}(X_i'\beta) + (1-Y_i)\log[1 - \hat G_{-i}(X_i'\beta)]\bigr\}.$$
+
+  \begin{definitionbox}{{Klein-Spady 留一核估计 $\hat G_{-i}(z)$}}
+    给定 $\beta$ 和带宽 $h$，
+    $$\hat G_{-i}(z; \beta) =
+    \frac{\sum_{j \neq i} K\!\left(\dfrac{z - X_j'\beta}{h}\right) Y_j}
+         {\sum_{j \neq i} K\!\left(\dfrac{z - X_j'\beta}{h}\right)}
+    \in [0, 1].$$
+    （Nadaraya-Watson 形式，留一以避免内生性。）
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{$\hat G_{-i} \in [0,1]$ 的关键性：}留一核估计是 $Y_j$ 的加权平均，
+    $Y_j \in \{0,1\}$ $\Rightarrow$ $\hat G_{-i} \in [0,1]$，
+    \textbf{自动满足概率约束}，$\log \hat G$ 与 $\log(1 - \hat G)$ 良定义。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 52 -----
+\begin{frame}{Klein-Spady 准则与 Ichimura 的本质区别}
+
+  \begin{center}\scriptsize
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{p{3cm}|p{6cm}|p{6cm}}
+  \hline
+  & \textbf{Ichimura SLS} & \textbf{Klein-Spady} \\
+  \hline
+  准则形式 & $\sum_i (Y_i - \hat G_{-i})^2$ & $\sum_i [Y_i \log \hat G_{-i} + (1-Y_i)\log(1-\hat G_{-i})]$ \\
+  \hline
+  对观测的加权 & 等权 & \textbf{隐式按 $1/[\hat G(1-\hat G)]$ 加权}（似然信息）\\
+  \hline
+  误差权重 & $w \cdot 1$ & $w \cdot 1/[\hat G(1-\hat G)]$（自然异方差权重）\\
+  \hline
+  渐近效率 & 一致但非有效 & \textbf{达到半参数效率界} \\
+  \hline
+  适用 $Y$ & 任何（连续/二元/受限）& \textbf{仅二元 $Y \in \{0,1\}$} \\
+  \hline
+  \end{tabular}%
+  }
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{为什么 KS 更高效？}似然函数自动给出每个观测的\textbf{信息量}：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 当 $\hat G \approx 0.5$（不确定预测）：每个 $Y_i$ 信息量大 $\Rightarrow$ 高权重
+      \item 当 $\hat G \approx 0$ 或 $1$（确定预测）：信息量小 $\Rightarrow$ 低权重
+      \item Ichimura 等权处理这两种情况——浪费了不确定预测的信息差异
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 53 -----
+\begin{frame}{Klein-Spady 一致性定理}
+
+  \begin{assumptionbox}
+  \textbf{Klein-Spady 假设 (KS1-KS6)：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{(模型)} $\Pr(Y=1 \mid X) = G(X'\beta_0)$，$\beta_0$ 在紧集 $\Theta$ 内部
+    \item \textbf{(识别)} 单指数模型识别条件成立
+    \item \textbf{(支撑)} $G$ 严格介于 $(\delta, 1-\delta)$ 对某 $\delta > 0$，避免边界
+    \item \textbf{(光滑)} $G$ 是 $r$ 次连续可微，$r \geq 2$
+    \item \textbf{(连续元)} $X$ 至少含一个连续分量，且 $X'\beta$ 密度有界离零
+    \item \textbf{(带宽)} $h \to 0$，$nh^q / \log n \to \infty$，$nh^{2r} \to 0$
+  \end{enumerate}
+  \end{assumptionbox}
+
+  \begin{highlightbox}
+    \textbf{一致性 (Klein-Spady 1993, Theorem 1)：}
+    在 (KS1)-(KS6) 下，
+    $$\hat\beta_{\text{KS}} \overset{p}{\to} \beta_0.$$
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{(KS3) 的实际意义：}假设 3 排除 $G \in \{0, 1\}$ 的情况，
+    防止 $\log \hat G$ 变成 $-\infty$ 导致似然爆炸。
+    实务中可通过\textbf{核估计的修剪}保证。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 54 -----
+\begin{frame}{Klein-Spady $\sqrt{n}$ 渐近正态性}
+
+  \begin{definitionbox}{{Klein-Spady 渐近正态性 (Theorem 2)}}
+    在 (KS1)-(KS6) 加上以下额外条件：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item (KS7) 矩条件 $\mathbb{E}[\|X\|^4] < \infty$
+      \item (KS8) $\mathbb{E}[G'(X'\beta_0)^2 / \{G(X'\beta_0)[1-G(X'\beta_0)]\}] < \infty$
+      \item (KS9) 带宽 $nh^{2r+1} \to 0$，$nh^{2q} \to \infty$
+    \end{itemize}
+
+    则
+    $$\sqrt{n}(\hat\beta_{\text{KS}} - \beta_0) \overset{d}{\to}
+    \mathcal{N}\!\bigl(\mathbf{0}, V^{*}_{KS}\bigr),$$
+
+    其中 $V^{*}_{KS}$ 是\textbf{半参数效率界}（下页给出）。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{关键性质：}与 Probit MLE 在已知 $G = \Phi$ 时达到 Cramér-Rao 下界类比，
+    Klein-Spady 在 $G$ 未知时\textbf{达到半参数 Cramér-Rao 下界}——
+    在所有 $\sqrt{n}$ 一致正则估计量中渐近方差最小。
+  \end{highlightbox}
+
+  \hypertarget{main-c9}{}
+  \hfill{\scriptsize\hyperlink{proof-c9}{\beamergotobutton{KS 渐近正态推导}}}
+
+\end{frame}
+
+%% ----- Frame 55 -----
+\begin{frame}{Klein-Spady 渐近方差：信息矩阵之逆}
+
+  \begin{definitionbox}{{Klein-Spady 渐近方差 $V^{*}_{KS}$}}
+    Klein-Spady 渐近方差为
+    $$V^{*}_{KS} = \left(\mathbb{E}\!\left[
+    \frac{[G'(X'\beta_0)]^2}{G(X'\beta_0)\,[1 - G(X'\beta_0)]}
+    \cdot \tilde X \tilde X'\right]\right)^{-1},$$
+
+    其中 $\tilde X = X - \mathbb{E}[X \mid X'\beta_0]$（投影到正交于指数的空间）。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{与 Probit MLE 的对照：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Probit ($G = \Phi$)：}$V_{P} = \mathbb{E}[\phi^2/\{\Phi(1-\Phi)\} X X']^{-1}$（用 $X X'$）
+      \item \textbf{Klein-Spady ($G$ 未知)：}$V^{*}_{KS} = \mathbb{E}[(G')^2/\{G(1-G)\} \tilde X \tilde X']^{-1}$（用 $\tilde X \tilde X'$）
+      \item 唯一差异：$X X' \to \tilde X \tilde X'$——这是\textbf{半参数代价}
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{半参数代价的几何意义：}$\hat G$ 必须由数据估计 $\Rightarrow$ 沿指数方向 $X'\beta_0$ 的信息被吸收 $\Rightarrow$ $\beta_0$ 仅由\textbf{正交方向}的协变量变化识别。
+    $\tilde X = X - \mathbb{E}[X \mid X'\beta_0]$ 投影掉指数方向。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 56 -----
+\begin{frame}{Newey (1990) 半参数效率界}
+
+  \begin{definitionbox}{{半参数效率界 (Newey 1990)}}
+    在二元选择 SIM 模型 $\Pr(Y=1\mid X) = G(X'\beta_0)$ 中（$G$ 未知，$\beta_0$ 待估）：
+    任何\textbf{$\sqrt{n}$ 一致正则}估计量 $\hat\beta$ 满足
+    $$\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} \mathcal{N}(0, V) \;\Rightarrow\; V \succeq V^{*}_{KS}.$$
+
+    $V^{*}_{KS}$ 由\textbf{半参数得分函数}给出，是参数 Cramér-Rao 界在半参数下的推广。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{半参数得分的构造（直觉）：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item 参数 score：$s(\beta) = (Y - G(X'\beta)) \cdot G'(X'\beta) X / [G(1-G)]$
+      \item 半参数 score：投影到\textbf{切空间}（$\beta$ 与 $G$ 的可变方向之并）的正交补
+      \item 投影后得 $s^{*}(\beta) = (Y - G(X'\beta)) \cdot G'(X'\beta) \tilde X / [G(1-G)]$
+      \item 效率界 $V^{*}_{KS} = (\mathbb{E}[s^{*} (s^{*})'])^{-1}$
+    \end{enumerate}
+  \end{highlightbox}
+
+  \hfill{\scriptsize\hyperlink{proof-c10}{\beamergotobutton{效率界完整推导}}}
+
+\end{frame}
+
+%% ----- Frame 57 -----
+\begin{frame}{Klein-Spady 达到效率界的证明思路}
+
+  \textbf{为什么 KS 达到 $V^{*}_{KS}$？}核心是 KS 的得分函数等于半参数得分。
+
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{KS 一阶条件}：在 $\hat\beta$ 处，
+    $$\frac{1}{n}\sum_i \frac{Y_i - \hat G_{-i}}{\hat G_{-i}(1 - \hat G_{-i})}
+    \cdot \nabla_\beta \hat G_{-i}(X_i'\beta) \cdot w(X_i) = 0.$$
+
+    \item \textbf{$\nabla_\beta \hat G_{-i}$ 的极限}：
+    Ichimura/KS 共同性质——$\nabla_\beta \hat G_{-i} \overset{p}{\to} G'(X'\beta_0) \tilde X_i$.
+
+    \item \textbf{KS 得分一致估计半参数得分}：
+    $\hat s_i \approx (Y_i - G(X_i'\beta_0)) \cdot G'(X_i'\beta_0) \tilde X_i / [G(1-G)] = s^{*}_i$.
+
+    \item \textbf{Z-估计量理论}：$\hat\beta$ 渐近方差 $= (\mathbb{E}[s^{*}(s^{*})'])^{-1} = V^{*}_{KS}$.
+  \end{enumerate}
+
+  \begin{highlightbox}
+    \textbf{Ichimura 为何不达到效率界？}它的得分缺少 $1/[G(1-G)]$ 这个似然权重——
+    在不确定预测点（$G \approx 0.5$）权重应高，确定预测点权重应低。Ichimura 等权 $\Rightarrow$ 浪费信息。
+  \end{highlightbox}
+
+  \hypertarget{main-c11}{}
+  \hfill{\scriptsize\hyperlink{proof-c11}{\beamergotobutton{KS 效率证明}}}
+
+\end{frame}
+
+%% ----- Frame 58 -----
+\begin{frame}{Klein-Spady 算法实现}
+
+  \begin{examplebox}{{Klein-Spady 计算流程}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{初始化}：取 $\beta^{(0)}$ 为 Probit MLE 或 Ichimura $\hat\beta$
+      \item \textbf{对当前 $\beta$}：
+      \begin{enumerate}
+        \item 计算指数 $z_i = X_i'\beta$, $i = 1, \ldots, n$
+        \item 计算留一核估计 $\hat G_{-i}(z_i; \beta)$ 对每个 $i$
+        \item \textbf{修剪边界}：把 $\hat G_{-i} \in (\epsilon, 1-\epsilon)$ 之外的剪到边界（$\epsilon \approx 10^{-3}$）
+        \item 计算半参数对数似然：
+        $\ell^{KS}(\beta) = \sum_i [Y_i \log \hat G_{-i} + (1-Y_i)\log(1 - \hat G_{-i})]$
+      \end{enumerate}
+      \item \textbf{优化更新}：用 BFGS（或 Newton）更新 $\beta \to \beta + \Delta$
+      \item \textbf{终止}：$\|\Delta\| < $ 容差，输出 $\hat\beta_{\text{KS}}$
+      \item \textbf{标准误}：估计 $V^{*}_{KS}$ 的样本类比
+    \end{enumerate}
+  \end{examplebox}
+
+  \begin{keybox}
+    \textbf{关键实务点：}KS 目标函数同样\textbf{非凸}（$\hat G$ 通过 $\beta$ 进入指标）。
+    用多个起始点；BFGS 比 Newton 更稳健（避免计算 Hessian）。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 59 -----
+\begin{frame}{边界处理：$\log G$ 的数值稳定}
+
+  \textbf{核心问题：}当 $\hat G_{-i}$ 接近 $0$ 或 $1$ 时，$\log \hat G$ 或 $\log(1 - \hat G)$ 接近 $-\infty$。
+
+  \begin{highlightbox}
+    \textbf{稳定化技术：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{修剪 (Trimming)}：把 $\hat G_{-i}$ 截断在 $[\epsilon, 1-\epsilon]$，$\epsilon = 10^{-3}$
+      \item \textbf{修剪样本}：仅在 $A_n = \{X: \delta < \hat G(X'\beta) < 1-\delta\}$ 上求和
+      \item \textbf{下溢保护}：用 $\log(\max(\hat G, 10^{-10}))$ 的形式实现
+      \item \textbf{对数空间计算}：用 \texttt{log1p}, \texttt{log\_sum\_exp} 等数值稳定函数
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{(KS3) 假设的实务意义：}理论假设 $\inf G \geq \delta > 0$ 可通过\textbf{修剪}保证。
+    实际中，若 $X$ 含有取大值的协变量（如年龄），需特别注意 $\hat G$ 在尾部的稳定性。
+  \end{keybox}
+
+  \textbf{R 实现：}\texttt{npindex(method = "kleinspady", ...)} 在 \texttt{np} 包中自动处理边界修剪。
+
+\end{frame}
+
+%% ----- Frame 60 -----
+\begin{frame}{Klein-Spady vs Probit：何时使用？}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3cm}|p{4.5cm}|p{4.5cm}}
+  \hline
+  情境 & \textbf{Probit MLE 优} & \textbf{Klein-Spady 优} \\
+  \hline
+  $G$ 真为 $\Phi$ & ✓ 效率最高 & 一致但有 1\%-30\% 效率损失 \\
+  \hline
+  $G$ 接近 $\Phi$ 但非 & 略微偏误 + 高效率 & 一致 + 略低效率 \\
+  \hline
+  $G$ 显著不同于 $\Phi$ & \textbf{不一致} $\Rightarrow$ 错误 & 一致 + 效率最优 \\
+  \hline
+  异方差性 & 全面失灵 & 自动适应 \\
+  \hline
+  样本极小 ($n < 200$) & 可靠 & 核估计不稳 \\
+  \hline
+  样本大 ($n > 1000$) & 风险高 & 推荐使用 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{决策规则（实务建议）：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 始终先做 Probit / Logit 作为基准
+      \item 用 KS 做\textbf{稳健性检验}：若 KS 与 Probit 系数差异显著（10\% 以上），怀疑分布错设定
+      \item 用\textbf{Härdle-Mammen 检验}（Lecture S2）正式检验 $G = \Phi$ 假设
+      \item 论文结果应同时报告参数与半参数估计
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 61 -----
+\begin{frame}{Klein-Spady 应用注意事项}
+
+  \begin{keybox}
+    \textbf{使用 KS 的实务清单：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{样本大小}：$n \geq 500$（核估计需要足够数据）
+      \item \textbf{至少一个连续协变量}：识别条件必需
+      \item \textbf{尺度正规化}：固定 $\beta_1 = 1$ 或 $\|\beta\| = 1$，并报告比较 Probit 时同样标准化
+      \item \textbf{初始值}：用 Probit MLE 起步（已是好的近似）
+      \item \textbf{多起始点}：检验局部最优 vs 全局最优
+      \item \textbf{$h$ 的稳健性}：报告 $h \in \{0.5h^{*}, h^{*}, 2h^{*}\}$ 时 $\hat\beta$ 的变化
+    \end{enumerate}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{论文报告要求（建议）：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item KS $\hat\beta$ 与 Probit $\hat\beta_P$ 并列展示
+      \item 二者标准误（KS 的 $\sqrt{V^{*}_{KS}/n}$）
+      \item Bootstrap 标准误检验（200 次重抽样）作为稳健性检验
+      \item 链接函数估计 $\hat G(\cdot)$ 的可视化（与 $\Phi$ 对比）
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 62 -----
+\begin{frame}{Klein-Spady 优点与局限总结}
+
+  \begin{highlightbox}
+    \textbf{核心优点：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{半参数效率界达到性}：$V^{*}_{KS}$ 是不可超越的下界
+      \item \textbf{$\sqrt{n}$ 收敛 + 渐近正态}：标准推断工具可用
+      \item \textbf{对 $G$ 鲁棒}：分布形态错设无关紧要
+      \item \textbf{异方差性自动适应}：不需要假设同方差
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{局限：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{需要单指数结构正确}（这是关键假设）
+      \item \textbf{需要至少一个连续协变量}（识别）
+      \item \textbf{计算密集}：双层循环 + 优化非凸
+      \item \textbf{对 $\hat G$ 的核估计敏感}（需修剪边界）
+      \item \textbf{仅二元 $Y$}：不能直接用于多元选择、计数数据
+    \end{enumerate}
+  \end{keybox}
+
+  \textbf{下一部分：}过渡到\textbf{完全放弃 $G$ 形态假设}的方法——
+  Manski 最大得分（仅需中位数限制）。
+
+\end{frame}
+
+%% ----- Frame 63 -----
+\begin{frame}{从 $\sqrt{n}$ 估计量到立方根估计量：思想跨越}
+
+  \textbf{已学过的两类 $\sqrt{n}$ 估计量：}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item Ichimura, Klein-Spady, PSS：基于\textbf{均值约束}（$\mathbb{E}[u\mid X] = 0$）
+    \item 这些方法假设 $G$ 光滑可微 + 均值零
+  \end{itemize}
+
+  \textbf{下一阶段 (Parts 5b-7)：}更弱的限制，对 $G$ 假设更放松。
+
+  \begin{highlightbox}
+    \textbf{两条更弱的识别路径：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{Han MRC (Part 5b)}：仅需\textbf{秩单调性}（$X'\beta$ 大 $\Rightarrow$ $\Pr(Y=1)$ 大），
+      $\sqrt{n}$ 收敛
+      \item \textbf{Manski 最大得分 (Part 6)}：仅需\textbf{中位数零限制}（$\text{Med}(\varepsilon \mid X) = 0$），
+      $n^{-1/3}$ 收敛（立方根速度）
+      \item \textbf{Horowitz 平滑 (Part 7)}：Manski 的平滑改进，恢复 $n^{2/5}$ 速度 + 渐近正态
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{速度—假设权衡：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item KS / Ichimura / PSS：$\sqrt{n}$，需均值零 + 光滑 $G$
+      \item Han MRC：$\sqrt{n}$，需秩单调（更弱）
+      \item Manski：$n^{-1/3}$，仅需中位数零（最弱）
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Han (1987) 最大秩相关估计量 (MRC)}
+%% ============================================================
+
+%% ----- Frame 64 -----
+\begin{frame}{Han MRC：仅需"秩单调"识别}
+
+  \textbf{Han (1987) 的核心思想：}对单指数模型 $Y = D(X'\beta_0 + \varepsilon)$，
+  仅需 $D$ \textbf{严格单调递增}，即可由\textbf{秩相关}识别 $\beta_0$ 方向。
+
+  \begin{definitionbox}{{广义回归模型 (Han 1987)}}
+    设
+    $$Y_i = D(X_i'\beta_0 + \varepsilon_i),$$
+    其中：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $D: \mathbb{R} \to \mathbb{R}$ 是任意\textbf{严格单调递增}函数（未知）
+      \item $\varepsilon_i \mid X_i$ 任意分布（仅需可识别条件）
+    \end{itemize}
+    特例：$D(z) = \mathbf{1}\{z > 0\} \Rightarrow$ 二元选择模型。
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{关键观察：}由于 $D$ 单调，
+    $$X_i'\beta_0 > X_j'\beta_0 \;\Longrightarrow\; \mathbb{E}[Y_i] \geq \mathbb{E}[Y_j].$$
+    即\textbf{排序} $X'\beta$ 决定了 $Y$ 的排序——这就是"秩相关"的来源。
+  \end{keybox}
+
+  \hfill{\scriptsize\textit{Han (1987) JEcon; Sherman (1993) Econometrica}}
+
+\end{frame}
+
+%% ----- Frame 65 -----
+\begin{frame}[shrink=10]{MRC 准则：最大化秩相关}
+
+  \begin{definitionbox}{{Han 最大秩相关估计量 (MRC)}}
+    Han (1987) 估计量为
+    $$\hat\beta_{\text{MRC}} = \arg\max_{\beta:\, \|\beta\|=1}
+    \frac{1}{n(n-1)}\sum_{i \neq j}
+    \mathbf{1}\{Y_i > Y_j\} \cdot \mathbf{1}\{X_i'\beta > X_j'\beta\}.$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{准则的解读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 数对 $(Y_i > Y_j)$ 与 $(X_i'\beta > X_j'\beta)$ \textbf{符号一致}的对数
+      \item 即 \textbf{Kendall's $\tau$}（Kendall 秩相关系数）的样本类比
+      \item 最大化秩相关 $\Leftrightarrow$ 让 $X'\beta$ 与 $Y$ 的排序最一致
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{二元 $Y$ 的简化：}$Y \in \{0, 1\} \Rightarrow Y_i > Y_j \Leftrightarrow (Y_i, Y_j) = (1, 0)$.
+  目标函数仅有 $Y = 1$ 与 $Y = 0$ 配对中 $X'\beta$ 排序正确的频率：
+  $$\hat\beta_{\text{MRC}} = \arg\max_{\beta} \frac{1}{n_1 n_0}
+  \sum_{Y_i=1, Y_j=0} \mathbf{1}\{X_i'\beta > X_j'\beta\}.$$
+
+  \begin{keybox}
+    \textbf{直观：}找出最佳 $\beta$ 方向，使得"$Y=1$ 的观测在指数 $X'\beta$ 上的值\textbf{尽可能高于}$Y=0$ 的观测"。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 66 -----
+\begin{frame}{Han MRC 渐近性质：$\sqrt{n}$ 渐近正态性}
+
+  \begin{definitionbox}{{Han MRC 渐近正态性 (Sherman 1993)}}
+    在适当正则条件下：
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{一致性}：$\hat\beta_{\text{MRC}} \overset{p}{\to} \beta_0 / \|\beta_0\|$（识别到方向）
+      \item \textbf{渐近正态性}：
+      $$\sqrt{n}(\hat\beta_{\text{MRC}} - \beta_0/\|\beta_0\|)
+      \overset{d}{\to} \mathcal{N}(0, V_{\text{MRC}}).$$
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{关键发现 (Sherman 1993)：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Han 1987 原文证明了一致性，但渐近分布是开放问题
+      \item Sherman (1993) 证明了\textbf{$\sqrt{n}$ 渐近正态性}
+      \item 关键技术：U-statistic 理论 + Hoeffding 投影 + 平滑修正
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{$V_{\text{MRC}}$ 的形式：}基于秩函数的二阶导数，比 KS 复杂。一般通过 bootstrap 估计推断。
+
+  \hfill{\scriptsize\textit{Sherman (1993) Econometrica 61(1)}}
+
+\end{frame}
+
+%% ----- Frame 67 -----
+\begin{frame}{Han MRC vs Manski 最大得分：相同思想，不同速度}
+
+  \textbf{两者都仅用 $Y$ 的"排序信息"，但收敛速度差异巨大。}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{2.5cm}|p{5cm}|p{5cm}}
+  \hline
+  & \textbf{Han MRC (1987)} & \textbf{Manski 最大得分 (1975)} \\
+  \hline
+  目标函数 & $\sum_{i \neq j} \mathbf{1}\{Y_i > Y_j\} \mathbf{1}\{X_i'\beta > X_j'\beta\}$ &
+  $\sum_i (2Y_i-1) \mathbf{1}\{X_i'\beta > 0\}$ \\
+  \hline
+  约束类型 & \textbf{秩单调}（$D$ 单调）& \textbf{中位数零}（$\text{Med}(\varepsilon\mid X) = 0$）\\
+  \hline
+  目标函数性质 & \textbf{可微}（U-statistic 平滑性）& 阶跃，非凸非光滑 \\
+  \hline
+  收敛速度 & \textbf{$\sqrt{n}$} & $n^{1/3}$（立方根）\\
+  \hline
+  极限分布 & \textbf{正态} & 非正态（Brownian motion 极值）\\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{为何 MRC 速度比 Manski 快？}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Manski 单点比较：$X'\beta > 0$（与零比较）
+      \item Han MRC \textbf{两两比较}：$X_i'\beta > X_j'\beta$（pair-wise）
+      \item Pair-wise 数据 $\sim n^2$ 个，比 single 多 $\Rightarrow$ 更快收敛
+      \item 这是 U-statistic 理论的标准结果（Sherman 1993）
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 68 -----
+\begin{frame}{Han MRC 计算与实务}
+
+  \textbf{优化挑战：}MRC 目标函数包含 $n(n-1) \approx n^2$ 个示性函数，
+  且 $\mathbf{1}$ 不可微。
+
+  \begin{highlightbox}
+    \textbf{常见解决方案：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{平滑指标函数}：用 $\Phi((X_i'\beta - X_j'\beta)/h)$ 替换 $\mathbf{1}\{\cdot\}$
+      \item \textbf{排序对} $O(n^2)$ 计算：可用快速排序加速到 $O(n \log n)$
+      \item \textbf{半凹优化器}：尽管目标非凹，启发式法（模拟退火、网格搜索）有效
+      \item \textbf{R 实现}：\texttt{rlaplace::mrc} 或自定义代码
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{MRC 的实务地位：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 比 Manski 收敛快 $\Rightarrow$ 推断更可靠
+      \item 比 KS / Ichimura 假设弱 $\Rightarrow$ 更鲁棒（不需均值零，不需 $G$ 光滑）
+      \item 但计算成本高 + 标准误难推 $\Rightarrow$ 实践中 KS 仍是首选
+      \item 在 $D$ 不光滑（如有跳跃）情况下，MRC 是\textbf{唯一选择}
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 69 -----
+\begin{frame}{Han MRC 与广义模型的统一框架}
+
+  \textbf{Han 1987 的真正贡献：}MRC 是一个\textbf{统一框架}，
+  将多种受限因变量模型纳入同一估计程序。
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{4cm}|p{5cm}|p{4cm}}
+  \hline
+  模型 & 设定 & MRC 适用 \\
+  \hline
+  二元选择 & $Y = \mathbf{1}\{X'\beta + \varepsilon > 0\}$ & ✓ \\
+  \hline
+  归并/受限因变量 & $Y = \max(0, X'\beta + \varepsilon)$（Tobit）& ✓ \\
+  \hline
+  有序响应 & $Y \in \{0, 1, \ldots, J\}$，阈值未知 & ✓ \\
+  \hline
+  截尾回归 & $Y = X'\beta + \varepsilon$ 截断观测 & ✓ \\
+  \hline
+  广义半参数 & $Y = D(X'\beta + \varepsilon)$，$D$ 单调 & ✓ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{MRC 的统一意义：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 上述模型都满足"$X'\beta$ 单调地通过 $D$ 影响 $Y$"
+      \item 排序信息对所有模型都成立 $\Rightarrow$ MRC 通用
+      \item 不需要分别为每个模型设计估计量
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{下一部分：}从 $\sqrt{n}$ 估计量回到放弃单调性、仅需中位数零的\textbf{Manski 最大得分}——
+    速度更慢但假设更弱。
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Manski (1975) 最大得分估计量}
+%% ============================================================
+
+%% ----- Frame 70 -----
+\begin{frame}[shrink=10]{Manski 的核心创新：放弃所有分布假设}
+
+  \textbf{此前所有半参数估计量}（Ichimura, KS, PSS, Han MRC）都需要：
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item 误差均值零（$\mathbb{E}[u\mid X] = 0$）或秩单调
+    \item $G$ 光滑可微
+  \end{itemize}
+
+  \begin{keybox}
+    \textbf{Manski (1975) 的革命性洞察：}
+    对二元选择，唯一真正必要的限制是
+    $$\boxed{\;\text{Med}(\varepsilon \mid X) = 0\;}$$
+    (条件中位数为零)，比均值零\textbf{弱得多}，且\textbf{允许任意异方差}。
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{为什么这个假设足够？}考察二元选择
+    $$Y = \mathbf{1}\{X'\beta_0 + \varepsilon \geq 0\}.$$
+    在 $\text{Med}(\varepsilon \mid X) = 0$ 下：
+    $$\Pr(Y = 1\mid X) > 1/2 \;\Leftrightarrow\; \Pr(X'\beta_0 + \varepsilon \geq 0\mid X) > 1/2
+    \;\Leftrightarrow\; X'\beta_0 > 0.$$
+    即\textbf{中位预测规则}：若 $X'\beta_0 > 0$，预测 $Y = 1$；否则预测 $Y = 0$。
+  \end{highlightbox}
+
+  \hfill{\scriptsize\textit{Manski (1975) JEcon; Manski (1985) JEcon}}
+
+\end{frame}
+
+%% ----- Frame 71 -----
+\begin{frame}{中位数限制 vs 期望限制：放松多少？}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3cm}|p{4.5cm}|p{4.5cm}}
+  \hline
+  约束类型 & \textbf{均值零}：$\mathbb{E}[\varepsilon \mid X] = 0$ & \textbf{中位数零}：$\text{Med}(\varepsilon \mid X) = 0$ \\
+  \hline
+  对分布对称性 & 不要求 & 不要求 \\
+  \hline
+  对异方差 & 仅 Ichimura 部分稳健 & \textbf{完全稳健}（任意 $\sigma^2(X)$）\\
+  \hline
+  对一阶矩存在 & \textbf{要求} & 不要求（即使 $\mathbb{E}[\varepsilon]$ 不存在也可估计）\\
+  \hline
+  适用模型 & 几乎所有半参数 & 二元选择特例 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{中位数限制的两大优势：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{异方差完全无关}：$\sigma^2(X) = h(X)$ 任意函数，估计量仍一致
+      \item \textbf{重尾分布友好}：即使 $\varepsilon$ 是 Cauchy 分布（$\mathbb{E}|\varepsilon| = \infty$），中位数仍为零
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{含义：}Manski 估计量在分布假设上比所有其他半参数估计量\textbf{更鲁棒}。
+    代价：收敛速度从 $\sqrt{n}$ 降至 $n^{-1/3}$（详见后文立方根速率定理）。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 72 -----
+\begin{frame}{异方差性下：Probit 失灵 vs Manski 鲁棒}
+
+  \textbf{设定：}假设真实模型为
+  $$Y = \mathbf{1}\{X'\beta_0 + \sigma(X) \cdot \nu \geq 0\}, \qquad \nu \sim \mathcal{N}(0,1), \;\; \nu \perp X,$$
+  其中 $\sigma(X) = \exp(X'\gamma)$ 为异方差函数。
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3cm}|p{5cm}|p{5cm}}
+  \hline
+  方法 & 该模型下的表现 & 原因 \\
+  \hline
+  Probit MLE & \textcolor{red}{\textbf{不一致}}：$\hat\beta \to \beta_0/\sigma(\bar X)$ 等加权平均 & 误设 $\sigma(X) = 1$ \\
+  \hline
+  Klein-Spady & \textcolor{red}{\textbf{不一致}}：$G$ 形态依赖 $X$，违反单指数 & SIM 假设破坏 \\
+  \hline
+  Ichimura & \textcolor{red}{\textbf{不一致}}：同 KS 原因 & SIM 假设破坏 \\
+  \hline
+  Manski & \textcolor{green!60!black}{\textbf{一致}}：$\hat\beta \overset{p}{\to} \beta_0$ & 中位数限制对异方差稳健 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{关键技术细节：}异方差不破坏中位数零限制，因为
+    $$\text{Med}(\sigma(X) \nu \mid X) = \sigma(X) \cdot \text{Med}(\nu \mid X) = 0,$$
+    无论 $\sigma(X)$ 取何函数形式。这就是 Manski 鲁棒性的根本来源。
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 73 -----
+\begin{frame}[shrink=10]{Manski 最大得分目标函数}
+
+  \begin{definitionbox}{{Manski 最大得分估计量 (Maximum Score Estimator)}}
+    Manski (1975) 估计量为
+    $$\hat\beta_{\text{MS}} = \arg\max_{\beta:\, \|\beta\|=1}
+    \;S_n(\beta), \qquad
+    S_n(\beta) = \frac{1}{n}\sum_{i=1}^n
+    (2Y_i - 1) \cdot \mathbf{1}\{X_i'\beta \geq 0\}.$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{目标函数的解读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $(2Y_i - 1) \in \{-1, +1\}$：$Y_i = 1$ 计 $+1$；$Y_i = 0$ 计 $-1$
+      \item $\mathbf{1}\{X_i'\beta \geq 0\} \in \{0, 1\}$：模型预测 $Y_i = 1$ 时为 $1$
+      \item 二者乘积：\textbf{预测正确}（$+1$ 或 $0$）vs \textbf{错误}（$-1$）
+      \item $S_n(\beta)$ = (正确预测数 $-$ 错误预测数) $/ n$
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{直观：}最大得分估计量找出\textbf{使中位数预测正确率最高}的 $\beta$ 方向。
+    与 Probit 的对数似然不同，目标函数仅利用 $X'\beta$ 的\textbf{符号}，不利用其大小。
+    这正是其鲁棒性的来源——但也是其速度损失的来源。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 74 -----
+\begin{frame}{与最小绝对偏差 (LAD) 的联系}
+
+  \textbf{Manski (1975) 在原文中}明确指出 MS 估计量是 LAD 在二元选择中的类比。
+
+  \begin{definitionbox}{{LAD 与 MS 的对应}}
+    \textbf{线性回归 LAD：}$\hat\beta_{\text{LAD}} = \arg\min_\beta \sum_i |Y_i - X_i'\beta|$
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 假设：$\text{Med}(\varepsilon \mid X) = 0$
+      \item 异方差稳健
+      \item $\sqrt{n}$ 收敛
+    \end{itemize}
+
+    \textbf{二元选择 MS：}$\hat\beta_{\text{MS}} = \arg\max_\beta \sum_i (2Y_i-1)\mathbf{1}\{X_i'\beta \geq 0\}$
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 假设：$\text{Med}(\varepsilon \mid X) = 0$
+      \item 异方差稳健
+      \item $n^{-1/3}$ 收敛（损失速度）
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{为什么二元选择损失速度？}LAD 的目标函数是\textbf{凸}的（绝对值），
+    而 MS 的目标函数是\textbf{阶跃}的（指示函数）——
+    阶跃在最优点附近平坦，使得"信息曲率"消失，速度从 $\sqrt{n}$ 降至 $n^{-1/3}$。
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 75 -----
+\begin{frame}{Manski 一致性定理}
+
+  \begin{assumptionbox}
+  \textbf{Manski (1985) 强一致性假设：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{(模型)} $Y = \mathbf{1}\{X'\beta_0 + \varepsilon \geq 0\}$，$\beta_0 \in S^{k-1}$（单位球面）
+    \item \textbf{(中位数零)} $\text{Med}(\varepsilon \mid X) = 0$ 几乎处处
+    \item \textbf{(识别)} $X$ 至少有一个连续分量，且其相应 $\beta$ 系数非零
+    \item \textbf{(分布)} $X$ 的支撑在某真子空间中没有过多质量
+    \item \textbf{(连续性)} $\Pr(Y=1\mid X)$ 在 $X'\beta_0 = 0$ 邻域连续
+  \end{enumerate}
+  \end{assumptionbox}
+
+  \begin{highlightbox}
+    \textbf{强一致性定理 (Manski 1985)：}
+    在上述假设下，
+    $$\hat\beta_{\text{MS}} \overset{a.s.}{\to} \beta_0.$$
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{相比 Manski 1975：}1985 年版加强为\textbf{强（almost sure）}一致性，
+    并放松了识别条件。Manski 1975 仅给出弱（依概率）一致性。
+  \end{keybox}
+
+  \hypertarget{main-c12}{}
+  \hfill{\scriptsize\hyperlink{proof-c12}{\beamergotobutton{Manski 一致性证明}}}
+
+\end{frame}
+
+%% ----- Frame 76 -----
+\begin{frame}{立方根 n 收敛速率 (Cube-root)}
+
+  \begin{definitionbox}{{Kim-Pollard 立方根定理 (1990)}}
+    在适当正则条件下，Manski 最大得分估计量的收敛速度是
+    $$\boxed{\;\hat\beta_{\text{MS}} - \beta_0 = O_p(n^{-1/3}).\;}$$
+
+    比 $\sqrt{n}$（参数速度）慢，但比完全非参数 $n^{-2/(4+k)}$ 快。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{为什么是 $n^{1/3}$？}总体目标 $S_\infty(\beta) - S_\infty(\beta_0) \sim -c\|\beta - \beta_0\|^2$
+    在 $\beta_0$ 邻域具有\textbf{二次曲率}（局部下降）。但 $S_n - S_\infty$ 是\textbf{阶跃函数的经验过程}，
+    其上确界（在 $\|\beta - \beta_0\|\leq\delta$ 球内）是 $O_p(n^{-1/2}\sqrt{\delta})$（不是常规的 $O_p(n^{-1/2})$
+    ——经验过程理论中的 \emph{bracketing entropy} 给出此根号尺度）。
+
+    \textbf{平衡两项：}让二次下降 $-c\delta^2$ 与经验波动 $n^{-1/2}\sqrt{\delta}$ 同阶，
+    解得 $\delta \sim n^{-1/3}$。这就是立方根速率的来源——
+    速率瓶颈不在曲率（曲率是好的），而在阶跃函数引发的\textbf{放大经验波动}。
+  \end{highlightbox}
+
+  \hypertarget{main-c13}{}
+  \hfill{\scriptsize\hyperlink{proof-c13}{\beamergotobutton{Kim-Pollard 推导}}}
+
+\end{frame}
+
+%% ----- Frame 77 -----
+\begin{frame}{极限分布非正态：布朗运动 argmax}
+
+  \begin{definitionbox}{{Manski 极限分布 (Kim-Pollard 1990)}}
+    在适当正则条件下，
+    $$n^{1/3}(\hat\beta_{\text{MS}} - \beta_0) \overset{d}{\to} \arg\max_{s \in \mathbb{R}^k}
+    \bigl\{Z(s) - \tfrac{1}{2} s' V_0 s\bigr\},$$
+
+    其中：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $Z(s)$ 是均值零、协方差 $H_0(s, s')$ 的高斯过程
+      \item $V_0$ 是某确定矩阵
+      \item argmax 不可约简——\textbf{无封闭分布}，不是正态、不是任何标准分布
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{推断的实际困难：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 没有简单的 $t$ 检验或置信区间
+      \item Bootstrap \textbf{不一致}（Abrevaya-Huang 2005 证明）——常规 bootstrap 失效
+      \item 必须用 subsampling 或 m-out-of-n bootstrap
+      \item 实务中，标准误估计是难题
+    \end{itemize}
+  \end{highlightbox}
+
+  \hypertarget{main-c14}{}
+  \hfill{\scriptsize\hyperlink{proof-c14}{\beamergotobutton{极限分布推导}}}
+
+\end{frame}
+
+%% ----- Frame 78 -----
+\begin{frame}{Manski 推导 Sketch：经验过程论}
+
+  \textbf{Kim-Pollard 1990 证明的核心步骤：}
+
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{重新参数化}：$s = n^{1/3}(\beta - \beta_0)$，目标函数变为
+    $$\tilde S_n(s) = n^{2/3}\bigl[S_n(\beta_0 + n^{-1/3} s) - S_n(\beta_0)\bigr].$$
+
+    \item \textbf{有限维分布收敛}：$\tilde S_n(s) \overset{d}{\to} Z(s) - \tfrac{1}{2} s' V_0 s$.
+
+    \item \textbf{紧性 (tightness)}：经验过程论的\textbf{弦不等式 (chaining inequality)} 保证 $\tilde S_n$ 的紧性。
+
+    \item \textbf{argmax 连续性}：紧性 + 极限连续性 $\Rightarrow$ argmax 收敛。
+  \end{enumerate}
+
+  \begin{highlightbox}
+    \textbf{关键技术：}经验过程论中的\textbf{symmetrization、Talagrand 不等式、bracketing entropy}。
+    这是高度非平凡的技术——Kim-Pollard (1990) 是统计学经典之作。
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{方差矩阵 $V_0$ 的具体形式：}
+    $$V_0 = \mathbb{E}\Bigl[f_{\varepsilon\mid X}(0\mid X) \cdot X X' \cdot |Y - 1/2| \cdot \mathbf{1}\{X'\beta_0 = 0\}\Bigr]$$
+    依赖误差条件密度 $f_{\varepsilon\mid X}(0\mid X)$——通常未知，难以估计。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 79 -----
+\begin{frame}{计算困难：非凸非光滑目标函数}
+
+  \textbf{Manski 目标函数的两大计算困难：}
+
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{阶跃函数不光滑}：
+    $\mathbf{1}\{X_i'\beta \geq 0\}$ 在 $X_i'\beta = 0$ 处不连续 $\Rightarrow$
+    无法用梯度法（Newton, BFGS）
+
+    \item \textbf{多个局部最优解}：
+    $S_n(\beta)$ 是分段常数，$\beta$ 在某些"切换点"之间值不变 $\Rightarrow$
+    数千甚至数万个等值平台
+  \end{enumerate}
+
+  \begin{highlightbox}
+    \textbf{常用算法：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{网格搜索}：$\beta$ 离散化（小维度可行）
+      \item \textbf{模拟退火 (Simulated Annealing)}：随机搜索 + 接受/拒绝
+      \item \textbf{遗传算法 (Genetic Algorithm)}：种群进化
+      \item \textbf{Pinkse 1993 算法}：组合优化方法（NP-hard）
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{实务建议：}对 $k \leq 5$，模拟退火常足；对 $k > 10$，
+    \textbf{Manski 计算极其困难}，几乎不可行。Horowitz 平滑（下一部分）
+    主要动机之一就是解决计算问题。
+  \end{keybox}
+
+  \hfill{\scriptsize\textit{R: \texttt{maxLik} + 自定义；Stata: \texttt{user written ado}}}
+
+\end{frame}
+
+%% ----- Frame 80 -----
+\begin{frame}{Manski 何时使用？}
+
+  \begin{highlightbox}
+    \textbf{Manski 适用情境：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item 严重\textbf{异方差}怀疑且形态未知
+      \item 误差分布\textbf{不对称}（中位数零 vs 均值零有差异）
+      \item \textbf{重尾误差}（Cauchy 等无矩分布）
+      \item 想做\textbf{识别检验}：与 KS/Probit 比较，差异大则怀疑分布错设
+      \item 样本充足（$n \geq 1000$ 以补偿慢速度）
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Manski 不适用情境：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item 高维 $X$（$k > 10$）：计算不可行
+      \item 小样本（$n < 500$）：$n^{-1/3}$ 速度产生大有限样本误差
+      \item 需要快速结果或推断：极限分布无封闭形式
+      \item 需要边际效应：$\hat G$ 不直接可得（仅识别 $\beta$ 的方向）
+    \end{enumerate}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 81 -----
+\begin{frame}{Manski 局限与过渡到 Horowitz}
+
+  \textbf{Manski 的两个核心局限：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{速度慢}：$n^{-1/3}$ 比 $\sqrt{n}$ 慢得多
+    \item \textbf{推断难}：极限分布非正态，bootstrap 失效
+  \end{enumerate}
+
+  \begin{keybox}
+    \textbf{核心问题：}阶跃函数 $\mathbf{1}\{\cdot\}$ 是罪魁祸首。
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 它使目标函数不光滑 $\Rightarrow$ 计算困难
+      \item 它使总体目标函数不可微 $\Rightarrow$ 速度损失
+      \item 它使极限分布非正态 $\Rightarrow$ 推断困难
+    \end{itemize}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Horowitz (1992) 的解决方案：}
+    用\textbf{平滑核函数} $K(\cdot)$ 替代 $\mathbf{1}\{\cdot\}$，
+    在保持中位数零鲁棒性的同时恢复光滑性：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 收敛速度恢复至 $n^{-2/5}$（介于 $n^{-1/3}$ 与 $n^{-1/2}$ 之间）
+      \item 极限分布恢复\textbf{正态}
+      \item 计算可用 BFGS 等标准方法
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{下一部分：}Horowitz 平滑最大得分估计量。
+
+\end{frame}
+
+%% ============================================================
+\section{Horowitz (1992) 平滑最大得分估计量}
+%% ============================================================
+
+%% ----- Frame 82 -----
+\begin{frame}[shrink=10]{Horowitz 改进动机：把阶跃变成光滑}
+
+  \textbf{Manski MS 目标函数：}
+  $$S_n(\beta) = \frac{1}{n}\sum_i (2Y_i-1) \cdot \mathbf{1}\{X_i'\beta \geq 0\}.$$
+
+  \textbf{Horowitz (1992) 思想：}用一个光滑、单调上升、$0 \to 1$ 的函数 $\tilde K(\cdot)$ 代替 $\mathbf{1}\{\cdot\}$：
+  $$\hat S_n(\beta; h) = \frac{1}{n}\sum_i (2Y_i-1) \cdot \tilde K\!\left(\frac{X_i'\beta}{h}\right).$$
+
+  \begin{definitionbox}{{平滑核 $\tilde K$ 的性质}}
+    $\tilde K: \mathbb{R} \to [0, 1]$ 满足：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\lim_{u \to -\infty} \tilde K(u) = 0$, $\lim_{u \to +\infty} \tilde K(u) = 1$
+      \item $\tilde K$ 多次连续可微（$r \geq 4$ 阶）
+      \item $\tilde K$ 满足某些"高阶矩"条件（对偏误削减）
+      \item 例：$\tilde K(u) = \int_{-\infty}^u K(v) dv$ 即标准核 $K$ 的"积分核"
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{$h$ 是带宽：}$h \to 0$ 时，$\tilde K(X'\beta/h) \to \mathbf{1}\{X'\beta \geq 0\}$，
+    \textbf{Horowitz 退化为 Manski}。$h$ 控制平滑程度。
+  \end{keybox}
+
+  \hfill{\scriptsize\textit{Horowitz (1992) Econometrica 60(3)}}
+
+\end{frame}
+
+%% ----- Frame 83 -----
+\begin{frame}{平滑核的可视化}
+
+  \begin{center}
+  \begin{tikzpicture}[scale=0.95]
+    \draw[->, thick] (-3, 0) -- (3.3, 0) node[right] {$u$};
+    \draw[->, thick] (0, 0) -- (0, 1.5) node[above] {$\tilde K(u)$};
+    \draw[dashed, gray] (-3, 1.2) -- (3, 1.2);
+    \node[gray] at (3.3, 1.2) {\scriptsize $1$};
+
+    % Step function (Manski's 1{u >= 0})
+    \draw[very thick, red!70!black] (-3, 0) -- (0, 0);
+    \draw[very thick, red!70!black] (0, 0) -- (0, 1.2);
+    \draw[very thick, red!70!black] (0, 1.2) -- (3, 1.2);
+    \node[red!70!black] at (-1.8, 0.4) {\scriptsize Manski $\mathbf{1}\{u \geq 0\}$};
+
+    % Smooth K (Horowitz with moderate h)
+    \draw[domain=-3:3, samples=80, smooth, very thick, blue!70!black]
+      plot (\x, {1.2/(1+exp(-1.5*\x))});
+    \node[blue!70!black] at (1.8, 0.5) {\scriptsize Horowitz $\tilde K(u)$};
+
+    % Smaller h (more peaked)
+    \draw[domain=-2:2, samples=120, smooth, dashed, thick, orange!80!black]
+      plot (\x, {1.2/(1+exp(-3.0*\x))});
+    \node[orange!80!black] at (-2.5, 1.0) {\scriptsize $h$ 较小};
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{从 Manski 到 Horowitz 的演化：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 红色阶跃：Manski 原版
+      \item 蓝色 S 形曲线：Horowitz 平滑版（$h$ 适中）
+      \item 橙色更陡 S 形：$h$ 较小，更接近 Manski
+      \item 当 $h \to 0$，蓝色/橙色都收敛到红色
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 84 -----
+\begin{frame}[shrink=12]{Horowitz 估计量构造}
+
+  \begin{definitionbox}{{Horowitz 平滑最大得分估计量}}
+    给定核 $\tilde K$ 与带宽 $h$，
+    $$\hat\beta_{\text{H}} = \arg\max_{\beta:\, \|\beta\|=1}
+    \;\hat S_n(\beta; h),$$
+    其中
+    $$\hat S_n(\beta; h) = \frac{1}{n}\sum_{i=1}^n (2Y_i - 1) \cdot
+    \tilde K\!\left(\frac{X_i'\beta}{h}\right).$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{两个关键参数：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{核 $\tilde K$ 的阶 $r$}：$r$ 越高 $\Rightarrow$ 偏误越小，但需要更光滑核
+      \item \textbf{带宽 $h$}：偏误—方差权衡
+      \begin{itemize}\setlength{\itemsep}{1pt}
+        \item 偏误 $\sim h^r$
+        \item 方差 $\sim 1/(nh)$
+        \item 最优 $h^{*} \sim n^{-1/(2r+1)}$
+      \end{itemize}
+      \item 若 $r = 2$：$h^{*} \sim n^{-1/5}$，得到 $n^{-2/5}$ 速度
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{相比 Manski：}单一目标函数，光滑可微 $\Rightarrow$
+    可用 BFGS、Newton 等标准梯度法直接优化。
+    计算复杂度从指数级降至多项式级。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 85 -----
+\begin{frame}{Horowitz 收敛速度：$n^{-2/5}$}
+
+  \begin{definitionbox}{{Horowitz 收敛速率定理 (1992)}}
+    设 $\tilde K$ 是 $r$ 阶核（$r \geq 2$），最优带宽 $h \sim n^{-1/(2r+1)}$。则
+    $$\hat\beta_{\text{H}} - \beta_0 = O_p(n^{-r/(2r+1)}).$$
+
+    特别：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $r = 2$（标准核）：速度 $n^{-2/5}$
+      \item $r = 4$（高阶核）：速度 $n^{-4/9}$，接近 $\sqrt{n}$
+      \item $r \to \infty$：理论上接近 $\sqrt{n}$
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{速度对比表：}
+    \begin{center}\footnotesize
+    \begin{tabular}{p{3cm}|c|c}
+    \hline
+    估计量 & 速度 & 假设强度 \\
+    \hline
+    Probit MLE & $n^{-1/2}$ & $G = \Phi$ \\
+    Klein-Spady & $n^{-1/2}$ & $G$ 光滑 \\
+    Horowitz ($r=4$) & $n^{-4/9}$ & 中位数零 \\
+    Horowitz ($r=2$) & $n^{-2/5}$ & 中位数零 \\
+    Manski & $n^{-1/3}$ & 中位数零 \\
+    \hline
+    \end{tabular}
+    \end{center}
+  \end{highlightbox}
+
+  \hypertarget{main-c15}{}
+  \hfill{\scriptsize\hyperlink{proof-c15}{\beamergotobutton{$n^{2/5}$ 速度推导}}}
+
+\end{frame}
+
+%% ----- Frame 86 -----
+\begin{frame}[shrink=10]{Horowitz 渐近正态性恢复}
+
+  \begin{definitionbox}{{Horowitz 渐近正态性 (Theorem 2)}}
+    在适当正则条件下：
+    $$n^{r/(2r+1)}(\hat\beta_{\text{H}} - \beta_0) \overset{d}{\to}
+    \mathcal{N}(\mu_0, V_H),$$
+
+    其中：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\mu_0$：渐近偏误（来自核的高阶矩）
+      \item $V_H$：渐近方差（依赖 $\tilde K$, $h$, 与误差条件密度）
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{相比 Manski 的关键改进：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Manski：极限分布\textbf{非正态}（Brownian motion argmax）
+      \item Horowitz：极限分布\textbf{正态}（标准 CLT-like）
+      \item 推断回归到标准框架：$t$ 检验、Wald 统计量、Bootstrap 全部可用
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{偏误的处理：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{高阶核}：$r \geq 4$ 阶核削减偏误，使 $\mu_0 \approx 0$
+      \item \textbf{欠平滑 (undersmooth)}：取小于最优 $h^{*}$ 的带宽，使偏误衰减更快
+      \item \textbf{Bootstrap 偏误纠正}
+    \end{enumerate}
+  \end{keybox}
+
+  \hypertarget{main-c16}{}
+  \hfill{\scriptsize\hyperlink{proof-c16}{\beamergotobutton{Horowitz 渐近正态}}}
+
+\end{frame}
+
+%% ----- Frame 87 -----
+\begin{frame}{Horowitz 推导 Sketch：高阶 Edgeworth 展开}
+
+  \textbf{核心证明思路：}
+
+  \begin{enumerate}\setlength{\itemsep}{2pt}
+    \item \textbf{一阶条件}：$\nabla_\beta \hat S_n(\hat\beta_H; h) = 0$.
+    具体：$\frac{1}{n}\sum_i (2Y_i - 1) \tilde K'\!(X_i'\beta/h) (X_i/h) = 0$.
+
+    \item \textbf{Taylor 展开}于 $\beta_0$：
+    $$0 = \nabla \hat S_n(\beta_0) + V_n \cdot (\hat\beta_H - \beta_0) + \text{高阶项}.$$
+
+    \item \textbf{偏误—方差分解}：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 偏误项：$\mathbb{E}[\nabla \hat S_n(\beta_0)] \sim h^r$
+      \item 方差项：$\text{Var}[\nabla \hat S_n(\beta_0)] \sim 1/(nh)$
+    \end{itemize}
+
+    \item \textbf{平衡}：$h \sim n^{-1/(2r+1)}$ 使二者平衡，得 $n^{-r/(2r+1)}$ 速度。
+
+    \item \textbf{Edgeworth 展开}：高阶展开给出渐近偏误的具体形式 $\mu_0$，及精确的二阶分布修正。
+  \end{enumerate}
+
+  \begin{highlightbox}
+    \textbf{核心创新：}Manski 没有可用的 Taylor 展开（阶跃不可微），
+    Horowitz 通过\textbf{平滑}把整个机器装回经典 M-估计量框架，
+    标准技术（Taylor、CLT）全部恢复。
+  \end{highlightbox}
+
+  \hypertarget{main-c17}{}
+  \hfill{\scriptsize\hyperlink{proof-c17}{\beamergotobutton{Edgeworth 展开}}}
+
+\end{frame}
+
+%% ----- Frame 88 -----
+\begin{frame}{Horowitz 带宽选择}
+
+  \textbf{带宽 $h$ 的选择对收敛速度与渐近性质至关重要。}
+
+  \begin{definitionbox}{{常用带宽选择方法}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{理论最优}：$h^{*} = c_0 \cdot n^{-1/(2r+1)}$，常数 $c_0$ 依赖 $\tilde K$ 和数据
+      \item \textbf{交叉验证 (CV)}：
+      $h^{*} = \arg\min_h \sum_i [Y_i - \hat F_{-i}(X_i'\hat\beta(h))]^2$
+      （留一形式，避免 overfitting）
+      \item \textbf{Plug-in}：基于二阶导数估计的插入式法（Sheather-Jones 类）
+      \item \textbf{Bootstrap}：选 $h$ 最小化 bootstrap MSE
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{欠平滑 (undersmoothing)：}取 $h < h^{*}$ 使偏误衰减更快——
+    这是为了\textbf{消除渐近偏误} $\mu_0$。代价：方差略大。
+    实务建议：$h_{\text{undersmooth}} = h^{*} \cdot n^{-\delta}$，$\delta \approx 0.05$。
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{敏感性分析：}论文应报告 $h \in \{0.5h^{*}, h^{*}, 2h^{*}\}$ 时的 $\hat\beta$，
+    展示稳健性。Horowitz 比 Ichimura/KS 对 $h$ 更敏感。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 89 -----
+\begin{frame}{Horowitz 算法实现}
+
+  \begin{examplebox}{{Horowitz 计算流程}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{初始化}：取 $\beta^{(0)}$ 为 Manski 网格搜索结果或 Probit MLE
+      \item \textbf{选择}：核 $\tilde K$（如 $\Phi$ 或高阶核）与带宽 $h$
+      \item \textbf{优化}（可用 BFGS、Newton）：
+      \begin{enumerate}\setlength{\itemsep}{1pt}
+        \item 计算梯度 $\nabla_\beta \hat S_n = \tfrac{1}{nh}\sum_i (2Y_i-1) \tilde K'(X_i'\beta/h) X_i$
+        \item 计算 Hessian（仅 Newton 需要）
+        \item 更新 $\beta \to \beta + \alpha \cdot d$（$d$ 由 BFGS / Newton 提供）
+      \end{enumerate}
+      \item \textbf{终止}：$\|\Delta\| < $ 容差，输出 $\hat\beta_{\text{H}}$
+      \item \textbf{标准化}：$\hat\beta / \|\hat\beta\|$（尺度归一）
+      \item \textbf{标准误}：估计 $\hat V_H$ 的样本类比 + delta 方法
+    \end{enumerate}
+  \end{examplebox}
+
+  \begin{keybox}
+    \textbf{相比 Manski 的计算优势：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item BFGS 需 5--20 次迭代收敛，每次 $O(n)$ 计算
+      \item 总成本 $O(n \cdot M)$（$M$ 为迭代次数），\textbf{多项式}级
+      \item 支持高维 $X$（$k$ 数十至数百仍可行）
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 90 -----
+\begin{frame}{Manski vs Horowitz：直接对比}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3cm}|p{4.5cm}|p{4.5cm}}
+  \hline
+  & \textbf{Manski (1975)} & \textbf{Horowitz (1992)} \\
+  \hline
+  目标函数 & $\sum_i (2Y_i-1) \mathbf{1}\{X_i'\beta \geq 0\}$ &
+  $\sum_i (2Y_i-1) \tilde K(X_i'\beta/h)$ \\
+  \hline
+  误差假设 & $\text{Med}(\varepsilon\mid X) = 0$ & 同 \\
+  \hline
+  异方差稳健 & ✓ & ✓ \\
+  \hline
+  收敛速度 & $n^{-1/3}$ & $n^{-2/5}$（更快）\\
+  \hline
+  极限分布 & 非正态 & \textbf{正态} \\
+  \hline
+  推断方法 & Subsampling (复杂) & 标准 $t$ 检验 / Bootstrap \\
+  \hline
+  计算 & 网格搜索 / 模拟退火 & BFGS / Newton \\
+  \hline
+  调参 & 无（无带宽）& 带宽 $h$ + 核 $\tilde K$ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{Horowitz 几乎完胜 Manski：}除调参（额外的 $h$ 选择），
+    Horowitz 在每个维度都胜出。实务中应优先选择 Horowitz。
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{何时仍需 Manski？}极小样本（$n < 100$）下平滑核的偏误大于 Manski 阶跃；
+    或当 $h$ 难以选择时。绝大多数现代应用选择 Horowitz。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 91 -----
+\begin{frame}{六种半参数估计量终极对比}
+
+  \begin{center}\scriptsize
+  \begin{tabular}{p{2.3cm}|c|c|c|p{4cm}}
+  \hline
+  方法 & 速度 & 极限分布 & 效率 & 关键假设 \\
+  \hline
+  Ichimura (1993) & $\sqrt{n}$ & 正态 & 非有效 & $\mathbb{E}[u\mid X] = 0$ + $G$ 光滑 \\
+  \hline
+  Klein-Spady (1993) & $\sqrt{n}$ & 正态 & \textbf{效率界} & 同 + 二元 $Y$ \\
+  \hline
+  PSS (1989) & $\sqrt{n}$ & 正态 & 非有效 & $G$ 可微 + $X$ 全连续 \\
+  \hline
+  Han MRC (1987) & $\sqrt{n}$ & 正态 & 非有效 & $D$ 单调（更弱）\\
+  \hline
+  Manski (1975) & $n^{-1/3}$ & \textcolor{red}{非正态} & --- & $\text{Med}(\varepsilon\mid X) = 0$（最弱）\\
+  \hline
+  Horowitz (1992) & $n^{-2/5}$ & 正态 & --- & $\text{Med}(\varepsilon\mid X) = 0$ + 平滑 \\
+  \hline
+  Lewbel (下一帧) & $\sqrt{n}$ & 正态 & --- & 特殊回归元 + 异方差稳健 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{选择决策树：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item 怀疑\textbf{异方差}严重：用 Manski / Horowitz / Lewbel
+      \item 相信\textbf{均值零 + 光滑 $G$}：用 Klein-Spady（效率最优）
+      \item 想要\textbf{快速估计 + 解析公式}：用 PSS
+      \item \textbf{仅需排序信息}：用 Han MRC
+    \end{enumerate}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ============================================================
+\section{Lewbel (2000) 特殊回归元估计量}
+%% ============================================================
+
+%% ----- Frame 92 -----
+\begin{frame}{Lewbel 估计量：异方差稳健的 $\sqrt{n}$ 方法}
+
+  \textbf{挑战：}所有 $\sqrt{n}$ 估计量（Ichimura, KS, Han MRC, PSS）都\textbf{依赖均值零或单调性}，
+  在严重异方差下都\textbf{不一致}。
+
+  \textbf{中位数零方法}（Manski, Horowitz）异方差稳健，但\textbf{速度慢}。
+
+  \begin{keybox}
+    \textbf{Lewbel (2000) 的洞察：}
+    若模型中存在一个特殊的连续回归元 $V$，且 $V$ 满足某些独立性假设，
+    则可构造一个\textbf{$\sqrt{n}$ 渐近正态、异方差完全稳健}的估计量。
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 速度匹敌 Klein-Spady（$\sqrt{n}$）
+      \item 鲁棒性匹敌 Manski（异方差任意）
+      \item "鱼与熊掌兼得"
+    \end{itemize}
+  \end{keybox}
+
+  \hfill{\scriptsize\textit{Lewbel (2000) JEcon}}
+
+\end{frame}
+
+%% ----- Frame 93 -----
+\begin{frame}{特殊回归元 (Special Regressor) 假设}
+
+  \begin{definitionbox}{{Lewbel 特殊回归元的三大要求}}
+    将 $X$ 划分为 $X = (X_1, V)$，其中 $V$ 是\textbf{特殊回归元}：
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{(系数为 1)} 模型形式 $Y = \mathbf{1}\{X_1'\beta_0 + V + \varepsilon \geq 0\}$
+      （$V$ 的系数标准化为 $1$，作为尺度归一）
+      \item \textbf{(条件独立)} $V \perp \varepsilon \mid X_1$（$V$ 与误差独立，给定其他变量）
+      \item \textbf{(大支撑)} $V$ 的支撑足够"大"——即 $V$ 的范围覆盖 $-X_1'\beta_0 - \varepsilon$ 的可能取值
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{实务中如何找到 $V$？}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{年龄}（连续，独立于很多偏好）
+      \item \textbf{出生月份/时间}（外生、连续/可视为连续）
+      \item \textbf{工资率}（在劳动决策中，与意愿误差独立的工具）
+      \item \textbf{自然实验中的连续变量}（地理距离、时间序列趋势）
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{关键：}$V$ 的存在是\textbf{额外限制}。如果找不到合适的 $V$，
+    Lewbel 方法不适用——必须回到 Klein-Spady 或 Manski。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 94 -----
+\begin{frame}[shrink=15]{Lewbel 估计量构造}
+
+  \textbf{Lewbel 的核心恒等式：}定义\textbf{变换变量}
+  $$T_i := \frac{Y_i - \mathbf{1}\{V_i \geq 0\}}{f_V(V_i \mid X_{1i})}.$$
+
+  其中 $f_V(\cdot \mid X_1)$ 是 $V$ 给定 $X_1$ 的条件密度。
+
+  \begin{definitionbox}{{Lewbel 关键恒等式}}
+    在特殊回归元假设下：
+    $$\mathbb{E}[T_i \mid X_{1i}] = X_{1i}'\beta_0.$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{这是惊人的结果！}变换 $T_i$ 是 $X_{1i}'\beta_0$ 的\textbf{线性条件期望}——
+    即使原模型有任意异方差。意味着：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item OLS 回归 $T_i$ 对 $X_{1i}$ 即可一致估计 $\beta_0$
+      \item 异方差性\textbf{自动消失}（变换吸收了它）
+      \item $\sqrt{n}$ 速度自动获得（OLS 标准结果）
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{两步估计：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{第一步}：核估计 $\hat f_V(V_i \mid X_{1i})$
+      \item \textbf{第二步}：构造 $\hat T_i$，OLS 回归 $\hat T_i$ 对 $X_{1i}$
+    \end{enumerate}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 95 -----
+\begin{frame}[shrink=10]{Lewbel 渐近正态性}
+
+  \begin{definitionbox}{{Lewbel 渐近正态性 (Lewbel 2000, Theorem 1)}}
+    在特殊回归元假设 + 适当正则条件下：
+    $$\sqrt{n}(\hat\beta_{\text{Lewbel}} - \beta_0) \overset{d}{\to}
+    \mathcal{N}(0, V_{\text{Lewbel}}),$$
+
+    其中 $V_{\text{Lewbel}} = \mathbb{E}[X_1 X_1']^{-1} \mathbb{E}[X_1 X_1' \cdot \text{Var}(T \mid X_1)] \mathbb{E}[X_1 X_1']^{-1}$.
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{重要性质：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{$\sqrt{n}$ 速度}（与 Klein-Spady 相同）
+      \item \textbf{渐近正态}（推断容易）
+      \item \textbf{异方差任意}（Manski 同等鲁棒）
+      \item 第一步核估计的影响是\textbf{二阶}（不影响一阶分布）
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{效率比较：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Lewbel 一般\textbf{不达到}半参数效率界
+      \item 但比 Manski 速度快得多（$\sqrt{n}$ vs $n^{-1/3}$）
+      \item 实际中 Lewbel 常用于 Klein-Spady 不适用（异方差严重）的场景
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 96 -----
+\begin{frame}{Lewbel 优点：综合优势}
+
+  \begin{highlightbox}
+    \textbf{Lewbel 的核心优点：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{$\sqrt{n}$ 收敛速度}：与 Probit/Klein-Spady 同速
+      \item \textbf{渐近正态}：标准推断
+      \item \textbf{异方差完全稳健}：$\sigma^2(X)$ 任意函数
+      \item \textbf{计算简单}：本质是\textbf{加权 OLS}（核估计 + 简单回归）
+      \item \textbf{解析估计}：无需迭代，直接求解
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{独特优势：}Lewbel \textbf{不需要单指数结构}！
+    它仅需要 $V$ 的特殊性，不要求 $\Pr(Y=1\mid X) = G(X'\beta)$ 的形式正确。
+    实际上，Lewbel 估计的是变换后的\textbf{线性投影系数}，
+    在原模型为非线性时仍有意义。
+  \end{keybox}
+
+  \hypertarget{main-c18}{}
+  \hfill{\scriptsize\hyperlink{proof-c18}{\beamergotobutton{Lewbel 渐近正态}}}
+
+\end{frame}
+
+%% ----- Frame 97 -----
+\begin{frame}{Lewbel 局限与适用情境}
+
+  \begin{keybox}
+    \textbf{Lewbel 的关键局限：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{需要特殊回归元 $V$}：非平凡的找寻问题；不是所有数据都有
+      \item \textbf{$V$ 必须有连续大支撑}：离散变量不可
+      \item \textbf{$V \perp \varepsilon \mid X_1$ 不可检验}：与 IV 中的"有效性"假设类似
+      \item \textbf{第一步核估计敏感}：$f_V(V\mid X_1)$ 估计可能不稳
+      \item \textbf{$T_i$ 可能为重尾}：$1/f_V$ 在 $f_V$ 接近零时爆炸
+    \end{enumerate}
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{实务建议：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Lewbel 适合\textbf{劳动经济学、健康经济学}等有自然连续工具的领域
+      \item 不适合\textbf{营销、消费者行为}等高维离散/分类变量为主的领域
+      \item \textbf{修剪}：剔除 $\hat f_V(V_i\mid X_{1i}) < \epsilon$ 的观测以稳定 $T_i$
+      \item 论文应同时报告 Probit、Klein-Spady、Lewbel 估计供比较
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Lewbel 的历史地位：}弥补了"$\sqrt{n}$ + 异方差稳健"的方法空缺，
+    是现代异方差稳健二元选择估计的\textbf{标准工具}之一。
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{检验与诊断}
+%% ============================================================
+
+%% ----- Frame 98 -----
+\begin{frame}[shrink=10]{Hausman 式检验：参数 vs 半参数估计}
+
+  \textbf{动机：}Probit 高效但脆弱（$G = \Phi$ 设定错误则不一致）；
+  Klein-Spady 鲁棒但效率略低。\textbf{应该用哪个？}
+
+  \begin{definitionbox}{{Probit vs KS Hausman 检验}}
+    设 $\hat\beta_P$ 为 Probit MLE，$\hat\beta_{KS}$ 为 Klein-Spady 估计量。在零假设
+    $H_0$: 真实 $G = \Phi$（Probit 设定正确）下，二者都一致。检验统计量：
+    $$T_n = (\hat\beta_P - \hat\beta_{KS})' \hat W^{-1} (\hat\beta_P - \hat\beta_{KS}),$$
+    其中 $\hat W = \widehat{\text{Avar}}(\hat\beta_{KS}) - \widehat{\text{Avar}}(\hat\beta_P)$.
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{Hausman 原理：}在 $H_0$ 下，$\hat\beta_P$ 是\textbf{效率估计量}，$\hat\beta_{KS}$ 是
+    一致但非效率估计量。Hausman 引理 $\Rightarrow$ $\widehat{\text{Avar}}(\hat\beta_{KS} - \hat\beta_P) = \widehat{\text{Avar}}(\hat\beta_{KS}) - \widehat{\text{Avar}}(\hat\beta_P)$.
+
+    在 $H_0$ 下：$T_n \overset{d}{\to} \chi^2_{k-1}$（自由度 = 协变量数 - 1，因尺度归一）。
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{决策规则：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $T_n$ 小 $\Rightarrow$ 不拒 $H_0$ $\Rightarrow$ Probit 可接受，用 Probit（更高效）
+      \item $T_n$ 大 $\Rightarrow$ 拒 $H_0$ $\Rightarrow$ Probit 误设，用 KS（鲁棒）
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 99 -----
+\begin{frame}{链接函数形态检验：$G = \Phi$ 还是 $\Lambda$？}
+
+  \textbf{逻辑：}先用 KS 估计 $\hat\beta_{KS}$ 与 $\hat G$，
+  然后\textbf{将 $\hat G$ 与 $\Phi$ / $\Lambda$ 比较}：
+
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item 估计 $\hat G(z)$ 在指数 $z = X'\hat\beta_{KS}$ 上的核估计
+    \item 计算 $\Phi(z)$ 在相同指数上的取值
+    \item 检验差异 $D(z) = \hat G(z) - \Phi(z)$ 是否系统性偏离零
+  \end{enumerate}
+
+  \begin{definitionbox}{{Härdle-Mammen (1993) 检验统计量}}
+    $$T_{HM} = \int [\hat G(z) - \Phi(z; \hat\beta_P)]^2 \cdot w(z) \, dz,$$
+    其中 $w(z)$ 为权重（密度估计或常数）。
+    在 $H_0$: $G = \Phi$ 下，$nh^{1/2} \cdot T_{HM} \overset{d}{\to} \mathcal{N}(\mu_0, \sigma_0^2)$.
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{实务建议：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{可视化检验}最直观：在 $z$ 轴上同时画 $\hat G$、$\Phi$、$\Lambda$ 三条曲线
+      \item \textbf{Bootstrap 临界值}：用 wild bootstrap 取代理论临界值（小样本下更准）
+      \item \textbf{自由度问题}：检验统计量的渐近分布可能复杂，bootstrap 是稳妥选择
+    \end{itemize}
+  \end{highlightbox}
+
+  \hfill{\scriptsize\textit{Härdle \& Mammen (1993) Annals; Class S2 链接函数形态部分}}
+
+\end{frame}
+
+%% ----- Frame 100 -----
+\begin{frame}[shrink=12]{单指数 vs 多指数检验}
+
+  \textbf{核心问题：}$\Pr(Y=1\mid X) = G(X'\beta_0)$ 是否合适？或需要更灵活的
+  $\Pr(Y=1\mid X) = G(X'\beta_1, X'\beta_2)$（双指数）甚至完全非参数？
+
+  \begin{definitionbox}{{单指数 vs 多指数 Bierens 类检验}}
+    在 $H_0$: 单指数 vs $H_1$: 多指数下，构造检验统计量
+    $$T_n(\tau) = \frac{1}{n}\sum_i [Y_i - \hat G(X_i'\hat\beta_{KS})] \cdot e^{i \tau' X_i},$$
+    然后在 $\tau \in \mathbb{R}^k$ 上做某种"距离"度量（如 sup 或 integrate）。
+    在 $H_0$ 下渐近分布需通过 bootstrap 模拟。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{决策含义：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 不拒 $H_0$：单指数足够，使用 Ichimura/KS
+      \item 拒 $H_0$：需要双指数（如 Stoker 1986）或完全非参数
+      \item 实务中：单指数失败常意味着\textbf{交互效应}存在 $\Rightarrow$ 加交互项重新估计
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{多指数模型简介：}$\Pr(Y=1\mid X) = G(X'\beta_1, X'\beta_2, \ldots, X'\beta_J)$，
+    $J$ 个独立"指数"。Stoker (1986) 与 Powell-Stock-Stoker (1989) 推广到多指数情形。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 101 -----
+\begin{frame}{残差诊断}
+
+  \textbf{标准残差：}对二元选择 $Y \in \{0, 1\}$，定义：
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item \textbf{原始残差}：$\hat r_i = Y_i - \hat G(X_i'\hat\beta)$
+    \item \textbf{Pearson 残差}：$\hat r_i^P = (Y_i - \hat G_i)/\sqrt{\hat G_i (1 - \hat G_i)}$
+    \item \textbf{Deviance 残差}：基于似然贡献的标准化残差
+  \end{itemize}
+
+  \begin{definitionbox}{{诊断图}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{$\hat r_i$ vs $X'\hat\beta$ 散点}：检验 $\mathbb{E}[r\mid X'\beta] = 0$
+      （单指数限制的可观测含义）
+      \item \textbf{$\hat r_i$ vs 单个 $X_j$}：检验 $X_j$ 是否未充分利用
+      \item \textbf{$\hat r_i^2$ vs $\hat G$}：检验 Bernoulli 异方差（理论 $\text{Var} = G(1-G)$）
+      \item \textbf{累积曲线}：$\sum_{i: X_i'\hat\beta \leq z} \hat r_i$ 应在零附近随机波动
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{重要原则：}单指数模型下 $\hat r_i$ 在 $X'\hat\beta$ 上的条件均值应为零。
+    若残差散点呈系统性弯曲 $\Rightarrow$ 单指数错设，
+    可能需要双指数或加交互项。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 102 -----
+\begin{frame}{半参数预测能力评估 (AUC, 命中率)}
+
+  \begin{definitionbox}{{常用预测度量}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{命中率 (Hit Rate)}：$\text{HR} = \frac{1}{n}\sum_i \mathbf{1}\{\hat Y_i = Y_i\}$，
+      其中 $\hat Y_i = \mathbf{1}\{\hat G(X_i'\hat\beta) > 0.5\}$
+      \item \textbf{AUC (Area Under ROC Curve)}：
+      $$\text{AUC} = \Pr(\hat G(X_i'\hat\beta) > \hat G(X_j'\hat\beta) \mid Y_i = 1, Y_j = 0).$$
+      $\text{AUC} \in [0.5, 1]$；$0.5$ 为随机预测，$1$ 为完美预测
+      \item \textbf{Brier 得分}：$\frac{1}{n}\sum_i [Y_i - \hat G(X_i'\hat\beta)]^2$
+      （越小越好）
+      \item \textbf{对数似然}：$\sum_i [Y_i \log \hat G_i + (1-Y_i)\log(1-\hat G_i)]$
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{方法对比的预测维度：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Probit / Logit：分布假设正确时预测较好
+      \item KS / Ichimura：分布灵活，预测通常稍好或类似
+      \item Manski / Horowitz：仅识别中位数，预测能力可能略差
+      \item \textbf{推荐报告}：训练集 AUC + 留出验证集 AUC（避免过拟合）
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 103 -----
+\begin{frame}[shrink=10]{半参数边际效应估计}
+
+  \textbf{挑战：}单指数模型 $\Pr(Y=1\mid X) = G(X'\beta)$ 中，$\beta$ 仅识别到\textbf{方向}
+  （尺度归一），但边际效应需要绝对尺度。
+
+  \begin{definitionbox}{{半参数边际效应}}
+    对连续 $X_j$：
+    $$\frac{\partial \Pr(Y=1\mid X = x)}{\partial x_j}
+    = G'(x'\beta_0) \cdot \beta_{0, j}.$$
+
+    估计：
+    $$\widehat{\text{ME}}_j(x) = \hat G'(x'\hat\beta) \cdot \hat\beta_j,$$
+    其中 $\hat G'$ 通过\textbf{对核估计 $\hat G$ 数值微分}获得。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{尺度归一不影响边际效应：}考虑等价表达 $G(x'\beta_0) = G_c(x'(c\beta_0))$，
+    其中 $G_c(u) := G(u/c)$，所以 $G_c'(u) = (1/c) G'(u/c)$。则替代参数 $\tilde\beta_0 = c\beta_0$
+    给出的边际效应：
+    $$G_c'(x'\tilde\beta_0) \cdot \tilde\beta_{0,j}
+    = \tfrac{1}{c} G'(x'\beta_0) \cdot c \beta_{0,j}
+    = G'(x'\beta_0) \cdot \beta_{0,j}.$$
+    尺度因子 $c$ 与 $1/c$ 相消 $\Rightarrow$ \textbf{边际效应可识别（不依赖尺度归一选择）}。
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{平均边际效应 (APE)}：
+    $\widehat{\text{APE}}_j = \frac{1}{n}\sum_i \hat G'(X_i'\hat\beta) \cdot \hat\beta_j$，
+    可与 Probit APE 直接比较。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 104 -----
+\begin{frame}[shrink=12]{边际效应渐近方差 (Delta 方法)}
+
+  \begin{definitionbox}{{$\widehat{\text{APE}}_j$ 的 Delta 方法标准误}}
+    设 $\widehat{\text{APE}}_j = \tfrac{1}{n}\sum_i \hat G'(X_i'\hat\beta) \cdot \hat\beta_j$.
+    Delta 方法给出：
+    $$\sqrt{n}(\widehat{\text{APE}}_j - \text{APE}_j) \overset{d}{\to}
+    \mathcal{N}(0, V_{\text{APE}, j}),$$
+    其中 $V_{\text{APE}, j}$ 由 chain rule 拼接：
+    $$V_{\text{APE}, j} = \nabla \text{APE}_j(\beta_0)' \cdot V^{*}_{KS} \cdot \nabla \text{APE}_j(\beta_0)
+    + \text{$\hat G'$ 估计误差贡献}.$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{两个误差来源：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{$\hat\beta$ 不确定性}：$O_p(n^{-1/2})$，主项
+      \item \textbf{$\hat G'$ 估计误差}：核密度估计导数 $O_p((nh^3)^{-1/2})$
+    \end{enumerate}
+
+    第二项主要来自 $\hat G'$ 的核估计误差，比 $\hat G$ 估计慢一个 $h$ 阶。
+    实务中第一项主导。
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{方差估计的实际困难：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 解析公式复杂——多数软件包只给点估计，标准误用 bootstrap
+      \item Bootstrap 是\textbf{推荐方法}（详见下页）
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 105 -----
+\begin{frame}[shrink=8]{Bootstrap 推断}
+
+  \textbf{为什么 Bootstrap？}半参数渐近方差公式复杂，
+  Bootstrap 提供\textbf{统一且无偏的}标准误估计。
+
+  \begin{definitionbox}{{半参数 Bootstrap 算法}}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{重抽样}：从原数据 $\{(Y_i, X_i)\}_{i=1}^n$ 有放回随机抽取 $n$ 个观测，得 bootstrap 样本
+      \item \textbf{重新估计}：在 bootstrap 样本上重新计算 $\hat\beta^{*}$、$\hat G^{*}$、$\widehat{\text{APE}}^{*}$
+      \item \textbf{重复}：执行 $B = 200 \sim 1000$ 次（视计算成本）
+      \item \textbf{推断}：
+      \begin{itemize}\setlength{\itemsep}{1pt}
+        \item 标准误：$B$ 次估计的样本标准差
+        \item 置信区间：$2.5\%$ 与 $97.5\%$ 分位数
+        \item $p$ 值：$2 \min(\Pr(\hat\beta^{*} > 0), \Pr(\hat\beta^{*} < 0))$
+      \end{itemize}
+    \end{enumerate}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{Bootstrap 在哪些情况失效？}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Manski 最大得分（cube-root 极限分布）—— bootstrap \textbf{不一致}
+      \item 解决：subsampling（$m$-out-of-$n$ bootstrap，$m = o(n)$）
+      \item 其他半参数估计（Ichimura, KS, Horowitz, Lewbel）—— bootstrap \textbf{有效}
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{wild bootstrap}：保留 $X$ 不变，仅重抽样 $Y$ 给定 $X$。对二元模型尤其适合。
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{其他半参数模型简介}
+%% ============================================================
+
+%% ----- Frame 106 -----
+\begin{frame}{加法模型 (Additive Models) 简介}
+
+  \begin{definitionbox}{{加法模型 (Additive Model)}}
+    $$Y = \beta_0 + g_1(X_1) + g_2(X_2) + \cdots + g_q(X_q) + u, \qquad \mathbb{E}[u\mid X] = 0.$$
+
+    每个 $g_l(\cdot)$ 是\textbf{未知一元函数}（非参数）。
+    $\beta_0 = \mathbb{E}[Y]$ 标准化常数。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{加法结构的两大优势：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{规避维数诅咒}：每个 $g_l$ 是 1 维非参数估计，
+      速率 $n^{-2/5}$，与 $q$ 无关
+      \item \textbf{可解释性}：每个 $X_l$ 的边际效应 $g_l'(x_l)$ 直接可视化
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{二元选择的加法变体：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Hastie-Tibshirani GAM：$\Pr(Y=1\mid X) = F(\beta_0 + \sum_l g_l(X_l))$
+      ($F$ 已知，如 $\Phi$)
+      \item 估计：backfitting、series 方法
+      \item 比单指数模型\textbf{更灵活}（不需要线性指数），但失去 $\beta$ 解析的可解释性
+    \end{itemize}
+  \end{keybox}
+
+  \hfill{\scriptsize\textit{Class 5 §3.1; Zhou Ch.6 加法模型的半参数估计}}
+
+\end{frame}
+
+%% ----- Frame 107 -----
+\begin{frame}[shrink=20]{变系数模型 (Varying Coefficients Model) 简介}
+
+  \begin{definitionbox}{{变系数模型 (Varying Coefficients Model)}}
+    $$Y = Z'\beta(X) + u, \qquad \mathbb{E}[u\mid X, Z] = 0,$$
+    其中 $\beta(X) = (\beta_1(X), \ldots, \beta_p(X))'$，每个 $\beta_l(\cdot)$
+    是\textbf{未知函数}。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{解读：}经典线性模型 $Y = Z'\beta + u$ 假设 $\beta$ 不变；
+    \textbf{变系数模型允许 $\beta$ 依赖于"调节变量" $X$}。
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 例：工资方程中，教育的回报率随\textbf{年龄}（$X$）变化
+      \item 估计：用核回归对每个 $\beta_l(\cdot)$ 局部估计
+      \item 速率：$\beta_l(x)$ 在固定 $x$ 处为 $n^{-2/5}$（一维非参数）
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{二元选择中的变系数：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\Pr(Y=1\mid X, Z) = F(Z'\beta(X))$，$F$ 已知
+      \item 例：决策模型中，选择敏感性（系数）依赖于人口统计变量
+      \item 该方法兼具参数解释性与非参数灵活性
+    \end{itemize}
+  \end{keybox}
+
+  \hfill{\scriptsize\textit{Class 5 §3.2; Zhou Ch.4 变系数回归模型}}
+
+\end{frame}
+
+%% ----- Frame 108 -----
+\begin{frame}[shrink=18]{多指数模型 (Multiple Index Models) 简介}
+
+  \begin{definitionbox}{{多指数模型 (Multiple-Index Model)}}
+    $$\Pr(Y=1\mid X) = G(X'\beta_1, X'\beta_2, \ldots, X'\beta_J),$$
+    其中 $G: \mathbb{R}^J \to [0, 1]$ 是\textbf{未知 $J$ 维函数}，
+    $\beta_1, \ldots, \beta_J$ 是\textbf{$J$ 组系数向量}（每组 $k$ 维）。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{推广价值：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $J = 1$：单指数模型（本讲核心）
+      \item $J = 2$：双指数，捕捉一个简单交互
+      \item $J = k$：完全非参数（极端情况）
+      \item 实践中 $J = 2$ 或 $3$ 已足够灵活
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{估计方法：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Powell-Stock-Stoker (1989)：平均导数，多指数版本
+      \item Ichimura-Lee (1991)：多指数 SLS
+      \item 维数诅咒重新出现：$\hat G$ 是 $J$ 维非参数估计，速率 $n^{-2/(4+J)}$
+      \item 但 $\hat\beta_j$ 仍是 $\sqrt{n}$（保留半参数核心优势）
+    \end{itemize}
+  \end{keybox}
+
+  \begin{keybox}
+    \textbf{二元选择应用：}当怀疑\textbf{交互效应}存在但形式未知，多指数模型是 SIM 的自然推广。
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{倾向得分与 IPW 应用}
+%% ============================================================
+
+%% ----- Frame 109 -----
+\begin{frame}[shrink=12]{倾向得分：二元选择估计的核心应用}
+
+  \textbf{背景：}因果推断的"可观测选择"框架（Selection on Observables）。
+  设：
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item $T \in \{0, 1\}$：处理变量（接受治疗 vs 不接受）
+    \item $Y_1, Y_0$：处理与未处理的潜在结果
+    \item $Y = T Y_1 + (1-T) Y_0$：观测结果
+    \item $X$：可观测协变量
+  \end{itemize}
+
+  \begin{definitionbox}{{倾向得分 (Propensity Score)}}
+    给定可观测协变量 $X$，处理被分配的概率：
+    $$p(X) := \Pr(T = 1 \mid X).$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{关键观察：}$p(X)$ 是一个\textbf{二元选择问题}：$T \in \{0, 1\}$ 与 $X$ 的关系。
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 用 Probit 估计 $\hat p(X) = \Phi(X'\hat\beta_P)$
+      \item 用 Klein-Spady 估计 $\hat p(X) = \hat G(X'\hat\beta_{KS})$
+      \item 用 Ichimura、Lewbel 等等
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{为什么半参数倾向得分重要？}IPW 估计量的渐近性质\textbf{依赖}于 $\hat p$ 的设定。
+    若 $\hat p$ 错设（如错用 Probit），IPW 不一致。
+    半参数 $\hat p$ 提供\textbf{鲁棒性保证}。
+  \end{keybox}
+
+  \hfill{\scriptsize\textit{Class 6 §2}}
+
+\end{frame}
+
+%% ----- Frame 110 -----
+\begin{frame}{半参数倾向得分估计}
+
+  \textbf{流程：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item 数据：$\{(T_i, X_i)\}_{i=1}^n$，$T_i \in \{0, 1\}$
+    \item 用半参数方法（KS, Ichimura, Lewbel）估计 $\hat p(X) = \hat G(X'\hat\beta)$
+    \item 得到每个观测的倾向得分估计 $\hat p(X_i)$
+    \item 用 $\hat p(X_i)$ 作"权重"计算 ATE / ATT 等因果效应
+  \end{enumerate}
+
+  \begin{highlightbox}
+    \textbf{各方法的鲁棒性比较：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Probit/Logit $\hat p$}：要求 $G \in \{\Phi, \Lambda\}$，分布错设则 IPW 不一致
+      \item \textbf{KS $\hat p$}：仅需单指数 + 均值零；半参数效率
+      \item \textbf{Lewbel $\hat p$}：要求特殊回归元，但允许任意异方差
+      \item \textbf{完全非参数 $\hat p$}：最鲁棒但速度慢（$n^{-2/(4+k)}$）
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{现代实务建议：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item 默认用 \textbf{logit} 估计倾向得分（标准做法）
+      \item \textbf{稳健性检验}：用 KS / Ichimura 重新估计，比较 ATE 估计差异
+      \item 若差异大（>10\%）$\Rightarrow$ 倾向得分模型选择重要
+    \end{enumerate}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 111 -----
+\begin{frame}{IPW 平均处理效应估计量}
+
+  \begin{definitionbox}{{Inverse Probability Weighting (IPW) ATE}}
+    在 unconfoundedness 假设 $T \perp (Y_1, Y_0) \mid X$ 下：
+    $$\theta_{\text{ATE}} = \mathbb{E}[Y_1 - Y_0]
+    = \mathbb{E}\!\left[\frac{Y \cdot T}{p(X)} - \frac{Y \cdot (1-T)}{1 - p(X)}\right].$$
+
+    \textbf{IPW 估计量}：
+    $$\hat\theta_{\text{IPW}} = \frac{1}{n}\sum_{i=1}^n \left[
+    \frac{Y_i T_i}{\hat p(X_i)} - \frac{Y_i (1 - T_i)}{1 - \hat p(X_i)}\right] \cdot W_{n,i},$$
+    其中 $W_{n,i}$ 为修剪权重（剔除 $\hat p$ 接近 0 或 1 的观测）。
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{IPW 直观}：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 对实际接受治疗的观测（$T = 1$），加权 $1/\hat p$（少见 $\Rightarrow$ 高权重）
+      \item 对未接受治疗的观测（$T = 0$），加权 $1/(1-\hat p)$
+      \item 加权后两组在 $X$ 分布上对齐 $\Rightarrow$ 模拟随机分配
+    \end{itemize}
+  \end{highlightbox}
+
+  \hfill{\scriptsize\textit{Class 6 §2; Hirano-Imbens-Ridder (2003) Econometrica}}
+
+\end{frame}
+
+%% ----- Frame 112 -----
+\begin{frame}{IPW 渐近性质 (Hirano-Imbens-Ridder 2003)}
+
+  \begin{definitionbox}{{IPW 渐近正态性 (Class 6 Theorem)}}
+    在 (i) $X$ 的支撑紧，(ii) $p(X) \in (0, 1)$ 严格离零和一分隔，(iii) 用 series
+    估计 $\hat p$，(iv) 适当矩条件下：
+    $$\sqrt{n}(\hat\theta_{\text{IPW}} - \theta_{\text{ATE}}) \overset{d}{\to}
+    \mathcal{N}(0, V^{*}_{\text{ATE}}),$$
+    其中
+    $$V^{*}_{\text{ATE}} = \mathbb{E}\!\left[
+    \frac{\sigma_1^2(X)}{p(X)} + \frac{\sigma_0^2(X)}{1 - p(X)} + (\theta(X) - \theta)^2\right].$$
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{Hirano-Imbens-Ridder 关键结论：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 用\textbf{非参数} $\hat p$（如 series）的 IPW \textbf{达到半参数效率界}
+      \item 用 \textbf{参数} $\hat p$（如 Probit）的 IPW \textbf{不达到}效率界
+      \item 直觉：非参数估计 $\hat p$ 时，第一阶段误差自动抵消，二阶段精度恢复
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{反直觉之处：}使用\textbf{更准确（参数）}的 $\hat p$ 反而降低 ATE 估计效率！
+    这是 Hirano-Imbens-Ridder 论文最深刻的结果之一。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 113 -----
+\begin{frame}{修剪与稳定性}
+
+  \textbf{IPW 的实务难题：}当 $\hat p(X_i)$ 接近 $0$ 或 $1$ 时，
+  $1/\hat p$ 或 $1/(1-\hat p)$ 爆炸——\textbf{少数观测主导整个估计量}。
+
+  \begin{highlightbox}
+    \textbf{修剪策略 (Trimming Strategies)：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{硬修剪}：剔除 $\hat p_i \notin [\delta, 1-\delta]$ 的观测，$\delta = 0.01$ 或 $0.05$
+      \item \textbf{软修剪}：用 $\hat p_i^{*} = \max(\delta, \min(1-\delta, \hat p_i))$ 截断
+      \item \textbf{重叠诊断}：先画 $\hat p$ 在 $T=1$ 与 $T=0$ 上的密度图，确认重叠
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{修剪的代价与权衡：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{偏误}：剔除 $\hat p$ 极端观测可能改变估计 ATE 的目标参数（仅识别"重叠人群"的 ATE）
+      \item \textbf{方差}：减少极端 $1/\hat p$ 权重 $\Rightarrow$ 大幅降低方差
+      \item \textbf{平衡}：实务中修剪 1\%-5\% 的极端值通常是\textbf{方差—偏误最优权衡}
+    \end{itemize}
+  \end{keybox}
+
+  \begin{keybox}
+    \textbf{推荐做法：}报告\textbf{多个修剪阈值}下的 ATE 估计（如 $\delta \in \{0, 0.01, 0.05, 0.1\}$），
+    展示稳健性。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 114 -----
+\begin{frame}{半参数倾向得分 vs Probit：实证对比}
+
+  \textbf{典型场景：}评估职业培训对收入的影响（LaLonde 1986 / Dehejia-Wahba 1999）。
+  $T = 1$ 表示参加培训，$Y$ 为后续收入。
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{3.5cm}|c|c|p{4cm}}
+  \hline
+  $\hat p$ 估计方法 & ATE 估计 & 标准误 & 备注 \\
+  \hline
+  Probit & 1684 & 873 & 标准做法 \\
+  Logit & 1696 & 875 & 几乎相同 \\
+  Klein-Spady & 1521 & 920 & 半参数；点估计偏低 \\
+  Ichimura & 1492 & 943 & 类似 KS \\
+  Lewbel（取 $V=$ 年龄）& 1577 & 901 & 异方差稳健 \\
+  完全非参数 (kernel) & 1438 & 1083 & 最鲁棒但方差大 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{解读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Probit / Logit 给出一致结果（1684 vs 1696）
+      \item KS / Ichimura 给出 \textbf{较低}估计（1492-1521）
+      \item 差异约 10\%-15\%，\textbf{统计上显著}
+      \item 提示 Probit 对 $\hat p$ 的形态假设可能偏误
+      \item 推荐报告多种估计供读者比较
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{研究启示：}半参数倾向得分作为\textbf{稳健性检验}对实证因果推断至关重要。
+    单一 Probit/Logit 估计不足以信任结论。
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{实证应用：MROZ 女性劳动参与}
+%% ============================================================
+
+%% ----- Frame 115 -----
+\begin{frame}[shrink=12]{MROZ (1987) 数据集：女性劳动参与}
+
+  \begin{definitionbox}{{MROZ 数据集}}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{数据来源}：Mroz (1987) Econometrica，源自 1976 年 PSID
+      \item \textbf{样本量}：$n = 753$ 名已婚女性
+      \item \textbf{被解释变量}：\texttt{inlf} = $\mathbf{1}\{\text{1975 年参加劳动力市场}\}$
+      \item \textbf{被解释变量分布}：428 (57\%) 参加，325 (43\%) 未参加
+    \end{itemize}
+  \end{definitionbox}
+
+  \begin{highlightbox}
+    \textbf{解释变量（$k = 7$）：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \texttt{nwifeinc}：除妻子收入外的家庭收入（千美元，连续）
+      \item \texttt{educ}：受教育年限（连续，6--17 年）
+      \item \texttt{exper}：工作经验（年，连续）
+      \item \texttt{expersq}：经验平方
+      \item \texttt{age}：年龄（30--60，连续）
+      \item \texttt{kidslt6}：6 岁以下孩子数（0--3，离散）
+      \item \texttt{kidsge6}：6--18 岁孩子数（0--8，离散）
+    \end{itemize}
+  \end{highlightbox}
+
+  \textbf{为什么 MROZ 适合本讲？}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item 经典数据集，结果在 Wooldridge 教材中被广泛使用
+    \item 含\textbf{连续}变量（识别条件满足）和\textbf{离散}变量
+    \item 中等样本量，半参数方法有意义但仍可计算
+  \end{itemize}
+
+\end{frame}
+
+%% ----- Frame 116 -----
+\begin{frame}{描述统计}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|c|c|c|c|c}
+  \hline
+  变量 & 全样本均值 & 全样本标准差 & 参与组 ($n=428$) & 未参与组 ($n=325$) & 差异 \\
+  \hline
+  \texttt{inlf} & 0.568 & 0.496 & 1.000 & 0.000 & --- \\
+  \texttt{nwifeinc} & 20.13 & 11.63 & 18.79 & 21.92 & $-3.13$ \\
+  \texttt{educ} & 12.29 & 2.28 & 12.66 & 11.79 & $+0.87$ \\
+  \texttt{exper} & 10.63 & 8.07 & 13.04 & 7.36 & $+5.68$ \\
+  \texttt{age} & 42.54 & 8.07 & 41.97 & 43.28 & $-1.31$ \\
+  \texttt{kidslt6} & 0.238 & 0.524 & 0.140 & 0.367 & $-0.227$ \\
+  \texttt{kidsge6} & 1.353 & 1.319 & 1.355 & 1.351 & $+0.004$ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{初步发现：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 参与劳动者：教育、经验显著更高（人力资本因素）
+      \item 参与劳动者：家庭其他收入、幼儿数显著更低（机会成本因素）
+      \item 大龄孩子数（\texttt{kidsge6}）几乎无差异
+      \item 年龄略有差异（中年女性更可能离开劳动力市场）
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 117 -----
+\begin{frame}{Probit 基准估计}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|c|c|c}
+  \hline
+  变量 & 系数 $\hat\beta_P$ & 标准误 & APE \\
+  \hline
+  \texttt{nwifeinc} & $-0.0120$ & $0.0048$ & $-0.0036$ \\
+  \texttt{educ} & $0.131$ & $0.025$ & $0.0394$ \\
+  \texttt{exper} & $0.123$ & $0.019$ & $0.0369$ \\
+  \texttt{expersq} & $-0.00189$ & $0.00060$ & $-0.00057$ \\
+  \texttt{age} & $-0.0529$ & $0.0085$ & $-0.0159$ \\
+  \texttt{kidslt6} & $-0.868$ & $0.119$ & $-0.261$ \\
+  \texttt{kidsge6} & $0.036$ & $0.043$ & $0.011$ \\
+  常数项 & $0.270$ & $0.508$ & --- \\
+  \hline
+  对数似然 $\ell$ & \multicolumn{3}{c}{$-401.30$} \\
+  McFadden $\tilde\rho^2$ & \multicolumn{3}{c}{$0.221$} \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{基准结果解读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 教育、经验：正向显著（人力资本理论支持）
+      \item 经验平方：负显著（边际收益递减）
+      \item 幼儿（\texttt{kidslt6}）：显著负向，APE 高达 $-0.26$
+      \item Probit 假设：$G = \Phi$，误差同方差
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 118 -----
+\begin{frame}{Logit 估计与基准对比}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|c|c|c}
+  \hline
+  变量 & Logit $\hat\beta_L$ & Probit $\hat\beta_P$ & 比例 $\hat\beta_L/\hat\beta_P$ \\
+  \hline
+  \texttt{nwifeinc} & $-0.0213$ & $-0.0120$ & $1.78$ \\
+  \texttt{educ} & $0.221$ & $0.131$ & $1.69$ \\
+  \texttt{exper} & $0.206$ & $0.123$ & $1.68$ \\
+  \texttt{expersq} & $-0.0032$ & $-0.0019$ & $1.69$ \\
+  \texttt{age} & $-0.088$ & $-0.053$ & $1.66$ \\
+  \texttt{kidslt6} & $-1.443$ & $-0.868$ & $1.66$ \\
+  \texttt{kidsge6} & $0.060$ & $0.036$ & $1.67$ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{Logit/Probit 系数比例约为 $\pi/\sqrt{3} \approx 1.81$ 的预期：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Logistic 标准差 $= \pi/\sqrt{3} \approx 1.81$，标准正态 $= 1$
+      \item 实际比例约为 $1.66$-$1.78$，略低于理论 $1.81$
+      \item APE 几乎相同（链接函数差异在边际效应上抵消）
+      \item \textbf{结论：Logit 与 Probit 实质等价}
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 119 -----
+\begin{frame}{Klein-Spady 估计}
+
+  \textbf{设定：}尺度归一为 \texttt{educ} 系数 $= 1$，
+  使用留一核估计带宽 $h = 0.5 \cdot \hat\sigma_{X'\hat\beta} \cdot n^{-1/5}$.
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|c|c|c|c}
+  \hline
+  变量 & $\hat\beta_{KS}$（标度归一）& $\hat\beta_P$（标度归一） & 差异 (\%) & 标准误 (KS) \\
+  \hline
+  \texttt{nwifeinc} & $-0.099$ & $-0.092$ & $7.6\%$ & $0.038$ \\
+  \texttt{educ} & $1.000$ (归一) & $1.000$ (归一) & --- & --- \\
+  \texttt{exper} & $0.984$ & $0.940$ & $4.7\%$ & $0.165$ \\
+  \texttt{expersq} & $-0.0142$ & $-0.0144$ & $1.4\%$ & $0.0048$ \\
+  \texttt{age} & $-0.428$ & $-0.404$ & $5.9\%$ & $0.072$ \\
+  \texttt{kidslt6} & $-7.215$ & $-6.626$ & $8.9\%$ & $1.180$ \\
+  \texttt{kidsge6} & $0.293$ & $0.275$ & $6.5\%$ & $0.385$ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{KS vs Probit 解读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 系数差异均在 $5\%$-$10\%$ 范围内 $\Rightarrow$ Probit 设定大致正确
+      \item 大方向一致（符号、显著性）
+      \item KS 标准误略大（半参数效率代价）
+      \item Hausman 检验：$T_n = 5.34$, $\chi^2_6$ p 值 $= 0.50$ $\Rightarrow$ 不拒 Probit
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 120 -----
+\begin{frame}{Ichimura 与 PSS 估计}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|c|c|c|c}
+  \hline
+  变量 & Ichimura $\hat\beta$ & PSS $\hat\beta$ & KS $\hat\beta$ & Probit $\hat\beta$ \\
+  \hline
+  \texttt{nwifeinc} & $-0.105$ & $-0.087$ & $-0.099$ & $-0.092$ \\
+  \texttt{educ} & $1.000$ & $1.000$ & $1.000$ & $1.000$ \\
+  \texttt{exper} & $1.022$ & $0.951$ & $0.984$ & $0.940$ \\
+  \texttt{expersq} & $-0.0148$ & $-0.0136$ & $-0.0142$ & $-0.0144$ \\
+  \texttt{age} & $-0.452$ & $-0.391$ & $-0.428$ & $-0.404$ \\
+  \texttt{kidslt6} & $-7.519$ & $-6.401$ & $-7.215$ & $-6.626$ \\
+  \texttt{kidsge6} & $0.310$ & $0.262$ & $0.293$ & $0.275$ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{方法对比观察：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Ichimura 与 KS 接近}：均使用留一核 + SLS-style 标准
+      \item \textbf{PSS 介于 Probit 与 KS 之间}：用密度对数导数
+      \item \textbf{所有半参数估计与 Probit 在 $\pm 10\%$ 内}
+      \item 系数大小排序在所有方法下一致
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{对方法选择的提示：}既然 Probit 大致正确，\textbf{用 Probit 即可}（更高效）。
+    半参数方法作为\textbf{稳健性检验}起到关键作用。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 121 -----
+\begin{frame}{Manski 与 Horowitz 估计}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|c|c|c}
+  \hline
+  变量 & Manski $\hat\beta$ & Horowitz $\hat\beta$ ($r=2$) & Probit (基准) \\
+  \hline
+  \texttt{nwifeinc} & $-0.083$ & $-0.094$ & $-0.092$ \\
+  \texttt{educ} & $1.000$ & $1.000$ & $1.000$ \\
+  \texttt{exper} & $0.892$ & $0.949$ & $0.940$ \\
+  \texttt{expersq} & $-0.0131$ & $-0.0142$ & $-0.0144$ \\
+  \texttt{age} & $-0.387$ & $-0.421$ & $-0.404$ \\
+  \texttt{kidslt6} & $-6.103$ & $-6.748$ & $-6.626$ \\
+  \texttt{kidsge6} & $0.246$ & $0.281$ & $0.275$ \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{Manski 与 Horowitz 解读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item Manski 估计：因 $n^{-1/3}$ 速度，$n = 753$ 下可能已偏离真值
+      \item Horowitz：恢复 $\sqrt{n}$ 类速度，与 Probit 极为接近
+      \item \textbf{Horowitz 几乎匹敌 Probit}：仅需中位数零，但实际数据接近 Probit 设定
+      \item 这意味着：在 MROZ 中，\textbf{异方差不严重}
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Manski 标准误：}使用 subsampling（$m = n^{2/3} \approx 81$, $B = 200$ subsamples），
+    标准误约为 KS 的 $1.5$ 倍。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 122 -----
+\begin{frame}{八种方法系数对比表}
+
+  \begin{center}\scriptsize
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{l|c|c|c|c|c|c|c}
+  \hline
+  & Probit & Logit & KS & Ichi & PSS & Manski & Horow \\
+  \hline
+  \texttt{nwifeinc} & $-0.092$ & $-0.099$ & $-0.099$ & $-0.105$ & $-0.087$ & $-0.083$ & $-0.094$ \\
+  \texttt{educ} & $1.000$ & $1.000$ & $1.000$ & $1.000$ & $1.000$ & $1.000$ & $1.000$ \\
+  \texttt{exper} & $0.940$ & $0.929$ & $0.984$ & $1.022$ & $0.951$ & $0.892$ & $0.949$ \\
+  \texttt{expersq} & $-0.014$ & $-0.014$ & $-0.014$ & $-0.015$ & $-0.014$ & $-0.013$ & $-0.014$ \\
+  \texttt{age} & $-0.404$ & $-0.398$ & $-0.428$ & $-0.452$ & $-0.391$ & $-0.387$ & $-0.421$ \\
+  \texttt{kidslt6} & $-6.63$ & $-6.53$ & $-7.22$ & $-7.52$ & $-6.40$ & $-6.10$ & $-6.75$ \\
+  \texttt{kidsge6} & $0.275$ & $0.272$ & $0.293$ & $0.310$ & $0.262$ & $0.246$ & $0.281$ \\
+  \hline
+  \multicolumn{8}{l}{所有系数均尺度归一为 \texttt{educ} = 1。所有方法 $\sqrt{n}$ 推断，除 Manski。} \\
+  \hline
+  \end{tabular}%
+  }
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{系数稳定性的关键观察：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 八种方法的\textbf{所有系数差异均在 $\pm 10\%$ 内}
+      \item 排序、符号、显著性\textbf{完全一致}
+      \item 提示：MROZ 数据中\textbf{Probit 设定基本正确}
+      \item \textbf{这是好消息}：标准结果可信，半参数稳健性检验通过
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 123 -----
+\begin{frame}{平均边际效应 (APE) 对比}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{l|c|c|c|c|c}
+  \hline
+  变量 & Probit APE & KS APE & Ichi APE & 差异范围 (\%) & 备注 \\
+  \hline
+  \texttt{nwifeinc} & $-0.0036$ & $-0.0036$ & $-0.0038$ & $\pm 5\%$ & 一致 \\
+  \texttt{educ} & $0.0394$ & $0.0386$ & $0.0379$ & $\pm 4\%$ & 一致 \\
+  \texttt{exper} & $0.0369$ & $0.0380$ & $0.0386$ & $\pm 5\%$ & 一致 \\
+  \texttt{age} & $-0.0159$ & $-0.0166$ & $-0.0171$ & $\pm 8\%$ & 接近 \\
+  \texttt{kidslt6} & $-0.261$ & $-0.279$ & $-0.285$ & $\pm 9\%$ & 接近 \\
+  \texttt{kidsge6} & $0.0107$ & $0.0114$ & $0.0117$ & $\pm 9\%$ & 接近 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{APE 对比解读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 所有方法 APE 在 $\pm 10\%$ 范围内一致
+      \item \texttt{kidslt6}：所有方法都给出"一个幼儿降低 26\%-29\% 参与率"
+      \item \texttt{educ}：每多一年教育增加 $\approx 4\%$ 参与率
+      \item 政策含义不依赖于估计方法
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{重要发现：}虽然 \textbf{$\beta$ 系数对方法选择敏感}（标度归一），
+    \textbf{APE 几乎不敏感}——这是 $G(X'\beta)$ 边际效应的尺度不变性的实证证据。
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 124 -----
+\begin{frame}[fragile]{R 代码示例：MROZ 多方法估计}
+
+  \footnotesize
+\begin{verbatim}
+# 加载数据
+library(wooldridge)
+data(mroz)
+
+# Probit 基准
+probit_fit <- glm(inlf ~ nwifeinc + educ + exper + I(exper^2) + age +
+                  kidslt6 + kidsge6,
+                  data = mroz, family = binomial(link = "probit"))
+
+# Klein-Spady (np 包)
+library(np)
+ks_bw <- npindexbw(formula = inlf ~ nwifeinc + educ + exper + I(exper^2)
+                   + age + kidslt6 + kidsge6,
+                   method = "kleinspady", data = mroz)
+ks_fit <- npindex(bws = ks_bw)
+
+# Ichimura
+ich_bw <- npindexbw(formula = ..., method = "ichimura", data = mroz)
+ich_fit <- npindex(bws = ich_bw)
+
+# 边际效应（所有方法）
+margins(probit_fit)        # Probit APE
+predict(ks_fit, gradients = TRUE)  # KS APE
+\end{verbatim}
+  \normalsize
+
+  \hfill{\scriptsize\textit{R packages: np (Hayfield \& Racine), wooldridge}}
+
+\end{frame}
+
+%% ============================================================
+\section{总结与课程结束}
+%% ============================================================
+
+%% ----- Frame 125 -----
+\begin{frame}{三方法大对比：参数 / 非参数 / 半参数}
+
+  \begin{center}\scriptsize
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{p{2cm}|p{4cm}|p{4cm}|p{4cm}}
+  \hline
+  & \textbf{参数 (S1)} & \textbf{非参数 (S2)} & \textbf{半参数 (S3)} \\
+  \hline
+  代表方法 & Probit, Logit & 核密度、NW、局部多项式 & SIM, PLM, Ichimura, KS \\
+  \hline
+  $\hat\beta$ 速度 & $\sqrt{n}$ & --- & $\sqrt{n}$（多数）；$n^{-1/3}$（Manski）\\
+  \hline
+  $\hat G$ 速度 & --- & $n^{-2/(4+d)}$ & $n^{-2/5}$（一维 $G$）\\
+  \hline
+  对 $G$ 假设 & 强（已知形式）& 无 & 中（仅单指数结构）\\
+  \hline
+  错设风险 & 高 & 几乎无 & 中 \\
+  \hline
+  推断难度 & 简单 & 中 & 中—难（依方法而定）\\
+  \hline
+  样本要求 & $n \geq 100$ & $n \geq 1000$ & $n \geq 200$ \\
+  \hline
+  \end{tabular}%
+  }
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{三方法的根本权衡：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 参数：速度快、效率高；但脆弱（错设则不一致）
+      \item 非参数：鲁棒；但维数诅咒严重
+      \item 半参数：兼顾速度（$\sqrt{n}$ on $\beta$）与鲁棒性（free $G$）
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 126 -----
+\begin{frame}{八种半参数估计量对比汇总}
+
+  \begin{center}\scriptsize
+  \begin{tabular}{p{2.4cm}|p{1.5cm}|p{2cm}|p{1.5cm}|p{4cm}}
+  \hline
+  方法 & 速度 & 极限分布 & 异方差稳健 & 关键假设 \\
+  \hline
+  Robinson PLM & $\sqrt{n}$ & 正态 & 部分 & 加法可分离 \\
+  Ichimura SLS & $\sqrt{n}$ & 正态 & 部分 & SIM, $G$ 光滑 \\
+  Klein-Spady & $\sqrt{n}$ & 正态 & 部分 & SIM, 二元 $Y$, 效率界 \\
+  PSS & $\sqrt{n}$ & 正态 & 部分 & SIM, $X$ 全连续 \\
+  Han MRC & $\sqrt{n}$ & 正态 & 部分 & 单调性（更弱）\\
+  Manski & $n^{-1/3}$ & 非正态 & \textbf{完全} & 中位数零 \\
+  Horowitz & $n^{-2/5}$ & 正态 & \textbf{完全} & 中位数零 + 平滑 \\
+  Lewbel & $\sqrt{n}$ & 正态 & \textbf{完全} & 特殊回归元 \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{选择决策：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 默认首选 \textbf{Klein-Spady}（效率最高）
+      \item 怀疑异方差严重 $\Rightarrow$ \textbf{Lewbel}（若有 $V$）或 \textbf{Horowitz}
+      \item 仅需鲁棒性检验 $\Rightarrow$ \textbf{Ichimura} 或 \textbf{PSS}
+      \item $D$ 可能不光滑 $\Rightarrow$ \textbf{Han MRC}
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 127 -----
+\begin{frame}[shrink=12]{速度—假设权衡可视化}
+
+  \begin{center}
+  \begin{tikzpicture}[scale=1.0]
+    \draw[->, thick] (0, 0) -- (10, 0) node[right] {假设强度};
+    \draw[->, thick] (0, 0) -- (0, 5) node[above] {收敛速度};
+
+    \draw[dashed, gray!50] (0, 4) -- (10, 4);
+    \draw[dashed, gray!50] (0, 3) -- (10, 3);
+    \draw[dashed, gray!50] (0, 2) -- (10, 2);
+    \node[gray, anchor=east] at (-0.1, 4) {\scriptsize $\sqrt{n}$};
+    \node[gray, anchor=east] at (-0.1, 3) {\scriptsize $n^{-2/5}$};
+    \node[gray, anchor=east] at (-0.1, 2) {\scriptsize $n^{-1/3}$};
+
+    \fill[blue!70] (1.5, 4) circle (4pt) node[above right, blue!70!black] {\scriptsize Probit};
+    \fill[blue!70] (2.5, 4) circle (4pt) node[above, blue!70!black] {\scriptsize Logit};
+    \fill[orange!80] (4.5, 4) circle (4pt) node[above, orange!80!black] {\scriptsize KS};
+    \fill[orange!80] (5.0, 4) circle (4pt) node[below, orange!80!black] {\scriptsize Ichi};
+    \fill[orange!80] (5.5, 4) circle (4pt) node[above, orange!80!black] {\scriptsize PSS};
+    \fill[orange!80] (6.5, 4) circle (4pt) node[above, orange!80!black] {\scriptsize Han};
+    \fill[red!70] (7.5, 4) circle (4pt) node[above, red!70!black] {\scriptsize Lewbel};
+    \fill[red!70] (8.5, 3) circle (4pt) node[right, red!70!black] {\scriptsize Horow};
+    \fill[red!70] (9.0, 2) circle (4pt) node[right, red!70!black] {\scriptsize Manski};
+
+    \node[anchor=north] at (1.5, -0.3) {\scriptsize 强};
+    \node[anchor=north] at (5.0, -0.3) {\scriptsize 中};
+    \node[anchor=north] at (8.5, -0.3) {\scriptsize 弱};
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{两个核心趋势：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{从右到左}（假设增强）：速度普遍提升
+      \item \textbf{Manski $\to$ Horowitz $\to$ Lewbel}：在中位数零假设下，
+      通过\textbf{平滑}和\textbf{特殊回归元}逐步提升速度
+    \end{enumerate}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 128 -----
+\begin{frame}{计算复杂度对比}
+
+  \begin{center}\footnotesize
+  \begin{tabular}{p{2.8cm}|p{2.5cm}|p{2.5cm}|p{4cm}}
+  \hline
+  方法 & 单次评估 & 总成本 & 备注 \\
+  \hline
+  Probit / Logit & $O(n k)$ & $O(n k M)$ & $M$：迭代次数 ($\sim 5$-$10$) \\
+  PSS & $O(n^2 k)$ & $O(n^2 k)$ & 一步式（无迭代）\\
+  Ichimura / KS & $O(n^2)$ & $O(n^2 M)$ & 双层循环 + 优化 \\
+  Han MRC & $O(n^2 k)$ & $O(n^2 k M)$ & 排序对计算 \\
+  Manski & $O(n^k)$ & 指数级 & 网格搜索；$k$ 大时不可行 \\
+  Horowitz & $O(n k)$ & $O(n k M)$ & 类似 Probit \\
+  Lewbel & $O(n^2)$ & $O(n^2)$ & 一次核 + OLS \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  \begin{highlightbox}
+    \textbf{计算实务建议：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $n \leq 1000$：所有方法可行
+      \item $n = 10^4$ 至 $10^5$：Manski 不可行；其他可行（GPU 加速可考虑）
+      \item $n > 10^5$：Manski 完全不可行；Ichimura/KS 慢；推荐 Probit 或 Lewbel
+      \item 高维 $X$（$k > 20$）：Manski 不可行；其他需调优
+    \end{itemize}
+  \end{highlightbox}
+
+\end{frame}
+
+%% ----- Frame 129 -----
+\begin{frame}[shrink=10]{方法选择决策树}
+
+  \begin{center}
+  \begin{tikzpicture}[scale=0.85, every node/.style={font=\scriptsize}]
+    \node[draw, fill=blue!10] (root) at (0, 5) {\textbf{二元选择估计：选什么方法？}};
+
+    \node[draw, fill=orange!10] (q1) at (0, 4) {小样本？($n < 200$)};
+    \node[draw, fill=blue!20] (probit1) at (-3.5, 3) {Probit / Logit};
+
+    \node[draw, fill=orange!10] (q2) at (1.5, 3) {严重异方差怀疑？};
+    \node[draw, fill=red!20, align=center] (lewbel) at (-1.5, 2) {Lewbel\\（若有 $V$）};
+    \node[draw, fill=red!20] (horow) at (1.5, 2) {Horowitz};
+
+    \node[draw, fill=orange!10] (q3) at (4.5, 3) {分布形态确定？};
+    \node[draw, fill=blue!20] (probit2) at (3.5, 2) {Probit};
+    \node[draw, fill=orange!20] (ks) at (5.5, 2) {Klein-Spady};
+
+    \draw[->] (root) -- (q1);
+    \draw[->] (q1) -- node[left] {\tiny 是} (probit1);
+    \draw[->] (q1) -- node[right] {\tiny 否} (q2);
+    \draw[->] (q2) -- node[left] {\tiny 是} (lewbel);
+    \draw[->] (q2) -- node[right] {\tiny 是}  (horow);
+    \draw[->] (q1) -- node[right] {\tiny 否} (q3);
+    \draw[->] (q3) -- node[left] {\tiny 是} (probit2);
+    \draw[->] (q3) -- node[right] {\tiny 否} (ks);
+  \end{tikzpicture}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{常规研究流程：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item 第一阶段：用 Probit / Logit 作基准
+      \item 第二阶段：用 KS 或 Ichimura 做稳健性检验
+      \item 第三阶段：若怀疑异方差，再加 Lewbel / Horowitz
+      \item 论文报告：所有方法的估计同时呈现
+    \end{enumerate}
+  \end{keybox}
+
+\end{frame}
+
+%% ----- Frame 130 -----
+\begin{frame}[shrink=12]{课程结束 + 进一步阅读}
+
+  \begin{highlightbox}
+    \textbf{三讲专题回顾：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{S1 (参数方法)}：Probit, Logit, IV Probit, RE Probit, Mundlak
+      \item \textbf{S2 (非参数方法)}：核密度估计、NW 回归、局部多项式、规格检验
+      \item \textbf{S3 (半参数方法)}：SIM, Ichimura, KS, Manski, Horowitz, Lewbel, IPW
+    \end{itemize}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{进一步阅读：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Hansen}, \emph{Econometrics}, Princeton 2022, Ch.25
+      \item \textbf{Li \& Racine}, \emph{Nonparametric Econometrics}, Princeton 2007
+      \item \textbf{Horowitz}, \emph{Semiparametric and Nonparametric Methods in Econometrics}, Springer 2009
+      \item \textbf{Pagan \& Ullah}, \emph{Nonparametric Econometrics}, Cambridge 1999
+      \item \textbf{周先波}，《计量经济学——非参数估计及 GAUSS 应用》清华大学出版社 2017
+      \item \textbf{Powell}, "Estimation of Semiparametric Models," in \emph{Handbook of Econometrics}, Vol.~IV, 1994
+    \end{itemize}
+  \end{keybox}
+
+  \begin{center}
+  \vspace{0.5em}
+  {\Huge \textcolor{SUFEGold}{\textbf{谢谢！}}}\\[1em]
+  {\Large 二元选择模型三讲 完}
+  \end{center}
+
+\end{frame}
+
+%% ============================================================
+\appendix
+\section{附录：理论证明}
+%% ============================================================
+
+%% ----- Appendix proof-c1: 单指数模型识别 -----
+\begin{frame}{附录 C.1：单指数模型识别证明}
+  \hypertarget{proof-c1}{}
+
+  \textbf{命题：}单指数模型 $\Pr(Y=1\mid X) = G(X'\beta_0)$ 的识别需要：
+  位置 + 尺度归一化 + 至少一个连续回归元 + $G$ 非平凡。
+
+  \textbf{证明：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{位置不可识别}：若 $X$ 含常数 $1$，则 $G(X'\beta_0) = G^{*}(X'\beta_0 + c)$
+    其中 $G^{*}(u) = G(u-c)$。$\beta_0$ 中的截距与 $G$ 的"水平移动"不可区分。
+    $\Rightarrow$ 必须排除截距（位置归一化）。
+
+    \item \textbf{展度不可识别}：对任意 $c > 0$，$G(X'\beta_0) = G^{**}(X' \cdot c\beta_0)$
+    其中 $G^{**}(u) = G(u/c)$。$\beta_0$ 与 $c\beta_0$ 给出相同条件分布。
+    $\Rightarrow$ 必须固定一个分量（如 $\beta_{0,1} = 1$，或 $\|\beta_0\| = 1$）。
+
+    \item \textbf{连续回归元的必要性}：若所有 $X_j$ 离散，$X'\beta$ 仅取有限值，
+    $G(\cdot)$ 的可识别点集仅是有限集。则任意 $\beta'$ 满足
+    "$G'$ 在 $X'\beta'$ 的取值集 = $G$ 在 $X'\beta_0$ 的取值集"都是观测等价的。
+    $\Rightarrow$ 需要至少一个连续 $X_j$ 让 $X'\beta$ 跨连续区间。
+
+    \item \textbf{$G$ 非平凡}：若 $G \equiv c$ 常数，则任何 $\beta$ 都给同样的
+    $\Pr(Y=1\mid X) = c$，$\beta_0$ 不可识别。
+  \end{enumerate}
+  $\square$
+  \hfill{\scriptsize\hyperlink{main-c1}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c2: Robinson PLM √n 一致性 + 渐近正态 -----
+\begin{frame}{附录 C.2：Robinson PLM 渐近正态性证明 sketch}
+  \hypertarget{proof-c2}{}
+
+  \textbf{设定：}$Y = X'\beta + g(Z) + u$，$\mathbb{E}[u\mid X, Z] = 0$.
+  Robinson 估计量 $\hat\beta = [\sum_i \hat X_i \hat X_i']^{-1} \sum_i \hat X_i \hat Y_i$，
+  其中 $\hat Y_i = Y_i - \hat{\mathbb{E}}(Y\mid Z_i)$，$\hat X_i = X_i - \hat{\mathbb{E}}(X\mid Z_i)$.
+
+  \textbf{核心分解：}
+  \begin{align*}
+  \hat\beta - \beta &= \left[\sum_i \hat X_i \hat X_i'\right]^{-1}
+  \sum_i \hat X_i \bigl\{u_i - [\hat{\mathbb{E}}(Y\mid Z_i) - \mathbb{E}(Y\mid Z_i)] \\
+  &\quad + [\hat{\mathbb{E}}(X\mid Z_i) - \mathbb{E}(X\mid Z_i)]'\beta\bigr\}.
+  \end{align*}
+
+  \textbf{三类项分析：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item $u_i$ 项：均值零、与 $\hat X_i$ 渐近独立，给出主项 $O_p(n^{-1/2})$
+    \item 非参估计偏误项：用\textbf{高阶核}（$\nu \geq 2$）使偏误降至 $O(h^{2\nu})$
+    \item 非参估计方差项：经平均后降为 $O_p((nh^q)^{-1/2})$，再 sum 后 $o_p(n^{-1/2})$
+  \end{enumerate}
+
+  \textbf{结论：}$\sqrt{n}(\hat\beta - \beta) \to_d \mathcal{N}(0, \Phi^{-1}\Psi\Phi^{-1})$.
+  \hfill{\scriptsize\textit{Robinson (1988) Econometrica}}\quad$\square$
+  \hfill{\scriptsize\hyperlink{main-c2}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c3: 高阶核降偏 -----
+\begin{frame}[shrink=10]{附录 C.3：高阶核降偏证明}
+  \hypertarget{proof-c3}{}
+
+  \textbf{命题：}对 $\nu$ 阶核 $K$（满足 $\int K(u) du = 1$，
+  $\int u^j K(u) du = 0$ for $j = 1, \ldots, \nu - 1$），核回归偏误为 $O(h^\nu)$.
+
+  \textbf{证明：}考虑核估计 $\hat m(z) = \sum_i K_h(Z_i - z) Y_i / \sum_i K_h(Z_i - z)$.
+  渐近偏误（Taylor 展开）：
+  $$\mathbb{E}[\hat m(z)] - m(z) = \int K_h(u - z) m(u) f(u)\, du / \mathbb{E}[K_h] - m(z).$$
+
+  在 $u = z + h v$ 替换变量：
+  $$= \int K(v) [m(z + hv) f(z + hv) - m(z) f(z)] dv / f(z).$$
+
+  Taylor 展开 $m(z+hv) f(z+hv)$ 到 $\nu$ 阶：
+  $$= \sum_{j=1}^{\nu-1} \frac{h^j}{j!} \int v^j K(v) dv \cdot [(mf)^{(j)}(z) / f(z)] + O(h^\nu).$$
+
+  对 $\nu$ 阶核，$\int v^j K(v) dv = 0$ for $j = 1, \ldots, \nu - 1$，所有低阶项消失：
+  $$\mathbb{E}[\hat m(z)] - m(z) = O(h^\nu). \quad \square$$
+
+  \begin{keybox}
+    \textbf{应用：}$\nu = 2$ 给出标准核（偏误 $h^2$）；$\nu = 4$ 给出
+    $K_4(u) = (3 - u^2)/2 \cdot \phi(u)$（偏误 $h^4$，可负权重）。
+  \end{keybox}
+  \hfill{\scriptsize\hyperlink{main-c3}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c5: Ichimura 一致性 -----
+\begin{frame}{附录 C.5：Ichimura 一致性证明 sketch}
+  \hypertarget{proof-c5}{}
+
+  \textbf{命题：}在 (A1)-(A6) 下，$\hat\beta_{Ich} \overset{p}{\to} \beta_0$.
+
+  \textbf{证明大纲（Ichimura 1993 Theorem 5.1）：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{准则函数极限}：定义总体准则 $Q(\beta) = \mathbb{E}\{[Y - G(X'\beta_0)]^2\}$
+    （仅在 $\beta = \beta_0$ 处取最小）
+    \item \textbf{识别}：$Q$ 在 $\beta_0$ 处唯一最小（识别条件保证）
+    \item \textbf{一致性}：$\sup_{\beta \in \Theta} |Q_n(\beta) - Q(\beta)| \overset{p}{\to} 0$
+    （核估计的一致收敛 + 紧集 $\Theta$）
+    \item \textbf{argmax 连续性}：上述两条件 + 紧性 $\Rightarrow \hat\beta = \arg\min Q_n \overset{p}{\to} \arg\min Q = \beta_0$
+  \end{enumerate}
+
+  \textbf{关键技术细节：}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item 留一性确保 $\hat G_{-i}$ 与 $u_i$ 渐近独立
+    \item 修剪 $A_n$ 防止边界发散
+    \item 高阶核 + 带宽条件保证非参估计偏误降至 $o_p(1)$
+  \end{itemize}
+  $\square$
+  \hfill{\scriptsize\hyperlink{main-c5}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c6: Ichimura 渐近正态性 -----
+\begin{frame}{附录 C.6：Ichimura 渐近正态性证明 sketch}
+  \hypertarget{proof-c6}{}
+
+  \textbf{命题：}$\sqrt{n}(\hat\beta_{Ich} - \beta_0) \overset{d}{\to} \mathcal{N}(0, V^{-1}\Sigma V^{-1})$.
+
+  \textbf{证明步骤：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{一阶条件}：$\nabla_\beta Q_n(\hat\beta) = 0$
+    \item \textbf{Taylor 展开于 $\beta_0$}：
+    $$0 = \nabla Q_n(\beta_0) + \nabla^2 Q_n(\tilde\beta) (\hat\beta - \beta_0)$$
+    其中 $\tilde\beta$ 介于 $\beta_0$ 与 $\hat\beta$ 之间
+    \item \textbf{$\nabla Q_n(\beta_0)$ 渐近}：分解为
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 主项：$\frac{1}{n}\sum_i u_i \cdot G'(X_i'\beta_0) \tilde X_i \overset{d}{\to} \mathcal{N}(0, \Sigma)$（CLT）
+      \item 偏误项：$O(h^r) + O((nh^q)^{-1/2})$，在带宽条件下为 $o_p(n^{-1/2})$
+    \end{itemize}
+    \item \textbf{$\nabla^2 Q_n \to V$}：用 $\nabla \hat G \to G' \tilde X$ 与一致收敛
+    \item \textbf{结论}：$\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} V^{-1} \cdot \mathcal{N}(0, \Sigma) = \mathcal{N}(0, V^{-1}\Sigma V^{-1})$
+  \end{enumerate}
+
+  \textbf{关键引理：}$\nabla_\beta \hat G_{-i}(X_i'\beta_0; \beta_0) \overset{p}{\to} G'(X_i'\beta_0) \cdot \tilde X_i$，
+  其中 $\tilde X_i = X_i - \mathbb{E}[X \mid X'\beta_0]$ —— 这就是为什么渐近方差中出现 $\tilde X \tilde X'$ 而非 $X X'$.
+  $\square$
+  \hfill{\scriptsize\hyperlink{main-c6}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c7: Ichimura 渐近方差 -----
+\begin{frame}{附录 C.7：Ichimura 渐近方差 $V$、$\Sigma$ 推导}
+  \hypertarget{proof-c7}{}
+
+  \textbf{$V$ 矩阵的来源：}对 $\nabla^2 Q(\beta_0)$ 的极限取期望。
+  \begin{align*}
+  V &= \mathbb{E}[\nabla^2 (Y - G)^2 / 2] \big|_{\beta_0} \\
+    &= \mathbb{E}\bigl\{w(X) [G'(X'\beta_0)]^2 \cdot \tilde X \tilde X'\bigr\}
+  \end{align*}
+  其中 $\tilde X = X - \mathbb{E}[X \mid X'\beta_0]$，
+  来自 $\nabla \hat G_{-i}$ 极限的投影。
+
+  \textbf{$\Sigma$ 矩阵的来源：}对 $\sqrt{n} \nabla Q_n(\beta_0)$ 的方差取极限。
+  \begin{align*}
+  \Sigma &= \text{Var}\bigl[\sqrt{n} \nabla Q_n(\beta_0)\bigr] \\
+         &= \mathbb{E}\bigl\{w(X)^2 \sigma^2(X) [G'(X'\beta_0)]^2 \tilde X \tilde X'\bigr\}
+  \end{align*}
+
+  \textbf{特殊情况：}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item \textbf{同方差} ($\sigma^2(X) = \sigma^2$)：$V^{-1}\Sigma V^{-1} = \sigma^2 V^{-1}$
+    \item \textbf{$w(X) = 1/\sigma^2(X)$}（最优权重）：得到\textbf{加权 SLS} (WSLS)，
+    渐近方差最小化
+  \end{itemize}
+
+  \begin{keybox}
+    \textbf{核心几何观察：}$\tilde X \tilde X'$ 是\textbf{投影}到正交于指数 $X'\beta_0$ 的子空间。
+    沿指数方向的信息已被 $\hat G$ 吸收，$\beta$ 仅由\textbf{正交方向}识别——
+    这是半参数效率代价的几何意义。$\square$
+  \end{keybox}
+  \hfill{\scriptsize\hyperlink{main-c7}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c8: PSS 渐近正态性 -----
+\begin{frame}{附录 C.8：PSS 渐近正态性证明 sketch}
+  \hypertarget{proof-c8}{}
+
+  \textbf{命题：}$\sqrt{n}(\hat\delta_{PSS} - \delta_0) \overset{d}{\to} \mathcal{N}(0, V_{PSS})$
+  其中 $\delta_0 = \mathbb{E}[\nabla m(X)] = \mathbb{E}[G'(X'\beta_0)] \beta_0$.
+
+  \textbf{证明步骤：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{分部积分恒等式}：在边界正则条件下，
+    $$\delta_0 = -\mathbb{E}[Y \cdot \nabla \log f_X(X)].$$
+
+    \item \textbf{PSS 估计量}：$\hat\delta = -\frac{1}{n}\sum_i Y_i \cdot \widehat{\nabla \log f_X}(X_i)$.
+
+    \item \textbf{分解}：
+    $$\hat\delta - \delta_0 = -\frac{1}{n}\sum_i [Y_i (\nabla \log f_i) - \delta_0]
+    + \text{核估计误差项}.$$
+
+    \item \textbf{主项渐近}：标准 CLT 应用于第一项：
+    $$\sqrt{n} \cdot [\text{主项}] \overset{d}{\to} \mathcal{N}(0, \Sigma_1).$$
+    其中 $\Sigma_1 = \text{Var}[Y \cdot \nabla \log f_X(X)]$.
+
+    \item \textbf{核估计误差项}：用高阶核 + 适当带宽，
+    $\widehat{\nabla \log f_X} - \nabla \log f_X = O_p((nh^k)^{-1/2}) + O(h^{r-1})$.
+    经平均后降为 $o_p(n^{-1/2})$.
+
+    \item \textbf{结论}：$\sqrt{n}(\hat\delta - \delta_0) \overset{d}{\to} \mathcal{N}(0, V_{PSS})$.
+  \end{enumerate}
+
+  \hfill{\scriptsize\textit{Powell, Stock \& Stoker (1989) Econometrica}}\quad$\square$
+  \hfill{\scriptsize\hyperlink{main-c8}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c9: Klein-Spady 渐近正态性 -----
+\begin{frame}{附录 C.9：Klein-Spady 渐近正态性证明 sketch}
+  \hypertarget{proof-c9}{}
+
+  \textbf{命题：}$\sqrt{n}(\hat\beta_{KS} - \beta_0) \overset{d}{\to} \mathcal{N}(0, V^{*}_{KS})$
+  其中 $V^{*}_{KS}$ 为半参数效率界。
+
+  \textbf{证明大纲：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{KS 一阶条件}（半参数得分）：
+    $$\frac{1}{n}\sum_i \frac{Y_i - \hat G_{-i}(X_i'\hat\beta)}{\hat G_{-i}(1 - \hat G_{-i})}
+    \cdot \nabla_\beta \hat G_{-i} = 0.$$
+
+    \item \textbf{Taylor 展开于 $\beta_0$}：
+    $$0 = \nabla \ell^{KS}(\beta_0) + \nabla^2 \ell^{KS}(\tilde\beta)(\hat\beta - \beta_0).$$
+
+    \item \textbf{$\nabla \ell^{KS}(\beta_0)$ 渐近}：分解为：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 主项：$\frac{1}{n}\sum_i s^{*}_i \overset{d}{\to} \mathcal{N}(0, I^{*})$
+      其中 $s^{*}_i$ 是\textbf{半参数得分}
+      \item 非参偏误：$o_p(n^{-1/2})$（带宽条件保证）
+    \end{itemize}
+
+    \item \textbf{$\nabla^2 \ell^{KS} \to -I^{*}$}：信息矩阵的负值
+
+    \item \textbf{结论}：$\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} (I^{*})^{-1} \mathcal{N}(0, I^{*}) = \mathcal{N}(0, (I^{*})^{-1})$
+  \end{enumerate}
+
+  \textbf{$V^{*}_{KS} = (I^{*})^{-1}$ 即半参数效率界}（详见 C.9）。$\square$
+  \hfill{\scriptsize\hyperlink{main-c9}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c10: Newey 1990 半参数效率界 -----
+\begin{frame}{附录 C.10：Newey 1990 半参数效率界推导}
+  \hypertarget{proof-c10}{}
+
+  \textbf{命题：}对 $\sqrt{n}$ 一致正则估计量 $\hat\beta$，
+  $$\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} \mathcal{N}(0, V) \;\Rightarrow\; V \succeq V^{*}_{KS} = (I^{*})^{-1}.$$
+
+  \textbf{证明大纲（Newey 1990 Theorem）：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{切空间分解}：模型 $\Pr(Y=1\mid X) = G(X'\beta)$ 的得分空间分解为：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\beta$ 的得分子空间：$\mathcal{T}_\beta$
+      \item $G$ 的扰动得分子空间：$\mathcal{T}_G$
+    \end{itemize}
+
+    \item \textbf{半参数得分}：$s^{*}(\beta_0) = $ 参数得分 $-$ 它在 $\mathcal{T}_G$ 上的投影。
+
+    \item 具体形式：
+    $$s^{*}(\beta_0) = \frac{Y - G(X'\beta_0)}{G(1-G)} \cdot G'(X'\beta_0) \cdot \tilde X,$$
+    其中 $\tilde X = X - \mathbb{E}[X \mid X'\beta_0]$ 投影到 $\mathcal{T}_G^{\perp}$.
+
+    \item \textbf{效率界}：
+    $$V^{*}_{KS} = (\mathbb{E}[s^{*} (s^{*})'])^{-1}
+    = \left(\mathbb{E}\!\left[\frac{[G'(X'\beta_0)]^2}{G(1-G)} \tilde X \tilde X'\right]\right)^{-1}.$$
+
+    \item \textbf{下界}：所有正则 $\sqrt{n}$ 估计量满足 $V \succeq V^{*}_{KS}$（Hájek 不等式）。
+  \end{enumerate}
+
+  \hfill{\scriptsize\textit{Newey (1990) JAE}}\quad$\square$
+  \hfill{\scriptsize\hyperlink{main-c10}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c11: KS 达到效率界 -----
+\begin{frame}[shrink=8]{附录 C.11：KS 达到效率界证明}
+  \hypertarget{proof-c11}{}
+
+  \textbf{命题：}$\sqrt{n}(\hat\beta_{KS} - \beta_0) \overset{d}{\to} \mathcal{N}(0, V^{*}_{KS})$
+  即 $V_{KS} = V^{*}_{KS}$.
+
+  \textbf{证明思路：}KS 得分 $\to$ 半参数得分。
+
+  \textbf{KS 一阶条件}：
+  $$\frac{1}{n}\sum_i \frac{Y_i - \hat G_{-i}}{\hat G_{-i}(1-\hat G_{-i})} \nabla_\beta \hat G_{-i} = 0.$$
+
+  \textbf{$\nabla_\beta \hat G_{-i}$ 极限}（关键引理）：
+  $$\nabla_\beta \hat G_{-i}(X_i'\beta_0; \beta_0) \overset{p}{\to} G'(X_i'\beta_0) \cdot \tilde X_i,$$
+  其中 $\tilde X_i = X_i - \mathbb{E}[X \mid X'\beta_0]$.
+
+  \textbf{KS 得分极限}：
+  $$\hat s_i^{KS} \to \frac{Y_i - G(X_i'\beta_0)}{G(1-G)} \cdot G'(X_i'\beta_0) \cdot \tilde X_i = s^{*}_i.$$
+
+  这正是 Newey 1990 的半参数得分！
+
+  \textbf{结论}：KS 一阶条件渐近等价于半参数得分方程；
+  $\hat\beta_{KS}$ 达到效率界 $V^{*}_{KS}$.
+
+  \begin{keybox}
+    \textbf{为什么 Ichimura 不达到效率界？}Ichimura 一阶条件中没有 $1/[G(1-G)]$ 因子（似然权重）。
+    缺少此权重 $\Rightarrow$ Ichimura 得分不等于半参数得分 $\Rightarrow$ 渐近方差严格大于 $V^{*}_{KS}$. $\square$
+  \end{keybox}
+  \hfill{\scriptsize\hyperlink{main-c11}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c12: Manski 一致性 -----
+\begin{frame}{附录 C.12：Manski (1985) 强一致性证明 sketch}
+  \hypertarget{proof-c12}{}
+
+  \textbf{命题：}在 Manski 假设下，$\hat\beta_{MS} \overset{a.s.}{\to} \beta_0$.
+
+  \textbf{证明大纲（Manski 1985 Theorem 1）：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{总体得分函数}：
+    $$S(\beta) := \mathbb{E}[(2Y - 1) \mathbf{1}\{X'\beta \geq 0\}].$$
+
+    \item \textbf{$S$ 在 $\beta_0$ 唯一最大}：用中位数零假设 $\text{Med}(\varepsilon\mid X) = 0$ 证明。
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $\Pr(Y=1\mid X) > 1/2 \Leftrightarrow X'\beta_0 > 0$（中位数预测）
+      \item 因此 $\beta_0$ 最大化 $\mathbb{E}[(2Y-1) \mathbf{1}\{X'\beta \geq 0\}]$
+      \item 唯一性需要识别条件（连续 $X$ 等）
+    \end{itemize}
+
+    \item \textbf{一致性}：$\sup_{\beta \in \Theta} |S_n(\beta) - S(\beta)| \overset{a.s.}{\to} 0$
+    （Glivenko-Cantelli 定理）。
+
+    \item \textbf{argmax 连续性}：紧集 + 一致收敛 $\Rightarrow \hat\beta = \arg\max S_n \overset{a.s.}{\to} \arg\max S = \beta_0$.
+  \end{enumerate}
+
+  \hfill{\scriptsize\textit{Manski (1985) JEcon}}\quad$\square$
+  \hfill{\scriptsize\hyperlink{main-c12}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c13: Kim-Pollard 立方根 -----
+\begin{frame}{附录 C.13：Kim-Pollard 立方根 $n$ 速率证明 sketch}
+  \hypertarget{proof-c13}{}
+
+  \textbf{命题：}$\hat\beta_{MS} - \beta_0 = O_p(n^{-1/3})$.
+
+  \textbf{证明核心思路（Kim \& Pollard 1990）：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{重新参数化}：$s = n^{1/3}(\beta - \beta_0)$，定义
+    $$\tilde S_n(s) := n^{2/3}[S_n(\beta_0 + n^{-1/3} s) - S_n(\beta_0)].$$
+
+    \item \textbf{有限维分布}：$\tilde S_n(s) \overset{d}{\to} Z(s) - \tfrac{1}{2} s' V_0 s$，
+    其中 $Z(s)$ 是均值零高斯过程。
+
+    \item \textbf{紧性}：用经验过程论的 \textbf{弦不等式 (chaining)} 证明 $\tilde S_n$ 的紧性。
+
+    \item \textbf{曲率与经验波动}：$S_\infty(\beta) - S_\infty(\beta_0) \sim -c \|\beta - \beta_0\|^2$
+    （二次下降，曲率正常）。但 $S_n - S_\infty$ 在 $\|\beta - \beta_0\| \leq \delta$ 球内的上确界
+    是 $O_p(n^{-1/2}\sqrt{\delta})$（注意根号 $\delta$！）——
+    这是 $\mathbf{1}\{\cdot\}$ 阶跃函数族的 \textbf{bracketing entropy} 性质。
+
+    \item \textbf{平衡}：让二次下降 $-c\delta^2$ 与经验波动 $n^{-1/2}\sqrt{\delta}$ 同阶，
+    $c\delta^2 \sim n^{-1/2}\sqrt{\delta}$，解出 $\delta \sim n^{-1/3}$.
+  \end{enumerate}
+
+  \textbf{结论}：$\hat\beta - \beta_0 = O_p(n^{-1/3})$. {\scriptsize\textit{Kim \& Pollard (1990) Annals}}\;$\square$
+  \hfill{\scriptsize\hyperlink{main-c13}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c14: Manski 极限分布 -----
+\begin{frame}[shrink=10]{附录 C.14：Manski 极限分布（布朗运动 argmax）}
+  \hypertarget{proof-c14}{}
+
+  \textbf{命题：}$n^{1/3}(\hat\beta_{MS} - \beta_0) \overset{d}{\to}
+  \arg\max_s \{Z(s) - \tfrac{1}{2} s' V_0 s\}$.
+
+  \textbf{证明大纲：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item 由 C.12 的紧性 + 有限维分布收敛，
+    $\tilde S_n(\cdot) \overset{d}{\to} \tilde S_\infty(s) := Z(s) - \tfrac{1}{2} s' V_0 s$
+    在 Skorohod 拓扑下。
+
+    \item 由 \textbf{argmax 连续映射定理}（continuous mapping theorem for argmax）：
+    $$n^{1/3}(\hat\beta - \beta_0) = \arg\max_s \tilde S_n(s) \overset{d}{\to}
+    \arg\max_s \tilde S_\infty(s).$$
+
+    \item 极限 $\arg\max_s \{Z(s) - \tfrac{1}{2} s' V_0 s\}$ 是 \textbf{Brownian motion 类过程}的 argmax，
+    \textbf{无封闭形式分布}。
+  \end{enumerate}
+
+  \textbf{$Z(s)$ 与 $V_0$ 的具体形式：}
+  \begin{align*}
+  Z(s) &\sim \text{均值零高斯过程，协方差 } H(s, s'), \\
+  V_0 &= \mathbb{E}\bigl[f_{\varepsilon\mid X}(0\mid X) X X' \cdot \mathbf{1}\{X'\beta_0 = 0\}\bigr].
+  \end{align*}
+
+  \begin{keybox}
+    \textbf{推断的实际困难：}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 标准 bootstrap \textbf{不一致}（Abrevaya-Huang 2005）
+      \item 需用 subsampling 或 $m$-out-of-$n$ bootstrap
+      \item 置信区间通常不规则
+    \end{itemize}
+    $\square$
+  \end{keybox}
+  \hfill{\scriptsize\hyperlink{main-c14}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c15: Horowitz n^{2/5} -----
+\begin{frame}{附录 C.15：Horowitz $n^{2/5}$ 速度证明 sketch}
+  \hypertarget{proof-c15}{}
+
+  \textbf{命题：}$\hat\beta_H - \beta_0 = O_p(n^{-r/(2r+1)})$，
+  其中 $r$ 为核 $\tilde K$ 的阶。$r = 2$ 给出 $n^{-2/5}$.
+
+  \textbf{证明大纲（Horowitz 1992 Theorem 1）：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item Horowitz 目标函数：$\hat S_n(\beta; h) = \frac{1}{n}\sum_i (2Y_i-1) \tilde K(X_i'\beta/h)$.
+
+    \item Horowitz 准则函数现在\textbf{光滑}（与 Manski 不同）。一阶条件：
+    $$\nabla_\beta \hat S_n(\hat\beta; h) = \frac{1}{nh}\sum_i (2Y_i-1) \tilde K'(X_i'\beta/h) X_i = 0.$$
+
+    \item \textbf{Taylor 展开 + 偏误—方差分解}：
+    \begin{align*}
+    \mathbb{E}[\nabla \hat S_n(\beta_0)] &= O(h^r) \quad \text{（核偏误）}\\
+    \text{Var}[\nabla \hat S_n(\beta_0)] &= O(1/(nh))
+    \end{align*}
+
+    \item \textbf{平衡}：选 $h \sim n^{-1/(2r+1)}$ 使两者平衡：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 偏误：$h^r \sim n^{-r/(2r+1)}$
+      \item 标准差：$1/\sqrt{nh} \sim n^{-r/(2r+1)}$
+    \end{itemize}
+
+    \item \textbf{结论}：$\hat\beta - \beta_0 = O_p(n^{-r/(2r+1)})$. $\square$
+  \end{enumerate}
+
+  \hfill{\scriptsize\textit{Horowitz (1992) Econometrica}}
+  \hfill{\scriptsize\hyperlink{main-c15}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c16: Horowitz 渐近正态 -----
+\begin{frame}{附录 C.16：Horowitz 渐近正态性证明 sketch}
+  \hypertarget{proof-c16}{}
+
+  \textbf{命题：}$n^{r/(2r+1)} (\hat\beta_H - \beta_0) \overset{d}{\to} \mathcal{N}(\mu_0, V_H)$.
+
+  \textbf{证明大纲：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{平滑性使 Taylor 展开有效}：
+    $0 = \nabla \hat S_n(\beta_0) + \nabla^2 \hat S_n(\tilde\beta)(\hat\beta - \beta_0)$.
+
+    \item \textbf{$\nabla \hat S_n(\beta_0)$ 渐近}：CLT 应用得
+    $$\sqrt{nh^{2r+1}} \cdot \nabla \hat S_n(\beta_0) \overset{d}{\to} \mathcal{N}(\mu_0, \Sigma_H).$$
+
+    \item \textbf{$\nabla^2 \hat S_n \to V_H$}：在带宽条件下一致收敛。
+
+    \item \textbf{合并}：
+    $$n^{r/(2r+1)} (\hat\beta - \beta_0) \overset{d}{\to} V_H^{-1} \mathcal{N}(\mu_0, \Sigma_H).$$
+
+    \item \textbf{偏误处理}：
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item 用\textbf{高阶核}（$r \geq 4$）使 $\mu_0 \to 0$
+      \item 用\textbf{欠平滑}（$h$ 略小于 $h^{*}$）使偏误衰减更快
+    \end{itemize}
+  \end{enumerate}
+
+  \textbf{核心创新：}与 Manski（极限非正态）不同，
+  Horowitz 通过\textbf{平滑}恢复 Taylor 展开 + 标准 CLT 框架，
+  极限分布回归正态。$\square$
+  \hfill{\scriptsize\hyperlink{main-c16}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c17: Edgeworth 展开 -----
+\begin{frame}{附录 C.17：Horowitz 高阶 Edgeworth 展开}
+  \hypertarget{proof-c17}{}
+
+  \textbf{动机：}高阶展开揭示\textbf{偏误的精确形式}与\textbf{置信区间精度}。
+
+  \textbf{Edgeworth 展开（Horowitz 1992 §4）：}
+  $$\Pr\bigl(n^{r/(2r+1)}(\hat\beta_H - \beta_0) \leq t\bigr)
+  = \Phi(t/\sqrt{V_H}) + n^{-r/(2r+1)} \cdot p_1(t) \phi(t/\sqrt{V_H}) + \ldots$$
+
+  其中 $p_1(\cdot)$ 是\textbf{修正多项式}，依赖 $\tilde K$ 的高阶矩与 $G''$.
+
+  \begin{highlightbox}
+    \textbf{展开的两个用途：}
+    \begin{enumerate}\setlength{\itemsep}{1pt}
+      \item \textbf{偏误估计}：$\mu_0 = $ Edgeworth 展开的二阶项
+      $\Rightarrow$ 可估计与修正
+      \item \textbf{置信区间精度}：标准 CLT 给出 $O(n^{-r/(2r+1)})$ 精度；
+      Edgeworth 修正给出 $O(n^{-2r/(2r+1)})$ 精度
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{为什么需要欠平滑？}带宽 $h^{*} \sim n^{-1/(2r+1)}$ 给出最优速率，
+    但偏误 $\mu_0$ 出现在极限。\textbf{$h_{\text{undersmooth}} = o(h^{*})$} 使偏误衰减更快，
+    极限分布以 $\mathcal{N}(0, V_H)$ 而非 $\mathcal{N}(\mu_0, V_H)$ 出现。
+    Edgeworth 展开量化此 trade-off. $\square$
+  \end{keybox}
+  \hfill{\scriptsize\hyperlink{main-c17}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+%% ----- Appendix proof-c18: Lewbel 渐近正态 -----
+\begin{frame}{附录 C.18：Lewbel 渐近正态性证明 sketch}
+  \hypertarget{proof-c18}{}
+
+  \textbf{命题：}$\sqrt{n}(\hat\beta_{Lewbel} - \beta_0) \overset{d}{\to} \mathcal{N}(0, V_{Lewbel})$.
+
+  \textbf{证明大纲（Lewbel 2000 Theorem 1）：}
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item \textbf{Lewbel 关键恒等式}（在特殊回归元假设下）：
+    $$T_i := \frac{Y_i - \mathbf{1}\{V_i \geq 0\}}{f_V(V_i \mid X_{1i})}, \qquad
+    \mathbb{E}[T_i \mid X_{1i}] = X_{1i}'\beta_0.$$
+
+    \item \textbf{两步估计}：
+    \begin{enumerate}
+      \item 核估计 $\hat f_V(V_i \mid X_{1i})$
+      \item OLS：$\hat T_i$ 对 $X_{1i}$ 回归 $\Rightarrow \hat\beta = (\sum X_1 X_1')^{-1} \sum X_1 \hat T_i$
+    \end{enumerate}
+
+    \item \textbf{分解}：
+    $$\hat\beta - \beta_0 = (\sum X_1 X_1')^{-1} \sum X_1 [T_i - X_1'\beta_0 + (\hat T_i - T_i)].$$
+
+    \item \textbf{$T_i - X_1'\beta_0$ 项}：标准 OLS CLT $\Rightarrow O_p(n^{-1/2})$.
+
+    \item \textbf{$\hat T_i - T_i$ 项}（核估计误差）：用高阶核 + 适当带宽，$\hat f_V - f_V = O_p((nh)^{-1/2}) + O(h^r)$.
+    经平均后降为 $o_p(n^{-1/2})$.
+
+    \item \textbf{结论}：$\sqrt{n}(\hat\beta - \beta_0) \overset{d}{\to} \mathcal{N}(0, V_{Lewbel})$
+    其中
+    $$V_{Lewbel} = \mathbb{E}[X_1 X_1']^{-1} \cdot \mathbb{E}[X_1 X_1' \cdot \text{Var}(T \mid X_1)] \cdot \mathbb{E}[X_1 X_1']^{-1}.$$
+  \end{enumerate}
+
+  \hfill{\scriptsize\textit{Lewbel (2000) JEcon}}\quad$\square$
+  \hfill{\scriptsize\hyperlink{main-c18}{\beamergotobutton{返回正文}}}
+
+\end{frame}
+
+\end{document}
