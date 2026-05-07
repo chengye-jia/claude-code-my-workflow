@@ -220,7 +220,7 @@
 \end{frame}
 
 %% ----- Frame 6 -----
-\begin{frame}{收敛速度二元性：为什么这能工作？}
+\begin{frame}{收敛速度二元性：可行性？}
 
   \textbf{$\sqrt{n}$ 与非参数速度并存看似矛盾，实际由"信息聚合"机制保证。}
 
@@ -310,7 +310,7 @@
 \end{frame}
 
 %% ----- Frame 9 -----
-\begin{frame}{什么是"未知函数 $G$"？——形态展示}
+\begin{frame}{什么是"未知函数 $G$"？}
 
   Probit/Logit 假设 $G$ 是特定 CDF；半参数方法允许 $G$ 是任何
   $[0,1]$ 单调函数。
@@ -544,7 +544,7 @@
 \end{frame}
 
 %% ----- Frame 17 -----
-\begin{frame}{为什么用单指数？降维洞察}
+\begin{frame}{为什么用单指数？降维}
 
   \textbf{完全非参数} $\Pr(Y=1\mid X)$ 是 $k$ 维函数，需估计
   $m: \mathbb{R}^k \to [0,1]$，速度 $n^{-2/(4+k)}$.
@@ -1186,12 +1186,12 @@
   \begin{verbatim}
   library(np)  # nonparametric package
 
-  # 二元选择 Ichimura via np::npindex
+  # Binary-choice Ichimura via np::npindex
   bw <- npindexbw(formula = y ~ x1 + x2 + x3,
                   method = "ichimura",
                   data = mroz_data)
   fit <- npindex(bws = bw)
-  summary(fit)  # 输出 hat beta 与渐近方差
+  summary(fit)  # output: hat beta + asymptotic variance
   \end{verbatim}
   \normalsize
 
@@ -1219,9 +1219,9 @@
   \hline
   方法 & 一致性 & 渐近正态性 & 渐近方差 \\
   \hline
-  Probit MLE & ✓ & ✓ & 达到 Cramér-Rao 下界 $V^{*}_{P}$ \\
+  Probit MLE & \textcolor{green!60!black}{\checkmark} & \textcolor{green!60!black}{\checkmark} & 达到 Cramér-Rao 下界 $V^{*}_{P}$ \\
   \hline
-  Ichimura SLS & ✓ & ✓ & $V^{*}_{I} \succeq V^{*}_{P}$（可能严格大于）\\
+  Ichimura SLS & \textcolor{green!60!black}{\checkmark} & \textcolor{green!60!black}{\checkmark} & $V^{*}_{I} \succeq V^{*}_{P}$（可能严格大于）\\
   \hline
   \end{tabular}
   \end{center}
@@ -1253,9 +1253,9 @@
   \hline
   方法 & 一致性 & 渐近方差 & 性质 \\
   \hline
-  Probit MLE & \textcolor{red}{\textbf{✗}} & \textcolor{red}{无意义} & $\hat\beta_P \to \beta^{*} \neq \beta_0$（伪真值）\\
+  Probit MLE & \textcolor{red}{\textbf{\textcolor{red!70!black}{$\times$}}} & \textcolor{red}{无意义} & $\hat\beta_P \to \beta^{*} \neq \beta_0$（伪真值）\\
   \hline
-  Ichimura SLS & \textbf{✓} & 正常 $V^{-1}\Sigma V^{-1}$ & 始终一致，分布不依赖 $G$ 设定 \\
+  Ichimura SLS & \textbf{\textcolor{green!60!black}{\checkmark}} & 正常 $V^{-1}\Sigma V^{-1}$ & 始终一致，分布不依赖 $G$ 设定 \\
   \hline
   \end{tabular}
   \end{center}
@@ -1818,7 +1818,7 @@
   \hline
   情境 & \textbf{Probit MLE 优} & \textbf{Klein-Spady 优} \\
   \hline
-  $G$ 真为 $\Phi$ & ✓ 效率最高 & 一致但有 1\%-30\% 效率损失 \\
+  $G$ 真为 $\Phi$ & \textcolor{green!60!black}{\checkmark} 效率最高 & 一致但有 1\%-30\% 效率损失 \\
   \hline
   $G$ 接近 $\Phi$ 但非 & 略微偏误 + 高效率 & 一致 + 略低效率 \\
   \hline
@@ -2098,15 +2098,15 @@
   \hline
   模型 & 设定 & MRC 适用 \\
   \hline
-  二元选择 & $Y = \mathbf{1}\{X'\beta + \varepsilon > 0\}$ & ✓ \\
+  二元选择 & $Y = \mathbf{1}\{X'\beta + \varepsilon > 0\}$ & \textcolor{green!60!black}{\checkmark} \\
   \hline
-  归并/受限因变量 & $Y = \max(0, X'\beta + \varepsilon)$（Tobit）& ✓ \\
+  归并/受限因变量 & $Y = \max(0, X'\beta + \varepsilon)$（Tobit）& \textcolor{green!60!black}{\checkmark} \\
   \hline
-  有序响应 & $Y \in \{0, 1, \ldots, J\}$，阈值未知 & ✓ \\
+  有序响应 & $Y \in \{0, 1, \ldots, J\}$，阈值未知 & \textcolor{green!60!black}{\checkmark} \\
   \hline
-  截尾回归 & $Y = X'\beta + \varepsilon$ 截断观测 & ✓ \\
+  截尾回归 & $Y = X'\beta + \varepsilon$ 截断观测 & \textcolor{green!60!black}{\checkmark} \\
   \hline
-  广义半参数 & $Y = D(X'\beta + \varepsilon)$，$D$ 单调 & ✓ \\
+  广义半参数 & $Y = D(X'\beta + \varepsilon)$，$D$ 单调 & \textcolor{green!60!black}{\checkmark} \\
   \hline
   \end{tabular}
   \end{center}
@@ -2780,7 +2780,7 @@
   \hline
   误差假设 & $\text{Med}(\varepsilon\mid X) = 0$ & 同 \\
   \hline
-  异方差稳健 & ✓ & ✓ \\
+  异方差稳健 & \textcolor{green!60!black}{\checkmark} & \textcolor{green!60!black}{\checkmark} \\
   \hline
   收敛速度 & $n^{-1/3}$ & $n^{-2/5}$（更快）\\
   \hline
@@ -3894,19 +3894,18 @@
 
   \footnotesize
 \begin{verbatim}
-# 加载数据
-library(wooldridge)
-data(mroz)
+# Load data
+library(wooldridge); data(mroz)
 
-# Probit 基准
-probit_fit <- glm(inlf ~ nwifeinc + educ + exper + I(exper^2) + age +
-                  kidslt6 + kidsge6,
+# Probit baseline
+probit_fit <- glm(inlf ~ nwifeinc + educ + exper + I(exper^2) +
+                  age + kidslt6 + kidsge6,
                   data = mroz, family = binomial(link = "probit"))
 
-# Klein-Spady (np 包)
+# Klein-Spady (np package)
 library(np)
-ks_bw <- npindexbw(formula = inlf ~ nwifeinc + educ + exper + I(exper^2)
-                   + age + kidslt6 + kidsge6,
+ks_bw <- npindexbw(formula = inlf ~ nwifeinc + educ + exper +
+                   I(exper^2) + age + kidslt6 + kidsge6,
                    method = "kleinspady", data = mroz)
 ks_fit <- npindex(bws = ks_bw)
 
@@ -3914,8 +3913,8 @@ ks_fit <- npindex(bws = ks_bw)
 ich_bw <- npindexbw(formula = ..., method = "ichimura", data = mroz)
 ich_fit <- npindex(bws = ich_bw)
 
-# 边际效应（所有方法）
-margins(probit_fit)        # Probit APE
+# Marginal effects (all methods)
+margins(probit_fit)                # Probit APE
 predict(ks_fit, gradients = TRUE)  # KS APE
 \end{verbatim}
   \normalsize
