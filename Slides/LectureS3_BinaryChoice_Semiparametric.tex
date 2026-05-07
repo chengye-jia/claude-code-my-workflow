@@ -205,7 +205,7 @@
   \begin{highlightbox}
     \textbf{若误差分布错设定：}
     \begin{itemize}\setlength{\itemsep}{1pt}
-      \item Probit MLE $\hat\beta_{\text{Probit}}$ 不一致（除非偶然 $G$ 真的是 $\Phi$）
+      \item Probit MLE $\hat\beta_{\text{Probit}}$ 不一致（除非恰好 $G = \Phi$）
       \item 边际效应 APE 也不一致
       \item 异方差性下 Probit 全面失灵
     \end{itemize}
@@ -1210,7 +1210,7 @@
 \end{frame}
 
 %% ----- Frame 40 -----
-\begin{frame}{当 $G$ 真的是 $\Phi$ 时：与 Probit 对比}
+\begin{frame}{当 $G = \Phi$ 时：Ichimura 与 Probit 的效率对比}
 
   \textbf{情境：}假设真实模型 $\Pr(Y=1 \mid X) = \Phi(X'\beta_0)$（即 Probit 正确）。
 
@@ -2915,7 +2915,7 @@
   \end{definitionbox}
 
   \begin{highlightbox}
-    \textbf{这是惊人的结果！}变换 $T_i$ 是 $X_{1i}'\beta_0$ 的\textbf{线性条件期望}——
+    \textbf{这是非平凡的结果。}变换 $T_i$ 是 $X_{1i}'\beta_0$ 的\textbf{线性条件期望}——
     即使原模型有任意异方差。意味着：
     \begin{itemize}\setlength{\itemsep}{1pt}
       \item OLS 回归 $T_i$ 对 $X_{1i}$ 即可一致估计 $\beta_0$

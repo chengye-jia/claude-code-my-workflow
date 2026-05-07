@@ -296,11 +296,11 @@
     \begin{column}{0.48\textwidth}
       \textbf{第五部分}
       \begin{itemize}\footnotesize
-        \item §8 非参数推断（置信区间与 Wild Bootstrap）
+        \item §8 级数方法（Fourier、Hermite、样条）
       \end{itemize}
       \textbf{第六部分}
       \begin{itemize}\footnotesize
-        \item §9 级数方法（Fourier、Hermite、样条）
+        \item §9 非参数推断（置信区间与 Wild Bootstrap）
       \end{itemize}
       \textbf{第七部分}
       \begin{itemize}\footnotesize
@@ -465,7 +465,7 @@
         \textbf{参数情形（OLS / MLE）：}
         \begin{align*}
           \text{Bias}(\hat\beta) &= 0 \quad (\text{在 MLR 1--4 下}), \\
-          \Var(\hat\beta) &= \frac{\sigma^2}{n}\, (\X'\X/n)^{-1}.
+          \Var(\hat\beta) &= \frac{\sigma^2}{n}\, (\mathbf{X}'\mathbf{X}/n)^{-1}.
         \end{align*}
         $\Rightarrow$ MSE $= O(n^{-1})$，速度 $\sqrt n$.
 
@@ -1815,7 +1815,7 @@
     \begin{itemize}
       \item \textbf{估计 $m$ 本身} $\Rightarrow$ 用 LL ($p=1$)——简单、稳健、无设计偏误；
       \item \textbf{估计导数 $m^{(r)}$} $\Rightarrow$ 用 $p=r+1$ 或 $p=r+3$ 阶多项式；
-      \item $p\geq 3$ 的额外收益通常被方差增加抵消——\textbf{$p=1$ 是黄金标准}。
+      \item $p\geq 3$ 的额外收益通常被方差增加抵消——\textbf{$p=1$ 是实际应用中的首选}。
     \end{itemize}
   \end{keybox}
 
@@ -1895,291 +1895,7 @@
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 第五部分：非参数推断
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% ============================================================
-\section{非参数推断：置信区间与 Wild Bootstrap}
-%% ============================================================
-
-\begin{frame}{非参数推断的核心难题}
-
-  \textbf{目标：}对某固定点 $x_0$ 构造 $m(x_0)$ 的置信区间。
-
-  \textbf{从定理 4/5（CLT）出发：}
-  \[
-    \sqrt{nh}\Bigl[\hat m(x_0) - m(x_0) - B(x_0) h^2\Bigr] \dto \mathcal{N}(0, V(x_0)).
-  \]
-
-  \textbf{问题：}偏误项 $B(x_0)h^2$ 在极限分布中\textbf{不是 0}！若按惯例写：
-  \[
-    \hat m(x_0) \pm z_{\alpha/2}\sqrt{\hat V/nh},
-  \]
-  所得区间的\textbf{覆盖率不是名义水平} $1-\alpha$——而是向偏误方向\textbf{系统偏离}。
-
-\end{frame}
-
-
-\begin{frame}{非参数推断：三大解决方案}
-
-  \begin{highlightbox}
-    \textbf{三大解决方案：}
-    \begin{enumerate}
-      \item \textbf{欠平滑 (Undersmoothing)}——选 $h$ 使 $\sqrt{nh}\cdot h^2 \to 0$，牺牲效率换取偏误消失；
-      \item \textbf{偏误校正 (Bias Correction)}——估计 $\hat B(x_0)$ 并减去——Calonico, Cattaneo, Titiunik (2014) 的「稳健」方法；
-      \item \textbf{Wild Bootstrap}——用自助法直接重抽样分布，绕过解析公式。
-    \end{enumerate}
-  \end{highlightbox}
-
-  \begin{keybox}
-    \textbf{实务选择：}三种方案各有优劣，接下来三张幻灯片分别展开。默认推荐：CCT 偏误校正。
-  \end{keybox}
-
-\end{frame}
-
-
-\begin{frame}{欠平滑法 (Undersmoothing)：定义}
-
-  \begin{definitionbox}{欠平滑窗宽 (Undersmoothed Bandwidth)}
-    选取 $h = h_n$ 满足
-    \[
-      h \to 0,\quad nh\to\infty,\quad \text{且}\quad nh^5 \to 0.
-    \]
-    常见实现：$h = c\cdot n^{-1/4}$（比最优 $n^{-1/5}$ 小）。
-  \end{definitionbox}
-
-  \textbf{效果：}由 $nh^5\to 0$：
-  \[
-    \sqrt{nh}\cdot h^2 = \sqrt{nh^5} \to 0,
-  \]
-  故偏误项消失：
-  \[
-    \sqrt{nh}\Bigl[\hat m(x_0) - m(x_0)\Bigr] \dto \mathcal{N}(0, V(x_0)).
-  \]
-
-\end{frame}
-
-
-\begin{frame}{欠平滑法：置信区间与代价}
-
-  \textbf{标准 $(1-\alpha)$ 置信区间：}
-  \[
-    \hat m(x_0) \pm z_{\alpha/2}\sqrt{\frac{\hat R(K) \hat\sigma^2(x_0)}{nh\hat f_X(x_0)}}.
-  \]
-
-  \begin{keybox}
-    \textbf{代价：}$h$ 比最优小 $\Rightarrow$ $\hat m$ 方差比 AMISE 最优大 $\Rightarrow$ 区间更宽。这是换取\textbf{覆盖率正确}的代价——\textbf{「效率 vs 诚实 (honest)」}的权衡。
-  \end{keybox}
-
-\end{frame}
-
-
-\begin{frame}{方差的插入法估计}
-
-  \textbf{方差公式回顾：}
-  \[
-    V(x_0) = \frac{R(K)\sigma^2(x_0)}{f_X(x_0)}.
-  \]
-
-  \textbf{三个待估量：}
-  \begin{enumerate}
-    \item $R(K) = \int K^2(u)du$——\textbf{已知}（核函数选定后是常数）；
-    \item $f_X(x_0)$——用 KDE $\hat f_X(x_0)$ 估计；
-    \item $\sigma^2(x_0) = E[(Y - m(X))^2\mid X=x_0]$——用\textbf{局部残差平方}估计。
-  \end{enumerate}
-
-  \textbf{$\sigma^2(x_0)$ 的局部残差估计量：}
-  \[
-    \hat\sigma^2(x_0) = \frac{\sum_{i=1}^n K_h(x_0-X_i)[Y_i - \hat m(X_i)]^2}{\sum_{i=1}^n K_h(x_0-X_i)}.
-  \]
-
-  \begin{definitionbox}{逐点置信区间（渐近）}
-    \[
-      \text{CI}_{1-\alpha}(x_0) = \hat m(x_0) \pm z_{\alpha/2}\cdot \sqrt{\frac{\hat R(K)\hat\sigma^2(x_0)}{nh\,\hat f_X(x_0)}}.
-    \]
-  \end{definitionbox}
-
-\end{frame}
-
-
-\begin{frame}{均匀置信带 (Uniform Confidence Bands)}
-
-  \textbf{逐点区间只保证单点覆盖}。要同时覆盖曲线 $m(\cdot)$ 在\textbf{整个区间}上的值，需要\textbf{均匀置信带}。
-
-  \begin{highlightbox}
-    \textbf{Bickel--Rosenblatt (1973) 极值型定理：}在适当条件下，对内点区间 $[a,b]$，
-    \[
-      P\!\left(\sqrt{2\log h^{-1}}\left[\max_{x\in[a,b]}\frac{|\hat m(x) - m(x)|}{\sqrt{V(x)/(nh)}} - d_n\right] \leq z\right)
-      \to e^{-2e^{-z}},
-    \]
-    其中 $d_n = \sqrt{2\log h^{-1}} + $ 常数。
-  \end{highlightbox}
-
-  \vspace{0.3em}
-
-  \textbf{均匀置信带：}
-  \[
-    m(x) \in \hat m(x) \pm c_\alpha^{\text{unif}}\sqrt{\hat V(x)/(nh)},\quad \forall\, x\in [a,b],
-  \]
-  其中 $c_\alpha^{\text{unif}}$ 基于极值分布，\textbf{比逐点 $z_{\alpha/2}$ 大}。
-
-  \begin{keybox}
-    \textbf{实务问题：}极值分布收敛极慢，实务中覆盖率常偏离名义水平。\textbf{推荐：}使用 Wild Bootstrap 直接模拟均匀分布（下页）。
-  \end{keybox}
-
-\end{frame}
-
-
-\begin{frame}{Wild Bootstrap 的动机}
-
-  \textbf{传统 Bootstrap 的问题（重抽样 $(X_i, Y_i)$）：}
-  \begin{itemize}
-    \item 经典残差 Bootstrap 假设误差\textbf{同方差}——违反时失效；
-    \item 对\textbf{条件异方差}数据，重抽残差的分布与真实条件分布不匹配；
-    \item 非参数回归的\textbf{偏误}需要特殊处理。
-  \end{itemize}
-
-  \begin{definitionbox}{{Wild Bootstrap (Wu 1986; Liu 1988; Mammen 1993)}}
-    给定样本 $\{(X_i, Y_i)\}$ 与残差 $\hat u_i = Y_i - \hat m(X_i)$，生成\textbf{自助样本}：
-    \[
-      Y_i^* = \hat m(X_i) + \hat u_i \cdot v_i,\qquad v_i \overset{\text{iid}}{\sim} F_v,
-    \]
-    其中 $v_i$ 的分布 $F_v$ 满足：$E[v]=0$，$E[v^2]=1$，$E[v^3]=1$。
-  \end{definitionbox}
-
-  \vspace{0.3em}
-
-  \textbf{常见选择：}
-  \begin{itemize}
-    \item \textbf{Mammen 两点分布}：$v = -(\sqrt 5 - 1)/2$ w.p.\ $(\sqrt 5 + 1)/(2\sqrt 5)$；$v = (\sqrt 5 + 1)/2$ o.w.
-    \item \textbf{Rademacher}：$v = \pm 1$ 各 1/2 概率（但 $E[v^3]=0$，可用于 2 阶矩问题）；
-    \item \textbf{正态}：$v\sim \mathcal{N}(0,1)$——简单但 $E[v^3]=0$。
-  \end{itemize}
-
-\end{frame}
-
-
-\begin{frame}{Wild Bootstrap 算法}
-
-  \begin{examplebox}{Wild Bootstrap 逐点/均匀区间算法}
-    \textbf{输入：}样本 $\{(X_i, Y_i)\}$，窗宽 $h$（可欠平滑或偏误校正），自助次数 $B$（通常 999）。
-
-    \begin{enumerate}
-      \item 用原样本计算 $\hat m(x)$ 和残差 $\hat u_i = Y_i - \hat m(X_i)$；
-      \item 对 $b = 1, 2, \ldots, B$ 重复：
-        \begin{enumerate}
-          \item 抽取 $v_i^{(b)}\overset{\text{iid}}{\sim} F_v$；
-          \item 生成 $Y_i^{*(b)} = \hat m(X_i) + \hat u_i v_i^{(b)}$；
-          \item 用自助样本 $\{(X_i, Y_i^{*(b)})\}$ 计算 $\hat m^{*(b)}(x)$；
-        \end{enumerate}
-      \item \textbf{逐点区间：}$\hat m(x) \pm q_{\alpha/2,\ 1-\alpha/2}\{\hat m^{*(b)}(x) - \hat m(x)\}_{b=1}^B$；
-      \item \textbf{均匀区间：}
-        \[
-          T^{*(b)} = \max_{x\in[a,b]} \frac{|\hat m^{*(b)}(x) - \hat m(x)|}{\sqrt{\hat V(x)/(nh)}},
-        \]
-        取 $(1-\alpha)$ 分位数 $c_\alpha^*$，构造
-        \(
-          \hat m(x) \pm c_\alpha^* \sqrt{\hat V(x)/(nh)}.
-        \)
-    \end{enumerate}
-  \end{examplebox}
-
-\end{frame}
-
-
-\begin{frame}{Wild Bootstrap 的理论保证}
-
-  \begin{highlightbox}
-    \textbf{定理 6（Wild Bootstrap 一致性, Härdle--Mammen 1993）：}在标准非参数回归假设下，
-    \[
-      \sup_t \left|P^*\!\left(\sqrt{nh}(\hat m^* - \hat m) \leq t \mid \text{样本}\right) - P\!\left(\sqrt{nh}(\hat m - m) \leq t\right)\right| \pto 0.
-    \]
-    即\textbf{自助分布与真分布渐近相同}——基于自助分位数的区间渐近有效。
-  \end{highlightbox}
-
-
-  \begin{keybox}
-    \textbf{为什么用 Wild 而非标准 Bootstrap？}
-    \begin{enumerate}
-      \item \textbf{保留条件异方差}——$v_i$ 乘以\textbf{残差}而非重抽残差，故 $\text{Var}(Y_i^*|X_i) = \hat u_i^2 \approx \sigma^2(X_i)$；
-      \item \textbf{$E[v^3]=1$ 的作用}——保证\textbf{偏误的二阶项}也被自助复制，实现「二阶精确」；
-      \item \textbf{高维/非参数适应性}——不要求误差同分布，适用于异方差复杂数据结构。
-    \end{enumerate}
-  \end{keybox}
-
-  \hypertarget{main-b9}{}\hfill{\scriptsize\hyperlink{proof-b9}{\beamergotobutton{证明}}}
-
-\end{frame}
-
-
-\begin{frame}{偏误校正与稳健推断：CCT 方法}
-
-  \textbf{Calonico--Cattaneo--Titiunik (CCT, 2014) 稳健方案：}
-
-  \begin{definitionbox}{双重窗宽偏误校正}
-    用\textbf{更大的辅助窗宽} $b > h$ 构造偏误估计：
-    \[
-      \hat B(x_0) = \hat m^{(2)}_b(x_0) \cdot \frac{h^2 \kappa_2}{2},
-    \]
-    其中 $\hat m^{(2)}_b$ 是带宽 $b$ 的\textbf{局部二次}估计（估计 $m''$）。
-    偏误校正估计量：
-    \[
-      \hat m_{\text{bc}}(x_0) = \hat m_h(x_0) - \hat B(x_0).
-    \]
-    稳健方差要\textbf{考虑 $\hat B$ 的噪声}：
-    \[
-      \hat V_{\text{rob}}(x_0) = \hat V_h(x_0) + \text{Var}_{\text{bc}}(x_0).
-    \]
-  \end{definitionbox}
-
-\end{frame}
-
-
-\begin{frame}{CCT 偏误校正：优点}
-
-  \begin{keybox}
-    \textbf{优点：}
-    \begin{itemize}
-      \item \textbf{可用 MSE 最优窗宽}（不需欠平滑），保留效率；
-      \item \textbf{覆盖率正确}到渐近二阶精度；
-      \item \textbf{在 RDD 中已成行业标准}——\texttt{rdrobust} 包实现完整 CCT 方法；
-      \item \textbf{扩展到导数估计}——Calonico 等 (2022) 推广至 $m'$、$m''$ 的稳健推断；
-      \item \textbf{软件}：R/Stata 的 \texttt{rdrobust}, \texttt{nprobust} 包一键实现。
-    \end{itemize}
-  \end{keybox}
-
-\end{frame}
-
-
-\begin{frame}{非参数推断方法小结}
-  \centering\small
-  \renewcommand{\arraystretch}{1.25}
-  \begin{tabular}{@{}p{2.8cm}p{3.3cm}p{3.0cm}p{4.0cm}@{}}
-    \toprule
-    \textbf{方法} & \textbf{窗宽要求} & \textbf{区间类型} & \textbf{优劣} \\
-    \midrule
-    欠平滑 & $nh^5\to 0$（$h \ll n^{-1/5}$） & 逐点 / 均匀 & 简单；效率损失\\
-    插入法 & 最优 $h \propto n^{-1/5}$ & 逐点 & 覆盖率偏离（偏误残留）\\
-    CCT 偏误校正 & 可用最优 $h$ & 逐点（稳健方差） & 覆盖率正确；稍复杂 \\
-    Wild Bootstrap & 任意（含最优） & 逐点 / 均匀 & 异方差稳健；计算贵 \\
-    \bottomrule
-  \end{tabular}
-
-
-  \begin{keybox}
-    \textbf{实务决策流程（Hansen Ch.19, Cattaneo 2024）：}
-    \begin{enumerate}
-      \item \textbf{默认}：CCT 偏误校正 + 稳健方差；
-      \item 需要\textbf{均匀带}或异方差严重：Wild Bootstrap；
-      \item 只做\textbf{描述性分析}：欠平滑 + 插入法方差（简单快捷）。
-    \end{enumerate}
-  \end{keybox}
-
-\end{frame}
-
-
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 第六部分：级数方法
+%% 第五部分：级数方法
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% ============================================================
@@ -2221,7 +1937,7 @@
 
   \textbf{常见基函数：}
   \begin{itemize}
-    \item \textbf{幂级数 (Power Series)}：$p_k(x) = x^k$——简单但数值病态（高阶幂相关性高）；
+    \item \textbf{幂级数 (Power Series)}：$p_k(x) = x^k$——简单但数值不稳定（高阶幂之间相关性高，导致设计矩阵接近奇异）；
     \item \textbf{Fourier 基}：$p_k(x) = \sin(k\pi x), \cos(k\pi x)$——周期函数逼近；
     \item \textbf{多项式正交基}：Legendre、Chebyshev、Hermite——数值稳定；
     \item \textbf{样条 (Splines)}：B-spline、自然样条——局部支撑，节点灵活；
@@ -2528,6 +2244,290 @@
 
   \begin{keybox}
     \textbf{方法论定位：}级数方法与核方法\textbf{互为补充}——它们的渐近性质相当，但实务表现在不同问题中各有优势。Zhou Xianbo (§4.6)：\textbf{「核方法看局部，级数方法看全局；实证中先看局部结构，再选估计方法。」}
+  \end{keybox}
+
+\end{frame}
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 第六部分：非参数推断
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% ============================================================
+\section{非参数推断：置信区间与 Wild Bootstrap}
+%% ============================================================
+
+\begin{frame}{非参数推断的核心难题}
+
+  \textbf{目标：}对某固定点 $x_0$ 构造 $m(x_0)$ 的置信区间。
+
+  \textbf{从定理 4/5（CLT）出发：}
+  \[
+    \sqrt{nh}\Bigl[\hat m(x_0) - m(x_0) - B(x_0) h^2\Bigr] \dto \mathcal{N}(0, V(x_0)).
+  \]
+
+  \textbf{问题：}偏误项 $B(x_0)h^2$ 在极限分布中\textbf{不是 0}！若按惯例写：
+  \[
+    \hat m(x_0) \pm z_{\alpha/2}\sqrt{\hat V/nh},
+  \]
+  所得区间的\textbf{覆盖率不是名义水平} $1-\alpha$——而是向偏误方向\textbf{系统偏离}。
+
+\end{frame}
+
+
+\begin{frame}{非参数推断：三大解决方案}
+
+  \begin{highlightbox}
+    \textbf{三大解决方案：}
+    \begin{enumerate}
+      \item \textbf{欠平滑 (Undersmoothing)}——选 $h$ 使 $\sqrt{nh}\cdot h^2 \to 0$，牺牲效率换取偏误消失；
+      \item \textbf{偏误校正 (Bias Correction)}——估计 $\hat B(x_0)$ 并减去——Calonico, Cattaneo, Titiunik (2014) 的「稳健」方法；
+      \item \textbf{Wild Bootstrap}——用自助法直接重抽样分布，绕过解析公式。
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{实务选择：}三种方案各有优劣，接下来三张幻灯片分别展开。默认推荐：CCT 偏误校正。
+  \end{keybox}
+
+\end{frame}
+
+
+\begin{frame}{欠平滑法 (Undersmoothing)：定义}
+
+  \begin{definitionbox}{欠平滑窗宽 (Undersmoothed Bandwidth)}
+    选取 $h = h_n$ 满足
+    \[
+      h \to 0,\quad nh\to\infty,\quad \text{且}\quad nh^5 \to 0.
+    \]
+    常见实现：$h = c\cdot n^{-1/4}$（比最优 $n^{-1/5}$ 小）。
+  \end{definitionbox}
+
+  \textbf{效果：}由 $nh^5\to 0$：
+  \[
+    \sqrt{nh}\cdot h^2 = \sqrt{nh^5} \to 0,
+  \]
+  故偏误项消失：
+  \[
+    \sqrt{nh}\Bigl[\hat m(x_0) - m(x_0)\Bigr] \dto \mathcal{N}(0, V(x_0)).
+  \]
+
+\end{frame}
+
+
+\begin{frame}{欠平滑法：置信区间与代价}
+
+  \textbf{标准 $(1-\alpha)$ 置信区间：}
+  \[
+    \hat m(x_0) \pm z_{\alpha/2}\sqrt{\frac{\hat R(K) \hat\sigma^2(x_0)}{nh\hat f_X(x_0)}}.
+  \]
+
+  \begin{keybox}
+    \textbf{代价：}$h$ 比最优小 $\Rightarrow$ $\hat m$ 方差比 AMISE 最优大 $\Rightarrow$ 区间更宽。这是换取\textbf{覆盖率正确}的代价——\textbf{「效率 vs 诚实 (honest)」}的权衡。
+  \end{keybox}
+
+\end{frame}
+
+
+\begin{frame}{方差的插入法估计}
+
+  \textbf{方差公式回顾：}
+  \[
+    V(x_0) = \frac{R(K)\sigma^2(x_0)}{f_X(x_0)}.
+  \]
+
+  \textbf{三个待估量：}
+  \begin{enumerate}
+    \item $R(K) = \int K^2(u)du$——\textbf{已知}（核函数选定后是常数）；
+    \item $f_X(x_0)$——用 KDE $\hat f_X(x_0)$ 估计；
+    \item $\sigma^2(x_0) = E[(Y - m(X))^2\mid X=x_0]$——用\textbf{局部残差平方}估计。
+  \end{enumerate}
+
+  \textbf{$\sigma^2(x_0)$ 的局部残差估计量：}
+  \[
+    \hat\sigma^2(x_0) = \frac{\sum_{i=1}^n K_h(x_0-X_i)[Y_i - \hat m(X_i)]^2}{\sum_{i=1}^n K_h(x_0-X_i)}.
+  \]
+
+  \begin{definitionbox}{逐点置信区间（渐近）}
+    \[
+      \text{CI}_{1-\alpha}(x_0) = \hat m(x_0) \pm z_{\alpha/2}\cdot \sqrt{\frac{\hat R(K)\hat\sigma^2(x_0)}{nh\,\hat f_X(x_0)}}.
+    \]
+  \end{definitionbox}
+
+\end{frame}
+
+
+\begin{frame}{均匀置信带 (Uniform Confidence Bands)}
+
+  \textbf{逐点区间只保证单点覆盖}。要同时覆盖曲线 $m(\cdot)$ 在\textbf{整个区间}上的值，需要\textbf{均匀置信带}。
+
+  \begin{highlightbox}
+    \textbf{Bickel--Rosenblatt (1973) 极值型定理：}在适当条件下，对内点区间 $[a,b]$，
+    \[
+      P\!\left(\sqrt{2\log h^{-1}}\left[\max_{x\in[a,b]}\frac{|\hat m(x) - m(x)|}{\sqrt{V(x)/(nh)}} - d_n\right] \leq z\right)
+      \to e^{-2e^{-z}},
+    \]
+    其中 $d_n = \sqrt{2\log h^{-1}} + $ 常数。
+  \end{highlightbox}
+
+  \vspace{0.3em}
+
+  \textbf{均匀置信带：}
+  \[
+    m(x) \in \hat m(x) \pm c_\alpha^{\text{unif}}\sqrt{\hat V(x)/(nh)},\quad \forall\, x\in [a,b],
+  \]
+  其中 $c_\alpha^{\text{unif}}$ 基于极值分布，\textbf{比逐点 $z_{\alpha/2}$ 大}。
+
+  \begin{keybox}
+    \textbf{实务问题：}极值分布收敛极慢，实务中覆盖率常偏离名义水平。\textbf{推荐：}使用 Wild Bootstrap 直接模拟均匀分布（下页）。
+  \end{keybox}
+
+\end{frame}
+
+
+\begin{frame}{Wild Bootstrap 的动机}
+
+  \textbf{传统 Bootstrap 的问题（重抽样 $(X_i, Y_i)$）：}
+  \begin{itemize}
+    \item 经典残差 Bootstrap 假设误差\textbf{同方差}——违反时失效；
+    \item 对\textbf{条件异方差}数据，重抽残差的分布与真实条件分布不匹配；
+    \item 非参数回归的\textbf{偏误}需要特殊处理。
+  \end{itemize}
+
+  \begin{definitionbox}{{Wild Bootstrap (Wu 1986; Liu 1988; Mammen 1993)}}
+    给定样本 $\{(X_i, Y_i)\}$ 与残差 $\hat u_i = Y_i - \hat m(X_i)$，生成\textbf{自助样本}：
+    \[
+      Y_i^* = \hat m(X_i) + \hat u_i \cdot v_i,\qquad v_i \overset{\text{iid}}{\sim} F_v,
+    \]
+    其中 $v_i$ 的分布 $F_v$ 满足：$E[v]=0$，$E[v^2]=1$，$E[v^3]=1$。
+  \end{definitionbox}
+
+  \vspace{0.3em}
+
+  \textbf{常见选择：}
+  \begin{itemize}
+    \item \textbf{Mammen 两点分布}：$v = -(\sqrt 5 - 1)/2$ w.p.\ $(\sqrt 5 + 1)/(2\sqrt 5)$；$v = (\sqrt 5 + 1)/2$ o.w.
+    \item \textbf{Rademacher}：$v = \pm 1$ 各 1/2 概率（但 $E[v^3]=0$，可用于 2 阶矩问题）；
+    \item \textbf{正态}：$v\sim \mathcal{N}(0,1)$——简单但 $E[v^3]=0$。
+  \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Wild Bootstrap 算法}
+
+  \begin{examplebox}{Wild Bootstrap 逐点/均匀区间算法}
+    \textbf{输入：}样本 $\{(X_i, Y_i)\}$，窗宽 $h$（可欠平滑或偏误校正），自助次数 $B$（通常 999）。
+
+    \begin{enumerate}
+      \item 用原样本计算 $\hat m(x)$ 和残差 $\hat u_i = Y_i - \hat m(X_i)$；
+      \item 对 $b = 1, 2, \ldots, B$ 重复：
+        \begin{enumerate}
+          \item 抽取 $v_i^{(b)}\overset{\text{iid}}{\sim} F_v$；
+          \item 生成 $Y_i^{*(b)} = \hat m(X_i) + \hat u_i v_i^{(b)}$；
+          \item 用自助样本 $\{(X_i, Y_i^{*(b)})\}$ 计算 $\hat m^{*(b)}(x)$；
+        \end{enumerate}
+      \item \textbf{逐点区间：}$\hat m(x) \pm q_{\alpha/2,\ 1-\alpha/2}\{\hat m^{*(b)}(x) - \hat m(x)\}_{b=1}^B$；
+      \item \textbf{均匀区间：}
+        \[
+          T^{*(b)} = \max_{x\in[a,b]} \frac{|\hat m^{*(b)}(x) - \hat m(x)|}{\sqrt{\hat V(x)/(nh)}},
+        \]
+        取 $(1-\alpha)$ 分位数 $c_\alpha^*$，构造
+        \(
+          \hat m(x) \pm c_\alpha^* \sqrt{\hat V(x)/(nh)}.
+        \)
+    \end{enumerate}
+  \end{examplebox}
+
+\end{frame}
+
+
+\begin{frame}{Wild Bootstrap 的理论保证}
+
+  \begin{highlightbox}
+    \textbf{定理 6（Wild Bootstrap 一致性, Härdle--Mammen 1993）：}在标准非参数回归假设下，
+    \[
+      \sup_t \left|P^*\!\left(\sqrt{nh}(\hat m^* - \hat m) \leq t \mid \text{样本}\right) - P\!\left(\sqrt{nh}(\hat m - m) \leq t\right)\right| \pto 0.
+    \]
+    即\textbf{自助分布与真分布渐近相同}——基于自助分位数的区间渐近有效。
+  \end{highlightbox}
+
+
+  \begin{keybox}
+    \textbf{为什么用 Wild 而非标准 Bootstrap？}
+    \begin{enumerate}
+      \item \textbf{保留条件异方差}——$v_i$ 乘以\textbf{残差}而非重抽残差，故 $\text{Var}(Y_i^*|X_i) = \hat u_i^2 \approx \sigma^2(X_i)$；
+      \item \textbf{$E[v^3]=1$ 的作用}——保证\textbf{偏误的二阶项}也被自助复制，实现「二阶精确」；
+      \item \textbf{高维/非参数适应性}——不要求误差同分布，适用于异方差复杂数据结构。
+    \end{enumerate}
+  \end{keybox}
+
+  \hypertarget{main-b9}{}\hfill{\scriptsize\hyperlink{proof-b9}{\beamergotobutton{证明}}}
+
+\end{frame}
+
+
+\begin{frame}{偏误校正与稳健推断：CCT 方法}
+
+  \textbf{Calonico--Cattaneo--Titiunik (CCT, 2014) 稳健方案：}
+
+  \begin{definitionbox}{双重窗宽偏误校正}
+    用\textbf{更大的辅助窗宽} $b > h$ 构造偏误估计：
+    \[
+      \hat B(x_0) = \hat m^{(2)}_b(x_0) \cdot \frac{h^2 \kappa_2}{2},
+    \]
+    其中 $\hat m^{(2)}_b$ 是带宽 $b$ 的\textbf{局部二次}估计（估计 $m''$）。
+    偏误校正估计量：
+    \[
+      \hat m_{\text{bc}}(x_0) = \hat m_h(x_0) - \hat B(x_0).
+    \]
+    稳健方差要\textbf{考虑 $\hat B$ 的噪声}：
+    \[
+      \hat V_{\text{rob}}(x_0) = \hat V_h(x_0) + \text{Var}_{\text{bc}}(x_0).
+    \]
+  \end{definitionbox}
+
+\end{frame}
+
+
+\begin{frame}{CCT 偏误校正：优点}
+
+  \begin{keybox}
+    \textbf{优点：}
+    \begin{itemize}
+      \item \textbf{可用 MSE 最优窗宽}（不需欠平滑），保留效率；
+      \item \textbf{覆盖率正确}到渐近二阶精度；
+      \item \textbf{在 RDD 中已成行业标准}——\texttt{rdrobust} 包实现完整 CCT 方法；
+      \item \textbf{扩展到导数估计}——Calonico 等 (2022) 推广至 $m'$、$m''$ 的稳健推断；
+      \item \textbf{软件}：R/Stata 的 \texttt{rdrobust}, \texttt{nprobust} 包一键实现。
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+
+\begin{frame}{非参数推断方法小结}
+  \centering\small
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabular}{@{}p{2.8cm}p{3.3cm}p{3.0cm}p{4.0cm}@{}}
+    \toprule
+    \textbf{方法} & \textbf{窗宽要求} & \textbf{区间类型} & \textbf{优劣} \\
+    \midrule
+    欠平滑 & $nh^5\to 0$（$h \ll n^{-1/5}$） & 逐点 / 均匀 & 简单；效率损失\\
+    插入法 & 最优 $h \propto n^{-1/5}$ & 逐点 & 覆盖率偏离（偏误残留）\\
+    CCT 偏误校正 & 可用最优 $h$ & 逐点（稳健方差） & 覆盖率正确；稍复杂 \\
+    Wild Bootstrap & 任意（含最优） & 逐点 / 均匀 & 异方差稳健；计算贵 \\
+    \bottomrule
+  \end{tabular}
+
+
+  \begin{keybox}
+    \textbf{实务决策流程（Hansen Ch.19, Cattaneo 2024）：}
+    \begin{enumerate}
+      \item \textbf{默认}：CCT 偏误校正 + 稳健方差；
+      \item 需要\textbf{均匀带}或异方差严重：Wild Bootstrap；
+      \item 只做\textbf{描述性分析}：欠平滑 + 插入法方差（简单快捷）。
+    \end{enumerate}
   \end{keybox}
 
 \end{frame}
@@ -2919,10 +2919,10 @@
 \end{frame}
 
 
-\begin{frame}{非参数边际效应：平均导数的惊人性质}
+\begin{frame}{非参数边际效应：平均导数的关键性质}
 
   \begin{highlightbox}
-    \textbf{平均导数估计量的惊人性质：}
+    \textbf{平均导数估计量的关键性质：}
     \[
       \sqrt{n}(\widehat{\text{AME}}_j - \text{AME}_j) \dto \mathcal{N}(0, V).
     \]
