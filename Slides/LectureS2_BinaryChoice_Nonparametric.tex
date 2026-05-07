@@ -705,7 +705,7 @@
       \text{(K1)} \quad & \int K(u)\, du = 1 && \text{(归一化)}\\
       \text{(K2)} \quad & \int u\, K(u)\, du = 0 && \text{(对称}\Rightarrow\text{一阶矩为零)}\\
       \text{(K3)} \quad & \kappa_2 \;\equiv\; \int u^2 K(u)\, du > 0,\; \text{有限} && \text{(二阶矩存在)}\\
-      \text{(K4)} \quad & R(K) \;\equiv\; \int K(u)^2\, du < \infty && \text{(粗糙度有限)}
+      \text{(K4)} \quad & R(K) \;\equiv\; \int K(u)^2\, du < \infty && \text{(核函数平方可积)}
     \end{align*}
   \end{definitionbox}
 
@@ -921,7 +921,7 @@
     \text{IMSE}(h) = \int \text{MSE}(x)\, dx
     = \frac{h^4}{4}\kappa_2^2 R(f'') + \frac{R(K)}{nh} + \text{高阶项},
   \]
-  其中 $R(f'') = \int [f''(x)]^2 dx$ 衡量密度的\textbf{粗糙度}（振荡越多，$R(f'')$ 越大）。
+  其中 $R(f'') = \int [f''(x)]^2 dx$ 是密度二阶导数的 $L^2$ \textbf{范数平方}，衡量密度的\textbf{振荡程度}（密度曲线越陡峭、波动越多，$R(f'')$ 越大）。
 
 \end{frame}
 
