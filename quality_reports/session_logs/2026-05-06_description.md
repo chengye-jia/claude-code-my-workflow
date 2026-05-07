@@ -118,6 +118,21 @@ After commit `a00881d`, ran overflow audit. Found 43 overfull warnings (worst 92
 
 Reduced 43 → 5 cosmetic warnings (all <10pt). 61 pages, 0 errors. Edits pending commit.
 
+## Page 20 fix + proofread (after commit a32d639)
+
+**Page 20 bug:** broken `\eqref{eq:proxy}` reference rendering as `(??)`. Replaced with explicit proxy equation. Recompiled, 61 pages, 0 errors. Fix uncommitted.
+
+**Proofread report saved:** `quality_reports/Lecture08_Specification_report.md` — 14 findings (1 critical, 5 major, 8 minor):
+- Critical: equation tags out of order in CEV section (9.29 → 9.31 → 9.30)
+- Major 1: possible SE transcription error in Example 9.1 (line 150)
+- Major 2: orphan "Example 9.9 redux" (Example 9.9 never introduced)
+- Major 3: ~20 multi-letter variable names need `\mathit{}` wrapping (`educ`, `wage`, `narr86`, etc.)
+- Major 4: `$\hat\sigma$` mislabeled — should be coefficient SEs (lines 1135, 1143)
+- Major 5: informal contractions ("don't", "we'll") in 6 places
+- 8 minor issues (dash style, articles, frame density)
+
+Goal: address critical + major issues before next commit. Source file not yet modified per proofread protocol.
+
 ---
 
 ## Resume instructions for next session
