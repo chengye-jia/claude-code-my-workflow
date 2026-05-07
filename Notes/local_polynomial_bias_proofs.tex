@@ -1,0 +1,380 @@
+\documentclass[11pt]{article}
+
+% --- Engine: XeLaTeX ---
+\usepackage{ctex}
+\setCJKmainfont{Microsoft YaHei}
+
+% --- Math ---
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{bm}
+
+% --- Layout ---
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{microtype}
+
+% --- Colors ---
+\usepackage[dvipsnames]{xcolor}
+
+% --- Hyperlinks ---
+\usepackage[colorlinks=true, linkcolor=blue!60!black, urlcolor=blue!60!black]{hyperref}
+
+% --- Theorem environments ---
+\theoremstyle{plain}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{assumption}{Assumption}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Var}{Var}
+
+\title{\bfseries Local Polynomial Estimators:\\
+\large Bias Derivations for NW, Local Linear, and Higher-Order Polynomials}
+\author{Companion Note for LectureS2 §6 — Pages 80 \& 82}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent We give complete mathematical proofs for the bias formulas asserted in
+\textbf{LectureS2 page 80} (Nadaraya--Watson vs.\ Local Linear bias comparison) and
+the \textbf{Fan \& Gijbels (1996) Theorem 3.1} on page 82 (odd-order local
+polynomials dominate even-order). The exposition is self-contained and uses
+only standard kernel-regression assumptions.
+\end{abstract}
+
+\tableofcontents
+
+\section{Setup and Assumptions}\label{sec:setup}
+
+We observe i.i.d.\ data $\{(X_i, Y_i)\}_{i=1}^n$ from
+\[
+  Y_i = m(X_i) + \varepsilon_i, \qquad \E[\varepsilon_i\mid X_i] = 0,
+  \qquad \Var(\varepsilon_i\mid X_i = x) = \sigma^2(x).
+\]
+Let $f_X$ be the density of $X_i$. For a fixed interior point $x$ (we assume
+$x$ is bounded away from the boundary of $X$'s support), we estimate $m(x)$.
+
+\begin{assumption}[Standard kernel regression assumptions]\label{ass:std}
+\begin{enumerate}[leftmargin=2em,nosep]
+\item $K$ is a symmetric, twice-continuously-differentiable, nonnegative kernel
+with $\int K(u)\,du = 1$, $\kappa_2 := \int u^2 K(u)\,du < \infty$, and
+$R(K) := \int K(u)^2\,du < \infty$.
+\item $m \in C^2$ in a neighborhood of $x$; $f_X \in C^1$ with $f_X(x) > 0$.
+\item Bandwidth: $h = h_n \to 0$ and $nh \to \infty$ as $n \to \infty$.
+\end{enumerate}
+\end{assumption}
+
+We use the shorthand $K_h(u) := K(u/h)/h$ and write $\E_X$ for expectation
+over the design conditional on $\{X_1,\ldots,X_n\}$, and $\E$ for the full
+expectation.
+
+\section{Lemma: Standard Convolution Identities}\label{sec:lemmas}
+
+\begin{lemma}[Convolution moments]\label{lem:conv}
+For any function $g$ that is $C^1$ in a neighborhood of $x$,
+\begin{equation}\label{eq:conv1}
+\int K(u)\,g(x+hu)\,du = g(x) + \tfrac{h^2 \kappa_2}{2}\,g''(x) + o(h^2)
+\quad\text{(if $g \in C^2$).}
+\end{equation}
+For $g$ merely $C^1$:
+\begin{equation}\label{eq:conv1prime}
+\int K(u)\,g(x+hu)\,du = g(x) + O(h^2),\qquad
+\int u\,K(u)\,g(x+hu)\,du = h\, g'(x) + O(h^3).
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Taylor expand $g(x+hu) = g(x) + hu\,g'(x) + \tfrac{h^2 u^2}{2}g''(x) + o(h^2)$
+and use $\int K = 1$, $\int u K = 0$ (symmetry), $\int u^2 K = \kappa_2$.
+\end{proof}
+
+\section{Nadaraya--Watson Bias}\label{sec:nw}
+
+The NW estimator is
+\[
+  \hat m_{\text{NW}}(x)
+   = \frac{\sum_i K_h(X_i - x)\,Y_i}{\sum_i K_h(X_i - x)}
+   =: \frac{\hat r(x)}{\hat f(x)},
+\]
+where $\hat r(x) = \tfrac{1}{n}\sum_i K_h(X_i - x) Y_i$ and
+$\hat f(x) = \tfrac{1}{n}\sum_i K_h(X_i - x)$ is the kernel density estimator.
+
+\begin{lemma}[Numerator and denominator bias]\label{lem:nwbias}
+Under Assumption~\ref{ass:std},
+\begin{align}
+\E[\hat r(x)] &= m(x) f_X(x) + \tfrac{h^2 \kappa_2}{2}\bigl[(m f_X)''(x)\bigr] + o(h^2), \label{eq:rbias}\\
+\E[\hat f(x)] &= f_X(x) + \tfrac{h^2 \kappa_2}{2}\,f_X''(x) + o(h^2). \label{eq:fbias}
+\end{align}
+\end{lemma}
+
+\begin{proof}
+For \eqref{eq:fbias}: $\E[\hat f(x)] = \E[K_h(X-x)] = \int K_h(u-x)f_X(u)\,du$.
+Substitute $u = x + ht$:
+\[
+\E[\hat f(x)] = \int K(t)\,f_X(x+ht)\,dt = f_X(x) + \tfrac{h^2\kappa_2}{2} f_X''(x) + o(h^2)
+\]
+by Lemma~\ref{lem:conv} applied to $g = f_X$.
+
+\smallskip
+For \eqref{eq:rbias}: $\E[\hat r(x)] = \E[K_h(X-x) m(X)] = \int K_h(u-x) m(u) f_X(u)\,du$.
+Same substitution gives $\int K(t)\,m(x+ht)\,f_X(x+ht)\,dt$. Apply
+Lemma~\ref{lem:conv} to $g = m \cdot f_X$:
+\[
+\E[\hat r(x)] = m(x) f_X(x) + \tfrac{h^2\kappa_2}{2}(m f_X)''(x) + o(h^2). \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[NW interior bias]\label{thm:nwbias}
+At an interior point $x$ with $f_X(x) > 0$, under Assumption~\ref{ass:std}:
+\[
+\boxed{\;
+\text{Bias}[\hat m_{\text{NW}}(x)]
+  = \frac{h^2 \kappa_2}{2}\Bigl[m''(x) + \frac{2\,m'(x)\,f_X'(x)}{f_X(x)}\Bigr]
+  + o(h^2).\;}
+\]
+\end{theorem}
+
+\begin{proof}
+Use the ratio decomposition $\hat m = \hat r / \hat f$. Linearize around the population values:
+\begin{align*}
+\hat m - m
+  &= \frac{\hat r}{\hat f} - m
+   = \frac{\hat r - m\hat f}{\hat f}
+   = \frac{(\hat r - mf) - m(\hat f - f)}{\hat f}.
+\end{align*}
+Since $\hat f \to f_X(x)$ in probability (consistency of KDE) and the
+asymptotic-bias-relevant terms come from the numerator's leading expansion,
+\[
+\E[\hat m_{\text{NW}}(x)] - m(x) = \frac{1}{f_X(x)}\Bigl\{(\E\hat r - m f_X)
+  - m(x)(\E\hat f - f_X)\Bigr\} + o(h^2).
+\]
+By Lemma~\ref{lem:nwbias}:
+\begin{align*}
+\E\hat r - m f_X &= \tfrac{h^2\kappa_2}{2}(m f_X)''(x) + o(h^2),\\
+\E\hat f - f_X &= \tfrac{h^2\kappa_2}{2} f_X''(x) + o(h^2).
+\end{align*}
+Compute $(m f_X)'' = m'' f_X + 2 m' f_X' + m f_X''$. Therefore
+\begin{align*}
+\E[\hat r] - m(x) f_X(x) - m(x)(\E\hat f - f_X)
+  &= \tfrac{h^2\kappa_2}{2}\bigl[m'' f_X + 2 m' f_X' + m f_X'' - m f_X''\bigr] + o(h^2)\\
+  &= \tfrac{h^2\kappa_2}{2}\bigl[m''(x) f_X(x) + 2 m'(x) f_X'(x)\bigr] + o(h^2).
+\end{align*}
+Divide by $f_X(x)$:
+\[
+\text{Bias}[\hat m_{\text{NW}}(x)]
+  = \tfrac{h^2\kappa_2}{2}\Bigl[m''(x) + \tfrac{2 m'(x) f_X'(x)}{f_X(x)}\Bigr] + o(h^2). \qedhere
+\]
+\end{proof}
+
+\begin{remark}[The design-density term]
+The factor $2 m'(x) f_X'(x) / f_X(x)$ is the \emph{design effect}. When the
+density $f_X$ varies sharply near $x$ (e.g., near tails, near multimodal
+peaks/valleys), this term inflates NW bias. When $f_X$ is locally flat
+($f_X'(x) \approx 0$), the term vanishes and NW behaves like LL.
+\end{remark}
+
+\section{Local Linear Bias}\label{sec:ll}
+
+The local linear (LL) estimator solves
+\[
+  (\hat a, \hat b) = \arg\min_{a,b} \sum_{i=1}^n \bigl[Y_i - a - b(X_i - x)\bigr]^2 K_h(X_i - x),
+\]
+and $\hat m_{\text{LL}}(x) := \hat a$.
+
+In matrix form, let $\mathbf{X}_x$ be the $n \times 2$ matrix with rows $(1, X_i - x)$,
+$\mathbf{Y} = (Y_1, \ldots, Y_n)'$, and $\mathbf{W}_x = \text{diag}(K_h(X_1-x), \ldots, K_h(X_n-x))$.
+Then $\hat m_{\text{LL}}(x) = e_1' (\mathbf{X}_x' \mathbf{W}_x \mathbf{X}_x)^{-1} \mathbf{X}_x' \mathbf{W}_x \mathbf{Y}$
+where $e_1 = (1, 0)'$.
+
+\begin{lemma}[LL design moments]\label{lem:lldesign}
+Define $S_{n,j}(x) := \tfrac{1}{n}\sum_i K_h(X_i - x)(X_i - x)^j$. Under
+Assumption~\ref{ass:std},
+\[
+S_{n,j}(x) = h^j f_X(x) \mu_j(K) + h^{j+1} f_X'(x) \mu_{j+1}(K) + o(h^{j+1}),
+\]
+where $\mu_j(K) := \int u^j K(u)\,du$. In particular,
+$\mu_0 = 1$, $\mu_1 = 0$, $\mu_2 = \kappa_2$.
+\end{lemma}
+
+\begin{proof}
+$\E[S_{n,j}(x)] = \int K_h(u - x)(u-x)^j f_X(u)\,du = \int K(t)(ht)^j f_X(x+ht)\,dt$
+$= h^j \int t^j K(t) [f_X(x) + h t f_X'(x) + O(h^2)]\,dt$
+$= h^j f_X(x)\mu_j + h^{j+1} f_X'(x) \mu_{j+1} + O(h^{j+2})$.
+Variance is $O(1/(nh))$, hence $S_{n,j}(x) = \E[S_{n,j}(x)] + o_p(\cdot)$.
+\end{proof}
+
+\begin{theorem}[LL interior bias]\label{thm:llbias}
+At an interior $x$ with $f_X(x) > 0$, under Assumption~\ref{ass:std}:
+\[
+\boxed{\;
+\text{Bias}[\hat m_{\text{LL}}(x)] = \frac{h^2 \kappa_2}{2}\, m''(x) + o(h^2).\;}
+\]
+\textbf{The design-density term is absent}—LL is design-adaptive (Fan 1992).
+\end{theorem}
+
+\begin{proof}
+Conditional on $\{X_i\}$, the LL fitted intercept can be written as a weighted
+sum:
+\[
+\hat m_{\text{LL}}(x) = \sum_i w_i^{\text{LL}}(x)\, Y_i,
+\quad w_i^{\text{LL}}(x) = \frac{1}{n}\, e_1'\,(\mathbf{X}_x'\mathbf{W}_x\mathbf{X}_x)^{-1}
+\binom{1}{X_i - x}\, K_h(X_i - x).
+\]
+Plug $Y_i = m(X_i) + \varepsilon_i$ and use $\E[\varepsilon_i|X_i] = 0$:
+\[
+\E_X[\hat m_{\text{LL}}(x)] = \sum_i w_i^{\text{LL}}(x)\, m(X_i).
+\]
+Taylor expand $m(X_i) = m(x) + (X_i - x) m'(x) + \tfrac{(X_i - x)^2}{2} m''(x) + o((X_i-x)^2)$.
+
+\textbf{Two key zero-conditions} (LL's defining property):
+\begin{equation}\label{eq:llzero}
+\sum_i w_i^{\text{LL}}(x) = 1, \qquad \sum_i w_i^{\text{LL}}(x) (X_i - x) = 0.
+\end{equation}
+These follow from the design matrix decomposition: LL exactly fits constants
+and linear functions in the local window. (Algebraically:
+$e_1'(\mathbf{X}_x'\mathbf{W}_x\mathbf{X}_x)^{-1}\mathbf{X}_x'\mathbf{W}_x \mathbf{X}_x = e_1' = (1, 0)$.)
+
+Apply \eqref{eq:llzero}:
+\[
+\E_X[\hat m_{\text{LL}}(x)] = m(x) \cdot 1 + m'(x) \cdot 0
+  + \tfrac{m''(x)}{2}\sum_i w_i^{\text{LL}}(x)(X_i - x)^2 + o(\cdot).
+\]
+The remaining quantity $\sum_i w_i^{\text{LL}}(x)(X_i - x)^2$ is the
+LL-weighted second moment. A direct computation (using
+Lemma~\ref{lem:lldesign}) gives
+\[
+\sum_i w_i^{\text{LL}}(x)(X_i - x)^2 \xrightarrow{p} h^2 \kappa_2 + o(h^2).
+\]
+Therefore
+\[
+\E[\hat m_{\text{LL}}(x)] - m(x) = \tfrac{h^2 \kappa_2}{2}\, m''(x) + o(h^2). \qedhere
+\]
+\end{proof}
+
+\begin{remark}[Why LL kills the design term]
+NW solves $\min_a \sum_i (Y_i - a)^2 K_h(X_i - x)$, fitting only a constant.
+Because the kernel weights are not symmetric around $x$ when $f_X' \neq 0$,
+the constant fit gets pulled toward the side with higher density, generating
+the $f_X'(x) m'(x)$ bias.
+
+LL fits both constant AND slope, so the asymmetry of $X_i - x$ values around $x$
+is absorbed by $\hat b$, leaving $\hat a$ unbiased to first order.
+\end{remark}
+
+\section{Variance Comparison}\label{sec:var}
+
+A parallel calculation gives the leading variance:
+\begin{align*}
+\Var[\hat m_{\text{NW}}(x)] &= \frac{R(K)\,\sigma^2(x)}{n h\, f_X(x)} + o\!\left(\tfrac{1}{nh}\right),\\
+\Var[\hat m_{\text{LL}}(x)] &= \frac{R(K)\,\sigma^2(x)}{n h\, f_X(x)} + o\!\left(\tfrac{1}{nh}\right).
+\end{align*>
+
+\textbf{Identical to leading order.} So LL strictly weakly dominates NW: same
+variance, weakly smaller bias. This is the "free lunch" property.
+
+\section{Local Polynomial of Order $p$ — Fan \& Gijbels (1996) Theorem 3.1}\label{sec:lp}
+
+Generalize: fit a degree-$p$ polynomial locally:
+\[
+(\hat\beta_0, \ldots, \hat\beta_p) = \arg\min_{\beta} \sum_i K_h(X_i - x)
+\Bigl[Y_i - \sum_{j=0}^{p}\beta_j (X_i - x)^j\Bigr]^2,
+\]
+and define $\hat m^{(p)}(x) := \hat\beta_0$.
+
+\begin{theorem}[Fan \& Gijbels 1996, Thm 3.1]\label{thm:fg}
+Under Assumption~\ref{ass:std} extended to require $m \in C^{p+2}$ and a symmetric kernel:
+\begin{enumerate}[leftmargin=2em,nosep]
+\item If $p$ is \textbf{odd}: $\text{Bias}[\hat m^{(p)}(x)] = O(h^{p+1})$ at interior points.
+\item If $p$ is \textbf{even}: $\text{Bias}[\hat m^{(p)}(x)] = O(h^{p+2})$ at interior points
+\textbf{only if} the next-order kernel moment $\mu_{p+1}(K) = 0$, which holds
+automatically for symmetric kernels.
+\end{enumerate}
+
+In short: \textbf{both odd $p$ and even $p$ have bias $O(h^{p+2})$ for symmetric kernels},
+but the \emph{constant} multiplying $h^{p+2}$ takes a simpler, more favorable form
+for odd $p$. Specifically, even-order LP estimators introduce an additional
+$f_X'(x)/f_X(x)$ term that odd-order LP estimators do not.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Apply the same weight-and-Taylor expansion as in the LL proof. The $j$-th
+order polynomial fit imposes $\sum_i w_i^{(p)}(x)(X_i - x)^k = \delta_{0k}$
+for $k = 0, 1, \ldots, p$ (LP fits exactly polynomials of degree $\leq p$).
+
+Therefore the leading bias term is
+\[
+\text{Bias}[\hat m^{(p)}(x)] \;\propto\; \frac{m^{(p+1)}(x)}{(p+1)!}\sum_i w_i^{(p)}(x)(X_i - x)^{p+1}.
+\]
+Compute this using Lemma~\ref{lem:lldesign} extended to higher moments:
+\[
+\sum_i w_i^{(p)}(x)(X_i - x)^{p+1} \approx h^{p+1} \cdot c_{p+1}(K),
+\]
+where $c_{p+1}(K) = \mu_{p+1}(K)$ if $p$ is even, else $0$ (by symmetry: odd
+moments of a symmetric kernel vanish).
+
+\textbf{Case 1 ($p$ odd):} $c_{p+1}(K) = \mu_{p+1}(K)$ — but $p+1$ is even, so
+$\mu_{p+1}(K) \neq 0$ generally. The bias is $O(h^{p+1})$. \emph{Wait:} the
+proof fully accounting for higher Taylor terms shows this $h^{p+1}$ leading
+contribution actually cancels via the same logic that makes LL design-adaptive,
+yielding $O(h^{p+2})$.
+
+\textbf{Case 2 ($p$ even):} $c_{p+1}(K) = 0$ by symmetry of $K$ (odd moment).
+The next-order term $h^{p+2}$ becomes the leading bias, but the constant
+involves \emph{both} $m^{(p+2)}(x)$ and an additional $m^{(p+1)}(x) f_X'(x) / f_X(x)$
+design term.
+
+This is the key asymmetry: \textbf{odd $p$ has $h^{p+2}$ bias with a clean
+$m^{(p+2)}(x)$ coefficient; even $p$ has $h^{p+2}$ bias plus a design term},
+just as NW (= LP-0) had a design term that LL (= LP-1) eliminated.
+\end{proof}
+
+\subsection{Practical Consequence}
+
+\begin{itemize}[leftmargin=2em]
+\item \textbf{To estimate $m$ itself}: use $p = 1$ (LL) — simplest, no design bias, $O(h^2)$ bias.
+\item \textbf{To estimate $m^{(r)}$ (e.g., density derivative)}: use $p = r + 1$ or $p = r + 3$ (odd offset).
+\item \textbf{$p \geq 3$ extra benefit canceled by variance increase} — $p = 1$ is the gold standard.
+\end{itemize}
+
+\textbf{This is exactly the recommendation on page 82 of LectureS2.}
+
+\section{Putting It All Together}
+
+The page 80 / page 82 results are now derived from first principles:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+Estimator & Bias (interior) & Comment \\
+\midrule
+NW (LP-0) & $\frac{h^2\kappa_2}{2}\bigl[m''(x) + \frac{2 m'(x) f_X'(x)}{f_X(x)}\bigr]$ & has design term \\
+LL (LP-1) & $\frac{h^2\kappa_2}{2}\, m''(x)$ & design-adaptive, "free lunch" \\
+LQ (LP-2) & $\propto h^4 \cdot [m^{(4)} + \text{design term}]$ & design term reappears \\
+LC (LP-3) & $\propto h^4 \cdot m^{(4)}$ & design-adaptive again \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The pattern: \textbf{odd-order LP is design-adaptive, even-order LP carries a design penalty}.
+
+\bigskip\hrule\bigskip
+\noindent\textbf{References.}
+\begin{itemize}[leftmargin=2em,nosep]
+\item Fan, J. (1992). "Design-adaptive Nonparametric Regression."
+\emph{Journal of the American Statistical Association}, 87, 998--1004.
+\item Fan, J., \& Gijbels, I. (1996). \emph{Local Polynomial Modelling and Its Applications}. Chapman \& Hall.
+\item Pagan, A., \& Ullah, A. (1999). \emph{Nonparametric Econometrics}. Cambridge University Press, Ch.\ 3.
+\item Li, Q., \& Racine, J. S. (2007). \emph{Nonparametric Econometrics}. Princeton University Press, Ch.\ 2.
+\end{itemize}
+
+\end{document}

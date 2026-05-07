@@ -192,6 +192,22 @@
 \end{frame}
 
 
+\begin{frame}{动机三（续）：参数 vs 非参数拟合的视觉对比}
+
+  \begin{center}
+    \includegraphics[width=0.95\textwidth]{../Figures/LectureS2/polynomial_misspec.pdf}
+  \end{center}
+
+  \begin{keybox}
+    \textbf{左图（参数 OLS）}：所有三个多项式拟合都\textbf{无法刻画振荡}——
+    Model 1 给出单调直线；Model 2/3 在区间中部勉强近似但尾部严重偏离。
+    \quad\textbf{右图（非参数 NW）}：核回归用 Silverman 拇指带宽 $h \approx 0.65$ 紧密追随真实 $g(x)$，
+    \textbf{无需事先假设任何函数形式}。
+  \end{keybox}
+
+\end{frame}
+
+
 \begin{frame}{动机四：Li \& Racine——非参数是半参数的基石}
 
   \begin{columns}[T]
@@ -439,28 +455,44 @@
 \end{frame}
 
 
-\begin{frame}{收敛速度的直觉：参数 vs 非参数}
+\begin{frame}[shrink=8]{收敛速度的对比：MSE 分解与最优带宽}
+
+  \textbf{两种速度都源于 MSE 分解 $\E[(\hat\theta - \theta)^2] = \text{Bias}^2 + \text{Var}$。}
 
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
       \begin{highlightbox}
-        \textbf{参数收敛速度 $\sqrt{n}$：}
-        \[
-          \hat\beta - \beta = O_p(n^{-1/2})
-        \]
-        \textbf{为什么快？}所有 $n$ 个观测值都在估计\textbf{同一个}参数 $\beta$——每个 $X_i$ 都携带 $\beta$ 的信息。
+        \textbf{参数情形（OLS / MLE）：}
+        \begin{align*}
+          \text{Bias}(\hat\beta) &= 0 \quad (\text{在 MLR 1--4 下}), \\
+          \Var(\hat\beta) &= \frac{\sigma^2}{n}\, (\X'\X/n)^{-1}.
+        \end{align*}
+        $\Rightarrow$ MSE $= O(n^{-1})$，速度 $\sqrt n$.
+
+        \medskip
+        关键：模型为\textbf{有限维}（$\dim\beta = k$ 固定），所有 $n$ 个观测值贡献于同一参数估计。
       \end{highlightbox}
     \end{column}
     \begin{column}{0.5\textwidth}
       \begin{highlightbox}
-        \textbf{非参数收敛速度 $n^{-2/(4+d)}$：}
-        \[
-          \hat m(x_0) - m(x_0) = O_p(n^{-2/(4+d)})
-        \]
-        \textbf{为什么慢？}只有 $X_i$ 靠近 $x_0$ 的观测才对 $m(x_0)$ 有用——\textbf{有效样本量}约为 $nh^d$。
+        \textbf{非参数情形（核估计）：}
+        \begin{align*}
+          \text{Bias}[\hat m(x_0)] &= O(h^2), \\
+          \Var[\hat m(x_0)] &= O\!\left(\tfrac{1}{nh^d}\right).
+        \end{align*}
+        最优 $h^* \propto n^{-1/(4+d)}$ 平衡两项 $\Rightarrow$ MSE $= O(n^{-4/(4+d)})$, 速度 $n^{-2/(4+d)}$.
+
+        \medskip
+        关键：$m(x_0)$ 是\textbf{无穷维}对象的局部值，仅 $\approx nh^d$ 个观测落入 $x_0$ 附近的核窗口。
       \end{highlightbox}
     \end{column}
   \end{columns}
+
+  \begin{keybox}
+    \textbf{形式化对比：}速度差异不是"几何直觉"，而是 \textbf{Bias-Variance 平衡}的代数结果：
+    维度 $d$ 越大，$nh^d$ 越小（窗口内点更稀疏），最优 $h^*$ 必须更慢衰减以控制方差，
+    导致剩余偏误项主导，速度恶化。这就是\textbf{维数诅咒}的形式来源。
+  \end{keybox}
 
 \end{frame}
 
@@ -2153,6 +2185,28 @@
 %% ============================================================
 \section{级数方法 (Series Methods)}
 %% ============================================================
+
+\begin{frame}[shrink=8]{为什么需要级数方法？——核方法的局限}
+
+  迄今为止讨论的核方法（KDE, NW, 局部多项式）虽然形式简单，但在以下场景下不够：
+
+  \begin{highlightbox}
+    \textbf{核方法面临的六大限制：}
+    \begin{enumerate}\setlength{\itemsep}{2pt}
+      \item \textbf{维数诅咒}：核估计速率 $n^{-2/(4+d)}$ 在 $d \geq 3$ 几乎不可行；级数方法利用\textbf{光滑度} $s$ 达到 $n^{-2s/(2s+d)}$，对高维更友好。
+      \item \textbf{导数估计}：级数方法的导数 $\hat m^{(r)}(x) = \sum_k \hat\beta_k p_k^{(r)}(x)$ 只需对基函数求导，简单且光滑；核导数估计噪声极大。
+      \item \textbf{结构约束}：易在基函数选择层面施加\textbf{单调性、凸性、加法可分性}（如 $m(x) = \sum_l g_l(x_l)$）；核方法很难。
+      \item \textbf{计算简单}：级数估计本质是\textbf{对变换后回归元的 OLS}——无需选择带宽与核，无边界修正。
+      \item \textbf{半参数效率}：级数估计与 $\sqrt{n}$ 一致估计的参数部分（如部分线性模型、IV 回归）天然兼容，效率界推导清晰。
+      \item \textbf{边界行为}：核估计在边界处偏误 $O(h)$（内部 $O(h^2)$）；级数方法（尤其多项式与样条）\textbf{自然处理边界}，无需额外修正。
+    \end{enumerate}
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{核心权衡：}级数方法用\textbf{基函数选择}（替代带宽选择）+\textbf{阶数 $K$ 选择}（替代核选择）换取上述优势。本部分推导级数估计量、阶数选择（Mallows $C_L$、GCV、LOOCV）、与核方法的精确对比。
+  \end{keybox}
+
+\end{frame}
 
 \begin{frame}{级数方法的基本思想}
 
