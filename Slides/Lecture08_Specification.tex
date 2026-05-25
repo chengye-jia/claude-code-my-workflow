@@ -1266,19 +1266,25 @@
 
 \begin{frame}{Why a Dummy Catches Only the Mean}
 
-  The dummy $m_k$ can add only a \emph{constant} to every missing row, and least squares
-  makes that constant the group \emph{mean} (the best constant satisfies
-  $\arg\min_{c}\E[(W-c)^2] = \E(W)$).
+  Treat MIM as a misspecified model whose error \textbf{absorbs} the dropped term,
+  $v = u + \beta_k m_k x_k - \gamma_m m_k$. OLS forces the residual orthogonal to the
+  dummy, $\E(v\,m_k)=0$. Using $m_k^2 = m_k$ and $\E(u\,m_k)=0$,
+  \[
+    \beta_k\,\E(m_k x_k) - \gamma_m\,\E(m_k) = 0
+    \;\Longrightarrow\;
+    \gamma_m = \beta_k\,\frac{\E(m_k x_k)}{\E(m_k)} = \beta_k\,\E(x_k\mid\text{miss}) .
+  \]
 
   \begin{keybox}
-    Split the dropped term into its missing-group mean plus deviations:
+    The $m_k$ normal equation \textbf{pins the dummy to the group mean}. Splitting the
+    dropped term accordingly,
     \[
       \beta_k x_k
-      = \underbrace{\beta_k\,\E(x_k\mid\text{miss})}_{\text{constant}\;\to\;\gamma}
-      + \underbrace{\beta_k\bigl(x_k - \E(x_k\mid\text{miss})\bigr)}_{\text{varies within the group}} .
+      = \underbrace{\beta_k\,\E(x_k\mid\text{miss})}_{\text{absorbed by }\gamma_m}
+      + \underbrace{\beta_k\bigl(x_k - \E(x_k\mid\text{miss})\bigr)}_{\text{varies within the group}} ,
     \]
-    Only the first piece fits a dummy; capturing the second would need the omitted
-    interaction $m_k x_k$.
+    only the constant piece fits a dummy --- the deviation needs the omitted $m_k x_k$
+    (the source of the slope bias; next slide).
   \end{keybox}
 
 \end{frame}
