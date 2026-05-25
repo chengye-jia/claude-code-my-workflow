@@ -50,95 +50,66 @@
 
 \end{frame}
 
-\begin{frame}[shrink=12]{Effects of Rescaling the Dependent Variable}
+\begin{frame}[shrink=8]{Effects of Rescaling the Dependent Variable}
 
-  Will switching birth weight from \emph{ounces} to \emph{pounds} change any
-  conclusion? Rescale $y$ and watch what happens to every statistic.
+  Will switching birth weight from \emph{ounces} to \emph{pounds} change any conclusion?
+  Rescale $y$ and watch every statistic. Consider the birth weight equation
+  \[
+    \widehat{bwght} = \underset{(1.049)}{116.974}
+      - \underset{(0.0916)}{0.4634}\, cigs
+      + \underset{(0.0292)}{0.0927}\, faminc ,
+  \]
+  and define $bwghtlbs = bwght/16$ (ounces $\to$ pounds).
 
-      Consider the birth weight equation:
-      \[
-        \widehat{bwght} = \underset{(1.049)}{116.974}
-          - \underset{(0.0916)}{0.4634}\, cigs
-          + \underset{(0.0292)}{0.0927}\, faminc
-      \]
-      Now define $bwghtlbs = bwght/16$ (ounces $\to$ pounds).
-
-      \medskip
-
-      \textbf{What changes?}
-      \begin{itemize}
-        \item Every coefficient is divided by 16
-        \item Every standard error is divided by 16
-        \item The $t$ statistics are \textbf{unchanged}
-        \item $\Rsq$ is \textbf{unchanged}
-        \item $\SSR$ is divided by $16^2 = 256$
-        \item SER is divided by 16
-      \end{itemize}
   \medskip
 
-      \begin{keybox}
-        \textbf{Rule --- Rescaling $y$:} \\[4pt]
-        If $y$ is multiplied by $c$: \\[2pt]
-        $\bhat_j \to c\,\bhat_j$ \\
-        $\se(\bhat_j) \to c\,\se(\bhat_j)$ \\
-        $t_{\bhat_j} \to$ \textbf{unchanged} \\
-        $\Rsq \to$ \textbf{unchanged} \\
-        $\SSR \to c^2 \cdot \SSR$ \\
-        $\text{SER} \to |c| \cdot \text{SER}$
-      \end{keybox}
+  \textbf{What changes?} Every coefficient and standard error is divided by $16$, so the
+  $t$ statistics and $\Rsq$ are \textbf{unchanged}; $\SSR$ falls by $16^2 = 256$ and the
+  SER by $16$.
 
-      \medskip
+  \begin{keybox}
+    \textbf{Rule --- rescaling $y$ by $c$:}\;
+    $\bhat_j \to c\,\bhat_j$ and $\se(\bhat_j) \to c\,\se(\bhat_j)$ (so $t_{\bhat_j}$ and
+    $\Rsq$ are unchanged); $\SSR \to c^2\SSR$, $\;\text{SER} \to |c|\,\text{SER}$.
 
-      \textbf{Key insight:} Rescaling $y$ is purely cosmetic ---
-      it changes the appearance but not the statistical conclusions.
+    \smallskip
+    \textbf{Key insight:} rescaling $y$ is purely cosmetic --- it changes the appearance,
+    not the conclusions.
+  \end{keybox}
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Effects of Rescaling an Independent Variable}
+\begin{frame}[shrink=8]{Effects of Rescaling an Independent Variable}
 
-      Now define $packs = cigs/20$ (cigarettes $\to$ packs per day).
+  Now define $packs = cigs/20$ (cigarettes $\to$ packs per day). Rewriting the equation,
+  \[
+    \widehat{bwght} = \underset{(1.049)}{116.974}
+      - \underset{(1.832)}{9.268}\, packs
+      + \underset{(0.0292)}{0.0927}\, faminc .
+  \]
 
-      \medskip
-
-      Rewriting the original equation:
-      \[
-        \widehat{bwght} = \underset{(1.049)}{116.974}
-          - \underset{(1.832)}{9.268}\, packs
-          + \underset{(0.0292)}{0.0927}\, faminc
-      \]
-
-      \medskip
-
-      \textbf{What changes?}
-      \begin{itemize}
-        \item Coefficient on $packs$ is $20 \times (-0.4634) = -9.268$
-        \item Standard error on $packs$ is $20 \times 0.0916 = 1.832$
-        \item The $t$ statistic: $-9.268/1.832 = -5.06$ (unchanged!)
-        \item Intercept, other coefficients: unchanged
-        \item $\Rsq$, $\SSR$, SER: all unchanged
-      \end{itemize}
   \medskip
 
-      \begin{keybox}
-        \textbf{Rule --- Rescaling $x_j$:} \\[4pt]
-        If $x_j$ is multiplied by $c$: \\[2pt]
-        $\bhat_j \to \bhat_j / c$ \\
-        $\se(\bhat_j) \to \se(\bhat_j) / c$ \\
-        $t_{\bhat_j} \to$ \textbf{unchanged} \\
-        Other $\bhat$'s $\to$ \textbf{unchanged} \\
-        $\Rsq$, $\SSR$, SER $\to$ \textbf{unchanged}
-      \end{keybox}
+  \textbf{What changes?} Only the $packs$ terms: its coefficient becomes
+  $20\times(-0.4634) = -9.268$ and its standard error $20\times0.0916 = 1.832$, leaving
+  the $t$ statistic $-9.268/1.832 = -5.06$ \textbf{unchanged}. The intercept, the other
+  coefficients, $\Rsq$, $\SSR$, and SER are all unchanged.
 
-      \medskip
+  \begin{keybox}
+    \textbf{Rule --- rescaling $x_j$ by $c$:}\;
+    $\bhat_j \to \bhat_j/c$ and $\se(\bhat_j) \to \se(\bhat_j)/c$ (so $t_{\bhat_j}$ is
+    unchanged); the other coefficients, $\Rsq$, $\SSR$, and SER are all unchanged.
+  \end{keybox}
 
-      \medskip
-      \textbf{Bottom line.} Rescaling any variable changes coefficients and
-      standard errors proportionally, but never the $t$ statistics, $F$ statistics,
-      $\Rsq$, or any test conclusion.
+  \medskip
+
+  \textbf{Bottom line.} Rescaling any variable changes coefficients and standard errors
+  proportionally, but never the $t$ statistics, $F$ statistics, $\Rsq$, or any test
+  conclusion.
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Rescaling Summary and Logarithmic Invariance}
+\begin{frame}[shrink=8]{Rescaling Summary and Logarithmic Invariance}
 
       {\small
       \begin{tabular}{lcc}
@@ -177,7 +148,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Beta (Standardized) Coefficients: Definition}
+\begin{frame}[shrink=8]{Beta (Standardized) Coefficients: Definition}
 
   When regressors live on wildly different scales --- dollars, years, test points ---
   the raw $\bhat_j$ cannot be ranked by ``importance'': a small coefficient may merely
@@ -214,7 +185,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Beta Coefficients: Interpretation}
+\begin{frame}[shrink=8]{Beta Coefficients: Interpretation}
 
   \begin{keybox}
     \textbf{Interpretation:} A one \emph{standard deviation} increase in $x_j$
@@ -247,7 +218,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.1 --- Effects of Pollution on Housing Prices}
+\begin{frame}[shrink=8]{Example 6.1 --- Effects of Pollution on Housing Prices}
 
   \begin{examplebox}{Beta Coefficients for Housing Prices (HPRICE2)}
     The level-level model:
@@ -309,7 +280,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Review: Four Functional Forms}
+\begin{frame}[shrink=8]{Review: Four Functional Forms}
 
   \begin{highlightbox}
     \textbf{The four functional form combinations for $y$ and $x$:}
@@ -338,7 +309,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Functional Forms in Practice: Housing Prices}
+\begin{frame}[shrink=8]{Functional Forms in Practice: Housing Prices}
 
   \begin{examplebox}{Housing Prices (HPRICE2 --- eq.\ 6.7)}
     \[
@@ -371,7 +342,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Exact vs.\ Approximate Percentage Changes}
+\begin{frame}[shrink=8]{Exact vs.\ Approximate Percentage Changes}
 
       \begin{definitionbox}{Exact Percentage Change (eq.\ 6.8)}
         In the model $\widehat{\log(y)} = \bhat_0 + \bhat_1 x_1 + \bhat_2 x_2$,
@@ -418,7 +389,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{When to Use Logarithms: Rules of Thumb}
+\begin{frame}[shrink=8]{When to Use Logarithms: Rules of Thumb}
 
       \textbf{Use $\log(x)$ when:}
       \begin{itemize}
@@ -482,7 +453,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=12]{Models with Quadratics}
+\begin{frame}[shrink=8]{Models with Quadratics}
 
   The simplest way to let a marginal effect \emph{change} with the level of $x$ ---
   diminishing returns to experience, a U-shaped cost curve --- is to add the square
@@ -521,7 +492,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Wage--Experience Quadratic (WAGE1)}
+\begin{frame}[shrink=8]{Wage--Experience Quadratic (WAGE1)}
 
   \begin{examplebox}{Diminishing Returns to Experience (eq.\ 6.12)}
     \[
@@ -560,7 +531,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.2 --- Housing Prices with Quadratic $rooms$}
+\begin{frame}[shrink=8]{Example 6.2 --- Housing Prices with Quadratic $rooms$}
 
   \begin{examplebox}{Quadratic in $rooms$ (HPRICE2 --- eq.\ 6.14)}
     \[
@@ -587,7 +558,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.2 --- Marginal Effect of $rooms$}
+\begin{frame}[shrink=8]{Example 6.2 --- Marginal Effect of $rooms$}
 
   \begin{keybox}
     \textbf{Marginal effect of $rooms$ on $\log(price)$:}
@@ -621,7 +592,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Important Lesson: Small Coefficients on $x^2$ Can Matter}
+\begin{frame}[shrink=8]{Important Lesson: Small Coefficients on $x^2$ Can Matter}
 
   \begin{highlightbox}
     \textbf{Do not dismiss a quadratic term just because $\bhat_2$ ``looks small.''}
@@ -684,7 +655,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.3 --- Attendance and Exam Performance: Model}
+\begin{frame}[shrink=8]{Example 6.3 --- Attendance and Exam Performance: Model}
 
   \begin{examplebox}{Interactions with Quadratics (ATTEND --- eq.\ 6.18--6.19)}
     \[
@@ -710,7 +681,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.3 --- Partial Effect of Attendance}
+\begin{frame}[shrink=8]{Example 6.3 --- Partial Effect of Attendance}
 
   \begin{keybox}
     \textbf{Partial effect of attendance on standardized final exam score:}
@@ -746,7 +717,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Interpreting the Attendance Interaction}
+\begin{frame}[shrink=8]{Interpreting the Attendance Interaction}
 
       \textbf{Testing the partial effect at the mean:}
 
@@ -805,7 +776,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Average Partial Effects (APE)}
+\begin{frame}[shrink=8]{Average Partial Effects (APE)}
 
   \begin{definitionbox}{Average Partial Effect}
     In a model with quadratics and interactions, the partial effect of $x_j$
@@ -835,7 +806,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Centering Variables Before Creating Interactions}
+\begin{frame}[shrink=8]{Centering Variables Before Creating Interactions}
 
       Consider: $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 x_2 + u$
 
@@ -898,7 +869,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Adjusted $R$-Squared: Definition}
+\begin{frame}[shrink=8]{Adjusted $R$-Squared: Definition}
 
   \textbf{Recall:} $\Rsq = 1 - \SSR/\SST$ never falls when a variable is added. \\
   To penalize model complexity, replace $\SSR/n$ with $\SSR/(n-k-1)$:
@@ -924,7 +895,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Adjusted $R$-Squared: Key Properties}
+\begin{frame}[shrink=8]{Adjusted $R$-Squared: Key Properties}
 
   \begin{keybox}
     \textbf{Properties of $\aRsq$:}
@@ -946,7 +917,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{$\aRsq$ Can Be Negative}
+\begin{frame}[shrink=8]{$\aRsq$ Can Be Negative}
 
       \begin{examplebox}{Numerical Example}
         If $\Rsq = 0.10$, $n = 51$, $k = 10$:
@@ -972,7 +943,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Choosing Between Nonnested Models}
+\begin{frame}[shrink=8]{Choosing Between Nonnested Models}
 
       \textbf{Nested models:} one is a special case of the other
       $\Rightarrow$ use the $F$ test.
@@ -1018,7 +989,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.4 --- CEO Compensation: Level vs.\ Log}
+\begin{frame}[shrink=8]{Example 6.4 --- CEO Compensation: Level vs.\ Log}
 
   \begin{examplebox}{Two Models for CEO Salary (CEOSAL2)}
     \textbf{Model A} (level--level):
@@ -1054,7 +1025,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Over-Controlling: Adding Bad Controls}
+\begin{frame}[shrink=8]{Over-Controlling: Adding Bad Controls}
 
   \textbf{It is possible to control for \emph{too many} variables:} including a
   ``bad control'' can introduce bias or mask the very effect you want to measure.
@@ -1096,7 +1067,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Adding Regressors to Reduce Error Variance}
+\begin{frame}[shrink=8]{Adding Regressors to Reduce Error Variance}
 
       \textbf{The tradeoff:} Adding a variable to a regression:
       \begin{itemize}
@@ -1159,7 +1130,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Confidence Intervals for Predictions}
+\begin{frame}[shrink=8]{Confidence Intervals for Predictions}
 
   We often want the predicted \emph{mean} response at chosen values $x_j = c_j$, with a
   confidence interval around it. The point estimate is immediate; its standard error
@@ -1208,7 +1179,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.5 --- Confidence Interval for Predicted College GPA}
+\begin{frame}[shrink=8]{Example 6.5 --- Confidence Interval for Predicted College GPA}
 
   \begin{examplebox}{College GPA Prediction (GPA2 --- eq.\ 6.32)}
     \[
@@ -1252,7 +1223,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Prediction Intervals vs.\ Confidence Intervals}
+\begin{frame}[shrink=8]{Prediction Intervals vs.\ Confidence Intervals}
 
       \begin{definitionbox}{Two Types of Intervals}
         \textbf{Confidence interval:} for $\E[y \mid \mathbf{x}]$
@@ -1306,7 +1277,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.6 --- Prediction Interval for Future College GPA}
+\begin{frame}[shrink=8]{Example 6.6 --- Prediction Interval for Future College GPA}
 
   \begin{examplebox}{Individual Prediction (GPA2)}
     Same student: $sat = 1{,}200$, $hsperc = 30$, $hsize = 5$. \\[4pt]
@@ -1343,7 +1314,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=12]{Residual Analysis}
+\begin{frame}[shrink=8]{Residual Analysis}
 
   The residual itself carries information: a large $|\uh_i|$ flags an observation the
   model badly misses --- an underpriced house, a value-adding school, or an over- or
@@ -1395,7 +1366,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Predicting $y$ When $\log(y)$ Is the Dependent Variable}
+\begin{frame}[shrink=8]{Predicting $y$ When $\log(y)$ Is the Dependent Variable}
 
   If the model is $\log(y) = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u$,
   OLS predicts $\widehat{\log(y)}$, not $y$ directly.
@@ -1426,7 +1397,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Predicting $y$ From $\log(y)$: Smearing Estimate}
+\begin{frame}[shrink=8]{Predicting $y$ From $\log(y)$: Smearing Estimate}
 
   \begin{definitionbox}{Smearing Estimate (eq.\ 6.43)}
     Without assuming normality, estimate $\E[\exp(u)]$ from residuals:
@@ -1455,7 +1426,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Example 6.7 --- Predicting CEO Salaries}
+\begin{frame}[shrink=8]{Example 6.7 --- Predicting CEO Salaries}
 
   \begin{examplebox}{CEO Salary Prediction (CEOSAL2 --- eq.\ 6.45)}
     \[
@@ -1501,7 +1472,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Comparing Models with Different Dependent Variables}
+\begin{frame}[shrink=8]{Comparing Models with Different Dependent Variables}
 
       \textbf{Problem:} Cannot compare $\Rsq$ from a model
       for $y$ with $\Rsq$ from a model for $\log(y)$.
@@ -1546,7 +1517,7 @@
 \section*{Summary}
 %% ============================================================
 
-\begin{frame}[shrink=15]{Chapter 6 Summary: Scaling and Functional Form}
+\begin{frame}[shrink=8]{Chapter 6 Summary: Scaling and Functional Form}
 
       \begin{keybox}
         \textbf{Data Scaling (\S6-1)}
@@ -1572,7 +1543,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Chapter 6 Summary: Model Selection and Prediction}
+\begin{frame}[shrink=8]{Chapter 6 Summary: Model Selection and Prediction}
 
       \begin{keybox}
         \textbf{Adjusted $\Rsq$ (\S6-3)}
@@ -1610,7 +1581,7 @@
 \section*{Appendix 6A: Bootstrap}
 %% ============================================================
 
-\begin{frame}[shrink=15]{The Bootstrap: Motivation}
+\begin{frame}[shrink=8]{The Bootstrap: Motivation}
 
       \textbf{Problem:} Formulas for standard errors are sometimes
       \begin{itemize}
@@ -1649,7 +1620,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Bootstrap Standard Error: Algorithm and Formula}
+\begin{frame}[shrink=8]{Bootstrap Standard Error: Algorithm and Formula}
 
       \textbf{Algorithm:}
       \begin{enumerate}
@@ -1692,7 +1663,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=15]{Bootstrap in Practice}
+\begin{frame}[shrink=8]{Bootstrap in Practice}
 
       \begin{keybox}
         \textbf{When to use the bootstrap:}
@@ -1742,7 +1713,7 @@
 \section*{R Code Examples}
 %% ============================================================
 
-\begin{frame}[fragile, shrink=15]{R Code: Scaling and Beta Coefficients}
+\begin{frame}[fragile, shrink=8]{R Code: Scaling and Beta Coefficients}
 
 \begin{verbatim}
 library(wooldridge)
@@ -1764,7 +1735,7 @@ coef(m_std)  # beta coefficients (intercept ~ 0)
 
 \end{frame}
 
-\begin{frame}[fragile, shrink=18]{R Code: Quadratic Models}
+\begin{frame}[fragile, shrink=10]{R Code: Quadratic Models}
 
 \begin{verbatim}
 ## --- Quadratic (WAGE1 eq. 6.12) ---
@@ -1788,7 +1759,7 @@ ape <- coef(m_int)["atndrte"] +
 
 \end{frame}
 
-\begin{frame}[fragile, shrink=15]{R Code: Predictions and Log Models}
+\begin{frame}[fragile, shrink=8]{R Code: Predictions and Log Models}
 
 \begin{verbatim}
 ## --- Prediction CI (Example 6.5: GPA2) ---

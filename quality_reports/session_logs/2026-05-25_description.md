@@ -106,6 +106,18 @@ beamer's shrink/overfull detection. User: "check overflow + change layout to ver
   p.6 also verified clean.
 - Committed to branch lecture05-08-style-and-math.
 
+Follow-up: user — pages too small / combine lines / split to avoid overflow.
+- Combined the two rescaling frames' 6-bullet "What changes?" lists + 6-line stacked
+  keyboxes into compact prose + inline rules (big height reduction → full-size text).
+- Lowered global shrink 15→8 (code 18→10). With the combining, everything fits: 0 overfull
+  at shrink=8 (and even at full size). No page splits were needed — combining + vertical +
+  light shrink fit all content at readable size.
+- Gotcha: page 6 (rescale-x), left bare/full-size, sat at the bottom boundary ("conclusion."
+  at the edge though 0 overfull). Added shrink=8 to both rescale frames → margin restored
+  (verified p.6). Note: sed/perl adding shrink via the \begin{frame}{ pattern misbehaved
+  (brace escaping); title-anchored sed worked.
+- Final: 59 pages, 0 errors, 0 overfull, readable. Committed to branch.
+
 ---
 
 ## Goal
