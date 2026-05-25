@@ -55,8 +55,6 @@
   Will switching birth weight from \emph{ounces} to \emph{pounds} change any
   conclusion? Rescale $y$ and watch what happens to every statistic.
 
-  \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
       Consider the birth weight equation:
       \[
         \widehat{bwght} = \underset{(1.049)}{116.974}
@@ -76,8 +74,8 @@
         \item $\SSR$ is divided by $16^2 = 256$
         \item SER is divided by 16
       \end{itemize}
-    \end{column}
-    \begin{column}{0.44\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Rule --- Rescaling $y$:} \\[4pt]
         If $y$ is multiplied by $c$: \\[2pt]
@@ -93,15 +91,11 @@
 
       \textbf{Key insight:} Rescaling $y$ is purely cosmetic ---
       it changes the appearance but not the statistical conclusions.
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Effects of Rescaling an Independent Variable}
 
-  \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
       Now define $packs = cigs/20$ (cigarettes $\to$ packs per day).
 
       \medskip
@@ -123,8 +117,8 @@
         \item Intercept, other coefficients: unchanged
         \item $\Rsq$, $\SSR$, SER: all unchanged
       \end{itemize}
-    \end{column}
-    \begin{column}{0.44\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Rule --- Rescaling $x_j$:} \\[4pt]
         If $x_j$ is multiplied by $c$: \\[2pt]
@@ -141,15 +135,11 @@
       \textbf{Bottom line.} Rescaling any variable changes coefficients and
       standard errors proportionally, but never the $t$ statistics, $F$ statistics,
       $\Rsq$, or any test conclusion.
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Rescaling Summary and Logarithmic Invariance}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       {\small
       \begin{tabular}{lcc}
         \toprule
@@ -165,8 +155,8 @@
         \bottomrule
       \end{tabular}
       }
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Logarithmic invariance:} \\[4pt]
         If $y$ appears as $\log(y)$: changing the units of $y$
@@ -177,8 +167,6 @@
         the units of $x_j$ only shifts the intercept. \\[4pt]
         \textbf{Elasticities are invariant to units of measurement.}
       \end{keybox}
-    \end{column}
-  \end{columns}
 
   \medskip
 
@@ -237,16 +225,14 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{When are beta coefficients useful?}
       \begin{itemize}
         \item Variables measured on different scales (test scores, income, age)
         \item Want to rank variables by ``importance''
         \item Especially useful when units are arbitrary or hard to interpret
       \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{highlightbox}
         \textbf{Key facts:}
         \begin{itemize}
@@ -258,8 +244,6 @@
                 can still be informative
         \end{itemize}
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -280,8 +264,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Ranking by importance:}
       \begin{enumerate}
         \item $rooms$: $|\hat{b}| = 0.514$ (largest)
@@ -290,8 +272,8 @@
         \item $dist$: $|\hat{b}| = 0.235$
         \item $crime$: $|\hat{b}| = 0.143$ (smallest)
       \end{enumerate}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         A one-sd increase in $nox$ decreases
         price by 0.34 sd. \\[4pt]
@@ -300,8 +282,6 @@
         \textbf{Cannot conclude this from raw coefficients}
         because units differ!
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -373,8 +353,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Interpreting the coefficients:}
       \begin{itemize}
         \item $\bhat_{\log(nox)} = -0.718$: elasticity \\
@@ -382,23 +360,19 @@
         \item $\bhat_{rooms} = 0.306$: semi-elasticity \\
               One more room $\Rightarrow$ price rises by $\approx 30.6\%$
       \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         This equation mixes log--log (for $nox$) and log--level (for $rooms$). \\[4pt]
         Both interpretations follow directly from the functional form table. \\[4pt]
         The 30.6\% approximation for $rooms$ is somewhat rough ---
         the exact change is 35.8\% (next slide).
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Exact vs.\ Approximate Percentage Changes}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{definitionbox}{Exact Percentage Change (eq.\ 6.8)}
         In the model $\widehat{\log(y)} = \bhat_0 + \bhat_1 x_1 + \bhat_2 x_2$,
         fixing $x_1$:
@@ -419,8 +393,8 @@
       \textbf{Why?} A first-order Taylor expansion $\exp(a)\approx 1+a$ gives
       $100\,\bhat_2\Delta x_2$, so it keeps only the \emph{first-order} term; the
       dropped $a^2/2$ is why the exact increase and decrease are asymmetric.
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{examplebox}{Housing Prices: $rooms$}
         $\bhat_{rooms} = 0.306$
 
@@ -441,15 +415,11 @@
         The approximation always lies between the
         exact increase and exact decrease.
       \end{examplebox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{When to Use Logarithms: Rules of Thumb}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Use $\log(x)$ when:}
       \begin{itemize}
         \item $x > 0$ always (wages, prices, sales, population)
@@ -467,8 +437,8 @@
         \item $x$ is a proportion or percent (unemployment rate, pass rate)
         \item $x$ takes on zero or negative values
       \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Benefits of logs:}
         \begin{enumerate}
@@ -486,8 +456,6 @@
       \textbf{Warning.} If $y \geq 0$ with $y = 0$ possible, $\log(y)$ is undefined.
       The fix $\log(1+y)$ is sometimes used, but its coefficients are \textbf{not}
       invariant to the units of $y$ --- use with caution.
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -534,8 +502,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{keybox}
         \textbf{Turning point.} Set the marginal effect to zero,
         $\bhat_1 + 2\bhat_2 x^* = 0$:
@@ -544,16 +510,14 @@
         \]
         Check whether $x^*$ is within the range of the data!
       \end{keybox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \textbf{Two shapes:}
       \begin{itemize}
         \item $\bhat_1 > 0$, $\bhat_2 < 0$: \textbf{hump shape} (diminishing returns)
         \item $\bhat_1 < 0$, $\bhat_2 > 0$: \textbf{U-shape} (increasing returns)
         \item Same sign on $\bhat_1$, $\bhat_2$: monotonic, no turning point for $x > 0$
       \end{itemize}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -572,8 +536,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Marginal effect at different experience levels:}
       \[
         \frac{\Delta \widehat{wage}}{\Delta exper} \approx 0.298 - 2(0.0061)\, exper
@@ -583,8 +545,8 @@
         \item $exper = 10$: $0.298 - 0.122 = 0.176$ (\$0.18/hr)
         \item $exper = 20$: $0.298 - 0.244 = 0.054$ (\$0.05/hr)
       \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Turning point:}
         \[
@@ -595,8 +557,6 @@
         About 28\% of the sample has $exper > 24$, so the turning
         point is economically relevant --- not just a mathematical artifact.
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -638,8 +598,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Effect at different values:}
       \begin{itemize}
         \item At $rooms = 5$: $(-54.5 + 62.0) = 7.5\%$ per room
@@ -650,8 +608,8 @@
       \medskip
 
       A very strong \textbf{increasing} effect at typical values!
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{highlightbox}
         \textbf{Lesson:} The coefficient on $rooms^2$ is just 0.062 ---
         seemingly tiny. But the marginal effect $\bhat_1 + 2\bhat_2 \cdot rooms$
@@ -660,8 +618,6 @@
         of the coefficient alone. Always compute the marginal
         effect at relevant values of $x$.
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -673,8 +629,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       In the housing example, $\bhat_{rooms^2} = 0.062$. \\
       This seems tiny, but the marginal effect is:
       \[
@@ -686,8 +640,8 @@
       \medskip
 
       The quadratic term is highly significant ($t = 0.062/0.013 = 4.77$).
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Compare with a linear model:} \\[4pt]
         Dropping $rooms^2$, the coefficient on $rooms$
@@ -702,8 +656,6 @@
 
       \textbf{General rule:} Always compute the marginal effect
       at interesting values of $x$ (mean, quartiles).
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -770,8 +722,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{At different prior GPA levels:}
       \begin{itemize}
         \item $priGPA = 2.0$: $-0.0067 + 0.0112 = 0.0045$
@@ -783,8 +733,8 @@
 
       At the mean: a 10-point increase in attendance
       raises the standardized score by 0.078 sd.
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{highlightbox}
         \textbf{Key insight:} \\
         The effect of attendance is \textbf{stronger} for students
@@ -793,15 +743,11 @@
         from going to class --- the interaction $priGPA \cdot atndrte$
         captures this heterogeneity.
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Interpreting the Attendance Interaction}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Testing the partial effect at the mean:}
 
       \medskip
@@ -818,8 +764,8 @@
 
       Result: $\bhat = 0.0078$, $\se = 0.0026$, $t = 3.0$. \\
       \textbf{Statistically significant} at the 1\% level.
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{highlightbox}
         \textbf{Key lessons from this example:} \\[4pt]
         \begin{enumerate}
@@ -832,8 +778,6 @@
           \item \textbf{Always evaluate interactions at interesting values}
         \end{enumerate}
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -876,29 +820,23 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{examplebox}{APE in the Attendance Model}
         Partial effect of $atndrte$: $\bhat_1 + \bhat_6\, priGPA_i$ \\[4pt]
         $\widehat{\text{APE}}_{atndrte} = \bhat_1 + \bhat_6\, \overline{priGPA}$ \\[4pt]
         $= -0.0067 + 0.0056(2.59) = 0.0078$
       \end{examplebox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{examplebox}{APE for $priGPA$}
         Partial effect: $\bhat_2 + 2\bhat_4\, priGPA_i + \bhat_6\, atndrte_i$ \\[4pt]
         $\widehat{\text{APE}}_{priGPA} = \bhat_2 + 2\bhat_4\, \overline{priGPA}$
         $+ \bhat_6\, \overline{atndrte}$
       \end{examplebox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Centering Variables Before Creating Interactions}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       Consider: $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 x_2 + u$
 
       \medskip
@@ -914,8 +852,8 @@
           + \beta_3 (x_1 - \bar{x}_1)(x_2 - \bar{x}_2) + u
       \]
       Now $\delta_2 = \beta_2 + \beta_3 \bar{x}_1$ is the APE of $x_2$!
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Benefits of centering:}
         \begin{enumerate}
@@ -933,8 +871,6 @@
         $y = \gamma_0 + \gamma_1 x + \beta_2(x - \bar{x})^2 + u$ \\[4pt]
         Now $\gamma_1$ is the APE of $x$.
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -1012,8 +948,6 @@
 
 \begin{frame}[shrink=15]{$\aRsq$ Can Be Negative}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{examplebox}{Numerical Example}
         If $\Rsq = 0.10$, $n = 51$, $k = 10$:
         \[
@@ -1022,8 +956,8 @@
         A negative $\aRsq$ tells us the model has too many
         regressors relative to the sample size and explanatory power.
       \end{examplebox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{highlightbox}
         \textbf{Important reminders:}
         \begin{itemize}
@@ -1035,15 +969,11 @@
                 \textbf{same dependent variable} but different regressors
         \end{itemize}
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Choosing Between Nonnested Models}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Nested models:} one is a special case of the other
       $\Rightarrow$ use the $F$ test.
 
@@ -1067,8 +997,8 @@
 
         Slight preference for Model B, but the difference is tiny.
       \end{examplebox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Using $\aRsq$ for nonnested models:} \\[4pt]
         Pick the model with the higher $\aRsq$. \\[4pt]
@@ -1085,8 +1015,6 @@
       \textbf{Critical limitation.} You cannot use $\Rsq$ or $\aRsq$ to compare
       $y$ vs.\ $\log(y)$ as dependent variables --- they measure variation in
       \emph{different} things. Section~6-4 gives the fix.
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -1133,8 +1061,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{examplebox}{Beer Taxes and Traffic Fatalities}
         Want: effect of beer $tax$ on $fatalities$.
 
@@ -1149,8 +1075,8 @@
         If we hold $beercons$ fixed, how would $tax$ affect fatalities?
         Only through non-alcohol channels --- not what we want!
       \end{examplebox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{When is a control ``bad''?} \\[4pt]
         A variable is a bad control if it is:
@@ -1167,15 +1093,11 @@
         \textbf{Rule of thumb:} Think carefully about the ceteris paribus
         interpretation. Does holding this variable fixed make economic sense?
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Adding Regressors to Reduce Error Variance}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{The tradeoff:} Adding a variable to a regression:
       \begin{itemize}
         \item[\textcolor{positive}{+}] Reduces error variance $\sigma^2$ (takes variation out of $u$)
@@ -1192,8 +1114,8 @@
         \item Standard errors of all coefficients shrink
         \item \textbf{Always include} such variables
       \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{examplebox}{Computer Equipment Grants}
         Effect of randomly assigned grant amount on college GPA.
         \begin{itemize}
@@ -1211,8 +1133,6 @@
         \textbf{With random assignment:} include pre-treatment controls
         to improve precision, even though they are not needed for unbiasedness.
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -1245,8 +1165,6 @@
   confidence interval around it. The point estimate is immediate; its standard error
   takes a small trick.
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       Given $\hat{y} = \bhat_0 + \bhat_1 x_1 + \cdots + \bhat_k x_k$, we
       predict $\E[y \mid x_1 = c_1, \ldots, x_k = c_k]$:
       \[
@@ -1269,8 +1187,8 @@
       \medskip
 
       95\% CI: $\hat\theta_0 \pm t_{0.025} \cdot \se(\hat\theta_0)$
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Why this works:} \\[4pt]
         Writing $\beta_0 = \theta_0 - \beta_1 c_1 - \cdots - \beta_k c_k$
@@ -1287,8 +1205,6 @@
         $c_j = \bar{x}_j$ for all $j$ (predicting at the sample means).
         Predictions far from the means have wider CIs.
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -1311,8 +1227,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Predict for:} $sat = 1{,}200$, $hsperc = 30$, $hsize = 5$
 
       \medskip
@@ -1323,8 +1237,8 @@
 
       Using the reparameterization trick: \\
       $\se(\hat\theta_0) = 0.020$
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{95\% CI for expected GPA:}
         \[
@@ -1335,15 +1249,11 @@
         This is a CI for the \textbf{average} GPA of all students
         with these characteristics.
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Prediction Intervals vs.\ Confidence Intervals}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{definitionbox}{Two Types of Intervals}
         \textbf{Confidence interval:} for $\E[y \mid \mathbf{x}]$
         (the average outcome for a subpopulation)
@@ -1368,8 +1278,8 @@
         \item Sampling error in $\bhat_j$'s ($\to 0$ as $n \to \infty$)
         \item Error variance $\sigma^2$ (does \textbf{not} shrink with $n$)
       \end{enumerate}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Standard error of prediction:}
         \[
@@ -1393,8 +1303,6 @@
         $\se(\hat{e}^0) \approx \hat\sigma$ --- the width is
         dominated by the irreducible error variance.
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -1411,8 +1319,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Compare:}
       \begin{itemize}
         \item CI for average GPA: $[2.66, 2.74]$ (very narrow)
@@ -1422,8 +1328,8 @@
       \medskip
 
       The prediction interval spans more than 2 full GPA points.
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Why so wide?} \\[4pt]
         The model explains only 27.8\% of the variation
@@ -1434,8 +1340,6 @@
         \textbf{Good news:} SAT and HS rank do not
         predetermine college success!
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -1445,8 +1349,6 @@
   model badly misses --- an underpriced house, a value-adding school, or an over- or
   under-paid athlete.
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{definitionbox}{Residual Analysis}
         Examine individual residuals $\uh_i = y_i - \yh_i$
         to identify observations that are unusually
@@ -1466,8 +1368,8 @@
         \item \textbf{Sports:} Identify overpaid/underpaid athletes
               relative to their performance
       \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{examplebox}{Housing Prices (HPRICE1)}
         Regress $price$ on $lotsize$, $sqrft$, $bdrms$. \\
         $n = 88$ homes.
@@ -1490,8 +1392,6 @@
         The residual reflects everything \textbf{not} captured by the model.
         Large residuals may reveal model misspecification or unusual observations.
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -1571,8 +1471,6 @@
 
   \medskip
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Predict for:} $sales = 5{,}000$ (millions), \\
       $mktval = 10{,}000$ (millions), $ceoten = 10$ years.
 
@@ -1584,8 +1482,8 @@
       \medskip
 
       Naive: $\exp(7.013) = \$1{,}110{,}983$
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Adjusted predictions:}
         \begin{itemize}
@@ -1600,15 +1498,11 @@
         Both adjustments add $\approx$ \$130,000--\$150,000
         to the naive prediction. The adjustment matters!
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Comparing Models with Different Dependent Variables}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Problem:} Cannot compare $\Rsq$ from a model
       for $y$ with $\Rsq$ from a model for $\log(y)$.
 
@@ -1622,8 +1516,8 @@
       \]
       where $\hat{r}_i = y_i - \hat\alpha_0 \exp(\widehat{\log(y)}_i)$
       are residuals for predicting $y$ (not $\log y$).
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{examplebox}{Example 6.8: CEO Salaries}
         From the log model:
         $\Corr(salary_i, \hat{m}_i)^2 = (0.493)^2 = 0.243$
@@ -1645,8 +1539,6 @@
       \medskip
       \textbf{Conclusion.} The log model wins on both goodness-of-fit and
       interpretability for CEO salary.
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
@@ -1656,8 +1548,6 @@
 
 \begin{frame}[shrink=15]{Chapter 6 Summary: Scaling and Functional Form}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{keybox}
         \textbf{Data Scaling (\S6-1)}
         \begin{itemize}
@@ -1667,8 +1557,8 @@
                 cross-regressor comparison
         \end{itemize}
       \end{keybox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Functional Form (\S6-2)}
         \begin{itemize}
@@ -1679,15 +1569,11 @@
           \item Centering at $\bar{x}$: constant $=$ APE directly
         \end{itemize}
       \end{keybox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Chapter 6 Summary: Model Selection and Prediction}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{keybox}
         \textbf{Adjusted $\Rsq$ (\S6-3)}
         \begin{itemize}
@@ -1697,8 +1583,8 @@
           \item Beware over-controlling (bad controls)
         \end{itemize}
       \end{keybox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{keybox}
         \textbf{Prediction (\S6-4)}
         \begin{itemize}
@@ -1709,8 +1595,6 @@
           \item Compare $y$ vs.\ $\log(y)$ using pseudo-$\Rsq$
         \end{itemize}
       \end{keybox}
-    \end{column}
-  \end{columns}
 
   \medskip
 
@@ -1728,8 +1612,6 @@
 
 \begin{frame}[shrink=15]{The Bootstrap: Motivation}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Problem:} Formulas for standard errors are sometimes
       \begin{itemize}
         \item Hard to derive analytically
@@ -1750,8 +1632,8 @@
         \textbf{nonparametric bootstrap}.
         It requires no distributional assumptions.
       \end{keybox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{definitionbox}{The Bootstrap Idea}
         \begin{enumerate}
           \item We have an estimator $\hat{\theta}$ computed
@@ -1764,15 +1646,11 @@
                 $\{\hat{\theta}^{(b)}\}$ to measure uncertainty
         \end{enumerate}
       \end{definitionbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Bootstrap Standard Error: Algorithm and Formula}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \textbf{Algorithm:}
       \begin{enumerate}
         \item List observations $1, \ldots, n$
@@ -1791,8 +1669,8 @@
         Even $m = 500$ often gives a reliable SE.\\
         $m$ has nothing to do with the sample size $n$.
       \end{keybox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{definitionbox}{Bootstrap Standard Error (eq.\ 6.50)}
         \[
           \text{bse}(\hat{\theta}) = \left[
@@ -1811,15 +1689,11 @@
         deviation} of the $m$ bootstrap estimates.
         It is a consistent estimator of $\text{se}(\hat{\theta})$.
       \end{highlightbox}
-    \end{column}
-  \end{columns}
 
 \end{frame}
 
 \begin{frame}[shrink=15]{Bootstrap in Practice}
 
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
       \begin{keybox}
         \textbf{When to use the bootstrap:}
         \begin{itemize}
@@ -1841,8 +1715,8 @@
         in a $t$ statistic.\\[4pt]
         See Horowitz (2001).
       \end{keybox}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \medskip
+
       \begin{highlightbox}
         \textbf{R: Bootstrap SE for OLS coefficient}
       \end{highlightbox}
@@ -1861,8 +1735,6 @@
         b \textless- boot(wage1, boot\_fn, R=1000) \\
         sd(b\$t) \quad \# bootstrap SE \\
       }
-    \end{column}
-  \end{columns}
 
 \end{frame}
 

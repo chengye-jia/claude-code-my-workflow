@@ -94,6 +94,18 @@ Layer 2 (user: "Continue Layer 2 now") — per-frame motivation-first leads:
 - Still optional (deeper): prose-ify the example/regression-dump frames and split
   Example 6.4 (two stacked regressions). Offered to user.
 
+Follow-up: user showed the exact-% frame (p.15) clipping the "Why?" note at the slide
+bottom — a SILENT overflow (no log warning) because content inside `columns` escapes
+beamer's shrink/overfull detection. User: "check overflow + change layout to vertical
+(not parallel) for ALL slides."
+- Converted all 32 two-column frames to vertical stacking via scripts/columns_to_vertical.py
+  (one-shot, removes columns/column scaffolding, \medskip between stacked blocks). columns
+  64→0.
+- Recompile: 59 pages, 0 errors, 0 overfull vbox — vertical exposes content to beamer's
+  shrink, which now fits each frame (within shrink=15). The p.15 clip is GONE (verified);
+  p.6 also verified clean.
+- Committed to branch lecture05-08-style-and-math.
+
 ---
 
 ## Goal
