@@ -1,0 +1,1402 @@
+%% ============================================================
+%% Lecture 17: Limited Dependent Variable Models and
+%%             Sample Selection Corrections
+%% Intermediate Econometrics — SUFE
+%% Wooldridge, Introductory Econometrics, 8th edition, Chapter 17
+%% ============================================================
+\documentclass[aspectratio=169, 12pt]{beamer}
+\input{header}
+
+%% --- Lecture-local macros (checked against notation registry) ---
+\newcommand{\xbeta}{\mathbf{x}\boldsymbol{\beta}}   % linear index x*beta
+\newcommand{\xib}{\mathbf{x}_i\boldsymbol{\beta}}    % index for obs i
+\newcommand{\xbar}{\bar{\mathbf{x}}}                 % vector of means
+\DeclareMathOperator{\APE}{APE}
+\DeclareMathOperator{\PEA}{PEA}
+
+\title[L17: Limited Dependent Variables]{Limited Dependent Variable Models \\ and Sample Selection Corrections}
+\subtitle{Intermediate Econometrics}
+\author[SUFE Econometrics]{Chengye Jia}
+\institute{%
+  Department of Economics \\
+  Shandong University of Finance and Economics}
+\date{Spring 2026 \\ \smallskip \scriptsize Wooldridge, Chapter 17}
+
+%% ============================================================
+\begin{document}
+%% ============================================================
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}[shrink=10]{Outline}
+  \tableofcontents
+\end{frame}
+
+%% ============================================================
+\section{Motivation: The Limited Dependent Variable Zoo (\S17-0)}
+%% ============================================================
+
+\begin{frame}[shrink=8]{Where We Are: From OLS to Nonlinear Models}
+
+  Through Chapter 16 the dependent variable $y$ was treated as (roughly)
+  \textbf{continuous and unrestricted}. OLS and its extensions did the work.
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{A limited dependent variable (LDV)} is a variable whose range is
+    \textbf{substantively restricted}:
+    \begin{itemize}
+      \item \textbf{Binary:} $y \in \{0,1\}$ --- employed or not, approved or not
+      \item \textbf{Fractional:} $y \in [0,1]$ --- the 401(k) participation rate
+      \item \textbf{Count:} $y \in \{0,1,2,\ldots\}$ --- number of arrests in a year
+      \item \textbf{Corner solution:} $y \ge 0$ with a pileup at $0$ --- hours worked, charitable gifts
+    \end{itemize}
+  \end{keybox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    \textbf{Why care?} Forcing OLS on these variables can give nonsensical
+    fitted values (negative probabilities, negative hours) and constant partial
+    effects where economics demands diminishing ones.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Two Distinct Problems Live in This Chapter}
+
+  \begin{columns}[t]
+    \column{0.49\textwidth}
+    \begin{definitionbox}{Problem 1: The variable itself}
+      $y$ is genuinely restricted in the \textbf{population} (observed fully):
+      \begin{itemize}
+        \item Binary / fractional $\Rightarrow$ logit, probit
+        \item Count / nonnegative $\Rightarrow$ Poisson
+        \item Corner solution $\Rightarrow$ Tobit
+      \end{itemize}
+    \end{definitionbox}
+
+    \column{0.49\textwidth}
+    \begin{definitionbox}{Problem 2: How we observe $y$}
+      $y$ would be fine, but the \textbf{data} are incomplete:
+      \begin{itemize}
+        \item Top coding / censoring $\Rightarrow$ censored reg.
+        \item Sub-population sampled $\Rightarrow$ truncated reg.
+        \item Selection on an outcome $\Rightarrow$ Heckit
+      \end{itemize}
+    \end{definitionbox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{keybox}
+    \small
+    \textbf{Keep these separate.} Tobit for ``hours worked'' models economic
+    behavior (people \emph{choose} zero); censored regression for ``top-coded
+    wealth'' fixes a survey defect. Same algebra --- very different interpretation.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Running Application: Married Women's Labor Supply (MROZ)}
+
+  We thread one dataset through the whole lecture --- \texttt{MROZ}, $n=753$
+  married women \citep{Mroz1987_sensitivity}.
+
+  \smallskip
+
+  \begin{examplebox}{One dataset --- four LDV faces}
+    \begin{itemize}
+      \item \textbf{Binary:} $inlf$ --- in the labor force? ($428$ yes, $325$ no)
+        $\;\Rightarrow$ logit / probit
+      \item \textbf{Corner solution:} $hours$ --- annual hours worked ($325$ zeros,
+        positives range $12$--$4{,}950$) $\;\Rightarrow$ Tobit
+      \item \textbf{Selection:} $\log(wage)$ --- observed \emph{only} for the $428$
+        workers $\;\Rightarrow$ Heckit
+      \item \textbf{Fractional / count:} mirrored in companion datasets (401(k)
+        $prate$, arrests $narr86$)
+    \end{itemize}
+  \end{examplebox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    Explanatory variables throughout: $nwifeinc$ (other income), $educ$, $exper$,
+    $exper^2$, $age$, $kidslt6$ (kids $<6$), $kidsge6$ (kids $6$--$18$).
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{Socratic Warm-Up}
+
+  \begin{keybox}
+    \textbf{Q1.} A linear probability model predicts $\widehat{P}(inlf=1) = 1.08$
+    for a highly educated woman. What went wrong, and why can it \emph{never}
+    happen with a probit?
+
+    \medskip
+
+    \textbf{Q2.} In the \texttt{MROZ} data, $325$ of $753$ women report exactly
+    zero hours. Is ``hours worked'' a censored variable or a corner solution? Does
+    the distinction change the model we fit?
+
+    \medskip
+
+    \textbf{Q3.} We only observe wages for women who \emph{work}. If working women
+    are systematically more able, will OLS of $\log(wage)$ on $educ$ (using workers
+    only) over- or under-state the return to education?
+  \end{keybox}
+
+  \smallskip
+
+  We will answer all three by the end of the lecture.
+
+\end{frame}
+
+%% ============================================================
+\section{Binary Response: Logit and Probit (\S17-1)}
+%% ============================================================
+
+\begin{frame}[shrink=12]{The Linear Probability Model and Its Discontents}
+
+  For a binary $y$, the LPM (Chapter 7) models the \textbf{response probability}
+  \[
+    P(y=1 \mid \mathbf{x}) = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k .
+  \]
+
+  \begin{columns}[t]
+    \column{0.52\textwidth}
+    \begin{highlightbox}
+      \textbf{\textcolor{positive}{What LPM gets right}}
+      \begin{itemize}
+        \item Coefficients \emph{are} partial effects
+        \item Consistent for the APE under MLR.1--4
+        \item Fast; great for treatment effects
+      \end{itemize}
+    \end{highlightbox}
+
+    \column{0.46\textwidth}
+    \begin{highlightbox}
+      \textbf{\textcolor{negative}{What LPM gets wrong}}
+      \begin{itemize}
+        \item Fitted $\widehat{P}$ can fall outside $[0,1]$
+        \item Partial effect of $x_j$ is \emph{constant}
+        \item Errors are inherently heteroskedastic
+      \end{itemize}
+    \end{highlightbox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{Fix:} run the index $\xbeta$ through a function $G(\cdot)$ that is
+    \emph{squashed} into $(0,1)$. That is exactly what logit and probit do.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=12]{Logit and Probit: Squashing the Index into $(0,1)$}
+
+  \begin{definitionbox}{Binary response model}
+    \[
+      P(y=1 \mid \mathbf{x}) = G(\beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k)
+        = G(\beta_0 + \xbeta), \qquad 0 < G(z) < 1 .
+    \]
+  \end{definitionbox}
+
+  \begin{columns}[c]
+    \column{0.36\textwidth}
+    \textbf{Logit:} logistic CDF
+    \[
+      \Lambda(z) = \frac{\exp(z)}{1+\exp(z)} .
+    \]
+    \textbf{Probit:} normal CDF
+    \[
+      \Phi(z) = \int_{-\infty}^{z}\!\! \phi(v)\, dv .
+    \]
+
+    \column{0.62\textwidth}
+    \centering
+    \begin{tikzpicture}[scale=0.72]
+      \draw[->,thick] (-3.4,0) -- (3.6,0) node[right] {$z$};
+      \draw[->,thick] (0,-0.2) -- (0,2.0) node[left] {$G(z)$};
+      \draw[dashed,gray!50] (-3.4,1.6) -- (3.4,1.6) node[right,black,font=\scriptsize] {$1$};
+      \draw[dashed,gray!50] (-3.4,0.8) -- (3.4,0.8) node[right,black,font=\scriptsize] {$0.5$};
+      \draw[thick,SUFEBlue,domain=-3.4:3.4,samples=120,smooth]
+        plot (\x, {1.6/(1+exp(-1.6*\x))});
+      \draw[thick,SUFEGold,domain=-3.4:3.4,samples=120,smooth]
+        plot (\x, {1.6/(1+exp(-2.5*\x))});
+      \node[SUFEBlue,font=\scriptsize] at (2.4,1.05) {logit};
+      \node[SUFEGold,font=\scriptsize] at (1.1,1.45) {probit};
+    \end{tikzpicture}
+  \end{columns}
+
+  \begin{keybox}
+    \small
+    Both are increasing CDFs, steepest at $z=0$. They guarantee
+    $\widehat{P}\in(0,1)$ and \emph{diminishing} partial effects near the extremes.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Where Do Logit and Probit Come From? A Latent Variable}
+
+  \begin{definitionbox}{Latent variable model}
+    Let $y^{*}$ be an unobserved (latent) ``propensity'':
+    \[
+      y^{*} = \beta_0 + \xbeta + e, \qquad y = \mathbf{1}[\,y^{*} > 0\,] .
+    \]
+    The error $e$ is \textbf{independent} of $\mathbf{x}$ and symmetric about zero.
+  \end{definitionbox}
+
+  \smallskip
+
+  Then, using symmetry $1 - G(-z) = G(z)$,
+  \[
+    P(y=1\mid\mathbf{x}) = P(y^{*}>0\mid\mathbf{x})
+      = P\!\big(e > -(\beta_0+\xbeta)\big) = G(\beta_0+\xbeta).
+  \]
+
+  \begin{keybox}
+    \small
+    \begin{itemize}
+      \item $e \sim$ \textbf{logistic} $\Rightarrow$ logit; \quad
+            $e \sim$ \textbf{normal} $\Rightarrow$ probit.
+      \item The latent scale has \emph{no natural units}, so raw $\beta_j$ are not
+        directly meaningful --- only their \textbf{sign} and
+        \textbf{response-probability} effects.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{Partial Effects: Why a Probit Coefficient Is Not a Marginal Effect}
+
+  For a (roughly) continuous $x_j$, the chain rule gives
+  \[
+    \frac{\partial P(y=1\mid\mathbf{x})}{\partial x_j}
+      = g(\beta_0 + \xbeta)\,\beta_j, \qquad g(z) \equiv \frac{dG}{dz}(z) > 0 .
+  \]
+
+  \begin{highlightbox}
+    The effect of $x_j$ is $\beta_j$ \textbf{scaled} by the density $g(\beta_0+\xbeta)$,
+    which \emph{depends on the values of all regressors}. So the partial effect
+    \textbf{varies across observations}.
+  \end{highlightbox}
+
+  \smallskip
+
+  \begin{columns}[t]
+    \column{0.52\textwidth}
+    For a \textbf{discrete} change in $x_1$ from $0$ to $1$:
+    \[
+      G(\beta_0+\beta_1+\beta_2 x_2 + \cdots) - G(\beta_0+\beta_2 x_2 + \cdots).
+    \]
+    \column{0.46\textwidth}
+    \begin{keybox}
+      \small
+      \textbf{Anti-pattern:} ``the probit coefficient \emph{is} the marginal
+      effect.'' \textcolor{negative}{Wrong} --- it is $\beta_j$ before scaling by
+      $g(\cdot)$.
+    \end{keybox}
+  \end{columns}
+
+  \smallskip
+
+  \textbf{Relative} effects are clean, though:
+  $\dfrac{\partial P/\partial x_j}{\partial P/\partial x_h} = \dfrac{\beta_j}{\beta_h}$
+  --- the scale factor cancels.
+
+\end{frame}
+
+\begin{frame}[shrink=12]{Maximum Likelihood Estimation}
+
+  OLS does not apply --- $G$ is nonlinear. We use \textbf{MLE}. With $y\mid\mathbf{x}$
+  Bernoulli, the density for observation $i$ is
+  \[
+    f(y_i\mid\mathbf{x}_i) = \big[G(\xib)\big]^{y_i}\big[1-G(\xib)\big]^{1-y_i},
+    \quad y_i \in \{0,1\}.
+  \]
+
+  \begin{definitionbox}{Log-likelihood}
+    \[
+      \ell_i(\boldsymbol{\beta}) = y_i \log\!\big[G(\xib)\big]
+        + (1-y_i)\log\!\big[1 - G(\xib)\big],
+      \qquad
+      \mathcal{L}(\boldsymbol{\beta}) = \sum_{i=1}^{n} \ell_i(\boldsymbol{\beta}).
+    \]
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \begin{itemize}
+      \item $\hat{\boldsymbol\beta}$ maximizes $\mathcal{L}$; no closed form ---
+        solved numerically.
+      \item Under general conditions MLE is \textbf{consistent, asymptotically
+        normal, and efficient}.
+      \item Each $\hat\beta_j$ comes with an asymptotic SE $\Rightarrow$ form
+        $t = \hat\beta_j / \se(\hat\beta_j)$ exactly as before.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{First-Order Conditions: The Score Equations}
+
+  $\hat{\boldsymbol\beta}$ solves $\partial\mathcal{L}/\partial\boldsymbol\beta=\mathbf{0}$.
+  Differentiating $\ell_i = y_i\log G + (1-y_i)\log(1-G)$ with $g\equiv G'$:
+
+  \begin{definitionbox}{Score (likelihood) equations}
+    \[
+      \sum_{i=1}^{n}
+        \frac{\big[\,y_i - G(\xib)\,\big]\,g(\xib)}
+             {G(\xib)\big[1-G(\xib)\big]}\;\mathbf{x}_i = \mathbf{0}.
+    \]
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    \textbf{Logit's clean special case.} For $G=\Lambda$ we have
+    $g = \Lambda(1-\Lambda) = G(1-G)$, so the weight collapses to $1$:
+    \[
+      \sum_{i=1}^{n}\big[\,y_i - \Lambda(\xib)\,\big]\,\mathbf{x}_i = \mathbf{0}.
+    \]
+  \end{highlightbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \small
+    The logit score is exactly ``residuals orthogonal to the regressors'' --- the
+    MLE analog of the OLS normal equations. With an intercept in $\mathbf{x}_i$,
+    the fitted probabilities average to the sample frequency:
+    $n^{-1}\sum_i \Lambda(\xib) = \bar y$. No closed form exists; solve numerically
+    (Newton--Raphson).
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=9]{Testing and Goodness-of-Fit}
+
+  \begin{columns}[t]
+    \column{0.5\textwidth}
+    \begin{definitionbox}{Likelihood ratio test}
+      For $q$ exclusion restrictions,
+      \[
+        LR = 2(\mathcal{L}_{ur} - \mathcal{L}_{r}) \;\overset{a}{\sim}\; \chi^2_q .
+      \]
+      The MLE analog of the $F$ test: dropping variables can only lower
+      $\mathcal{L}$.
+    \end{definitionbox}
+
+    \column{0.5\textwidth}
+    \begin{definitionbox}{McFadden's pseudo-$R^2$}
+      \[
+        \tilde\rho^2 = 1 - \frac{\mathcal{L}_{ur}}{\mathcal{L}_{0}},
+      \]
+      where $\mathcal{L}_0$ uses an intercept only. Lies in $[0,1)$ but is
+      \textbf{not} a usual $R^2$.
+    \end{definitionbox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{Percent correctly predicted:} $\tilde y_i = 1$ if
+    $G(\hat\beta_0 + \xib) \ge 0.5$. Useful, but \emph{misleading} when one
+    outcome is rare --- report the percent correct \emph{within each} outcome
+    ($\hat q_0,\hat q_1$), not just overall.
+
+    \smallskip
+    \textbf{Anti-pattern:} ``pseudo-$R^2 = R^2$.'' Not comparable; $0.2$--$0.4$ is
+    already a respectable McFadden value.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{MROZ: Labor Force Participation --- LPM vs.\ Logit vs.\ Probit}
+
+  \begin{examplebox}{Table 17.1 --- Dependent variable: $inlf$ (in labor force)}
+    \centering\footnotesize
+    \begin{tabular}{l c c c}
+      \toprule
+      Variable & LPM (OLS) & Logit (MLE) & Probit (MLE) \\
+      \midrule
+      $nwifeinc$ & $-0.0034$ $(0.0015)$ & $-0.021$ $(0.008)$ & $-0.012$ $(0.005)$ \\
+      $educ$     & $0.038$ $(0.007)$    & $0.221$ $(0.043)$  & $0.131$ $(0.025)$  \\
+      $exper$    & $0.039$ $(0.006)$    & $0.206$ $(0.032)$  & $0.123$ $(0.019)$  \\
+      $exper^2$  & $-0.00060$ $(0.00019)$ & $-0.0032$ $(0.0010)$ & $-0.0019$ $(0.0006)$ \\
+      $age$      & $-0.016$ $(0.002)$   & $-0.088$ $(0.015)$ & $-0.053$ $(0.008)$ \\
+      $kidslt6$  & $-0.262$ $(0.032)$   & $-1.443$ $(0.204)$ & $-0.868$ $(0.119)$ \\
+      $kidsge6$  & $0.013$ $(0.014)$    & $0.060$ $(0.075)$  & $0.036$ $(0.043)$ \\
+      \midrule
+      \% correct pred.\ / pseudo $R^2$ & $73.4$ / $0.264$ & $73.6$ / $0.220$ & $73.4$ / $0.221$ \\
+      \bottomrule
+    \end{tabular}
+  \end{examplebox}
+
+  \begin{keybox}
+    \small
+    Signs and significance agree across all three. \textbf{Magnitudes do not} ---
+    coefficients live on different scales. To compare, we need \emph{partial
+    effects}, not raw coefficients.
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Summarizing Effects: APE and PEA (\S17-1d)}
+%% ============================================================
+
+\begin{frame}[shrink=12]{Two Ways to Get One Number: PEA and APE}
+
+  The partial effect $g(\beta_0+\xbeta)\beta_j$ varies by $i$. We summarize with
+  a single \emph{scale factor}.
+
+  \smallskip
+
+  \begin{columns}[t]
+    \column{0.49\textwidth}
+    \begin{definitionbox}{Partial Effect at the Average (PEA)}
+      Plug in the \textbf{average} regressors, then scale:
+      \[
+        \PEA_j = g(\hat\beta_0 + \xbar\hat{\boldsymbol\beta})\,\hat\beta_j .
+      \]
+      Problem: ``the average person'' may not exist (e.g.\ $\overline{female}=0.48$).
+    \end{definitionbox}
+
+    \column{0.49\textwidth}
+    \begin{definitionbox}{Average Partial Effect (APE)}
+      Scale \emph{each} person, then average:
+      \[
+        \APE_j = \Big[\tfrac{1}{n}\sum_{i=1}^{n} g(\hat\beta_0+\xib)\Big]\hat\beta_j .
+      \]
+      Also called the average marginal effect (AME). \textbf{Preferred} in practice.
+    \end{definitionbox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{keybox}
+    For \textbf{discrete} regressors, do not use the calculus approximation ---
+    difference $G$ directly and average:
+    \(
+      n^{-1}\sum_i \big[G(\cdots + \hat\beta_k(c_k+1)) - G(\cdots + \hat\beta_k c_k)\big].
+    \)
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{MROZ: Average Partial Effects Reconcile the Models}
+
+  \begin{examplebox}{Table 17.2 --- APEs for labor force participation}
+    \centering\footnotesize
+    \begin{tabular}{l c c c}
+      \toprule
+      Variable & LPM & Logit & Probit \\
+      \midrule
+      $nwifeinc$ & $-0.0034$ & $-0.0038$ & $-0.0036$ \\
+      $educ$     & $0.038$   & $0.039$   & $0.039$ \\
+      $exper$    & $0.027$   & $0.025$   & $0.026$ \\
+      $age$      & $-0.016$  & $-0.016$  & $-0.016$ \\
+      $kidslt6$  & $-0.262$  & $-0.258$  & $-0.261$ \\
+      $kidsge6$  & $0.013$   & $0.011$   & $0.011$ \\
+      \bottomrule
+    \end{tabular}
+  \end{examplebox}
+
+  \begin{highlightbox}
+    \small
+    \textbf{The punchline.} Once converted to APEs, all three models tell nearly
+    the \emph{same} story --- another year of schooling raises participation by
+    about $3.9$ percentage points. The LPM was a decent approximation
+    \emph{to the average effect} all along.
+
+    \smallskip
+    Rule of thumb: $\hat\beta^{\text{logit}}\approx 1.6\,\hat\beta^{\text{probit}}$;
+    map to LPM by multiplying probit by $\approx0.4$, logit by $\approx0.25$.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{Diminishing Effects: Probit vs.\ LPM Across Education}
+
+  \begin{columns}[t]
+    \column{0.52\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[scale=0.8]
+      \draw[->,thick] (0,0) -- (6.2,0) node[below right] {\small years educ};
+      \draw[->,thick] (0,0) -- (0,3.4) node[above] {\small $\widehat{P}(inlf=1)$};
+      \foreach \y/\l in {0/0,1.5/0.5,3.0/1}
+        \draw (-0.08,\y) -- (0.08,\y) node[left,font=\scriptsize] {\l};
+      % LPM straight line: inlf = 0.102 + 0.038 educ, educ 0..20 -> p .102..0.862
+      \draw[thick,SUFEGold] (0,0.31) -- (6,2.59);
+      % probit S-curve Phi(-1.403 + 0.131 educ): crosses LPM ~ 11.5 yrs
+      \draw[thick,SUFEBlue,domain=0:6,samples=80,smooth]
+        plot (\x, {3.0/(1+exp(-(0.131*(\x*3.33) - 1.403)*2.2)) });
+      \node[SUFEGold,font=\scriptsize] at (4.6,2.05) {LPM};
+      \node[SUFEBlue,font=\scriptsize] at (4.4,2.95) {probit};
+      \fill[black] (3.45,1.6) circle (1.5pt);
+      \node[font=\scriptsize] at (3.45,1.30) {cross $\approx$ 11.5};
+    \end{tikzpicture}
+    \end{center}
+
+    \column{0.46\textwidth}
+    \begin{keybox}
+      \small
+      Recreates \textbf{Figure 17.2}.
+      \begin{itemize}
+        \item Low education: LPM predicts \emph{higher} participation than probit.
+        \item Curves cross near $11.5$ years.
+        \item High education: probit pulls ahead.
+        \item LPM's constant slope is the cost of its simplicity.
+      \end{itemize}
+    \end{keybox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{highlightbox}
+    \small
+    \textbf{Answer to Q1.} A probit fitted value is $\Phi(\cdot)\in(0,1)$ by
+    construction --- it can \emph{never} exceed $1$, unlike the LPM.
+  \end{highlightbox}
+
+\end{frame}
+
+%% ============================================================
+\section{Fractional Response Models (\S17-2)}
+%% ============================================================
+
+\begin{frame}[shrink=8]{Fractional Outcomes: Building the Model}
+
+  A \textbf{fractional response} takes values in $[0,1]$, possibly including the
+  endpoints: the fraction of employees in a pension plan, the share of votes won,
+  the proportion of students who pass an exam.
+
+  \smallskip
+
+  \begin{keybox}
+    The object of interest is the \textbf{conditional mean} $\E(y\mid\mathbf{x})$,
+    which must itself lie in $[0,1]$. A linear model
+    $\E(y\mid\mathbf{x})=\beta_0+\xbeta$ can produce means outside $[0,1]$ ---
+    exactly the LPM defect, now for a \emph{mean} rather than a probability.
+  \end{keybox}
+
+  \smallskip
+
+  \begin{definitionbox}{Fractional response model}
+    Pass the index through a CDF $G$ with $0 < G(z) < 1$:
+    \[
+      \E(y\mid\mathbf{x}) = G(\beta_0 + \xbeta), \qquad y \in [0,1].
+    \]
+    \textbf{Fractional logit:}\;\;
+    $\E(y\mid\mathbf{x}) = \Lambda(\beta_0+\xbeta)
+       = \dfrac{\exp(\beta_0+\xbeta)}{1+\exp(\beta_0+\xbeta)}$.
+    \\[3pt]
+    \textbf{Fractional probit:}\;\;
+    $\E(y\mid\mathbf{x}) = \Phi(\beta_0+\xbeta)$.
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \small
+    The \emph{same} functional forms as binary logit/probit --- but here $G(\cdot)$
+    is a conditional \textbf{mean}, not a probability. Binary response is the
+    special case $y\in\{0,1\}$, where the mean \emph{equals} $P(y=1\mid\mathbf{x})$.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{Fractional Logit: Quasi-Maximum Likelihood Estimation}
+
+  We cannot use a Bernoulli \emph{likelihood} --- $y$ is no longer in $\{0,1\}$.
+  Yet Papke and Wooldridge \citep{PapkeWooldridge1996_fractional} show that we may
+  maximize the \emph{same} Bernoulli quasi-log-likelihood:
+
+  \begin{definitionbox}{Bernoulli quasi-log-likelihood}
+    \[
+      \ell_i(\boldsymbol\beta) = y_i\log\!\big[G(\xib)\big]
+        + (1-y_i)\log\!\big[1-G(\xib)\big], \qquad y_i \in [0,1].
+    \]
+    Maximizing $\sum_i \ell_i(\boldsymbol\beta)$ gives the \textbf{fractional logit}
+    ($G=\Lambda$) or \textbf{fractional probit} ($G=\Phi$) estimator.
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \small
+    \begin{itemize}
+      \item \textbf{Quasi}-MLE: the likelihood is knowingly \emph{wrong} ($y$ is not
+        Bernoulli), hence ``QMLE'' --- yet $\hat{\boldsymbol\beta}$ is consistent.
+      \item \textbf{Consistency} requires only that the mean
+        $\E(y\mid\mathbf{x})=G(\beta_0+\xbeta)$ be correct; the rest of the
+        distribution is left unspecified.
+      \item \textbf{Robust SEs} are mandatory: the Bernoulli variance $G(1-G)$ is
+        incorrect for $y\notin\{0,1\}$ (it overstates, so robust SEs are smaller).
+      \item \textbf{Partial effects} as in binary:
+        $\partial\E(y\mid\mathbf{x})/\partial x_j = g(\beta_0+\xbeta)\,\beta_j$, with
+        $g(z)=\Lambda(z)[1-\Lambda(z)]$ for fractional logit.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Example: 401(k) Participation Rates}
+
+  \begin{center}
+    {\small\textbf{\textcolor{SUFEBlue}{Table 17.3 --- $prate$ participation rate ($n=4075$)}}}
+
+    \smallskip
+    \footnotesize
+    \begin{tabular}{l c c c}
+      \toprule
+      Variable & Linear OLS & Frac.\ Logit & Frac.\ Logit APE \\
+      \midrule
+      $mrate$  & $0.107$ $(0.006)$  & $1.158$ $(0.075)$  & $0.147$ $(0.010)$ \\
+      $age$    & $0.0037$ $(0.0002)$ & $0.035$ $(0.003)$ & $0.0044$ $(0.0004)$ \\
+      $ltotemp$& $-0.028$ $(0.002)$ & $-0.207$ $(0.014)$ & $-0.026$ $(0.002)$ \\
+      $sole$   & $0.018$ $(0.006)$  & $0.166$ $(0.051)$  & $0.021$ $(0.006)$ \\
+      \midrule
+      $R^2$    & $0.176$ & $0.195$ & --- \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \smallskip
+
+  \begin{keybox}
+    \small
+    The linear model produces $159$ fitted values \emph{above one}; fractional
+    logit cannot. Its match-rate APE ($0.147$) exceeds the OLS slope ($0.107$),
+    capturing a \emph{diminishing} effect a linear model needs an ad-hoc
+    $mrate^{2}$ to mimic.
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Nonnegative Outcomes: Poisson Regression (\S17-3)}
+%% ============================================================
+
+\begin{frame}[shrink=12]{Counts and Nonnegative $y$: The Exponential Mean}
+
+  When $y \in \{0,1,2,\ldots\}$ (arrests, patents) or any $y\ge 0$, a linear model
+  can predict negatives. Use an \textbf{exponential conditional mean}:
+  \[
+    \E(y\mid\mathbf{x}) = \exp(\beta_0 + \xbeta) > 0 .
+  \]
+
+  \begin{highlightbox}
+    Taking logs, $\log \E(y\mid\mathbf{x}) = \beta_0 + \xbeta$, so
+    $100\,\beta_j$ is approximately the \textbf{percentage change} in
+    $\E(y\mid\mathbf{x})$ for a one-unit rise in $x_j$ --- familiar
+    semi-elasticity interpretation, but \emph{valid even when} $y=0$.
+  \end{highlightbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{Why not just use $\log(1+y)$?} Because it is \emph{not} scale-invariant
+    in $y$ and does not give clean percentage-change coefficients
+    \citep{ChenRoth2024_logs}. The exponential mean sidesteps the ``log of zero''
+    problem entirely.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{Poisson Regression and the QMLE Escape Hatch}
+
+  \begin{definitionbox}{Poisson model}
+    Assume $y\mid\mathbf{x}$ is Poisson with mean $\exp(\xbeta)$:
+    \[
+      P(y=h\mid\mathbf{x}) = \frac{\exp[-\exp(\xbeta)]\,[\exp(\xbeta)]^{h}}{h!},
+      \quad h = 0,1,2,\ldots
+    \]
+    Maximize $\mathcal{L}(\boldsymbol\beta)=\sum_i\{y_i\xib - \exp(\xib)\}$.
+  \end{definitionbox}
+
+  \smallskip
+
+  The Poisson assumption forces $\Var(y\mid\mathbf{x}) = \E(y\mid\mathbf{x})$ ---
+  often violated (\textbf{overdispersion}, $\sigma^2>1$).
+
+  \begin{keybox}
+    \small
+    \textbf{Poisson QMLE robustness.} $\hat{\boldsymbol\beta}$ is \emph{consistent
+    and asymptotically normal whenever the mean $\exp(\xbeta)$ is correct} ---
+    regardless of the true variance, even if $y$ is not a count. Just inflate SEs
+    by $\hat\sigma$, with $\hat\sigma^2 = (n-k-1)^{-1}\sum_i \hat u_i^2/\hat y_i$.
+    This is why Poisson beats negative binomial \citep{SantosSilvaTenreyro2006_log}.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Example: Number of Arrests (\texttt{CRIME1})}
+
+  \begin{examplebox}{Table 17.5 --- Dependent variable: $narr86$ (arrests in 1986)}
+    \centering\footnotesize
+    \begin{tabular}{l c c}
+      \toprule
+      Variable & Linear (OLS) & Exponential (Poisson QMLE) \\
+      \midrule
+      $pcnv$   & $-0.132$ $(0.040)$ & $-0.402$ $(0.085)$ \\
+      $ptime86$& $-0.041$ $(0.009)$ & $-0.099$ $(0.021)$ \\
+      $inc86$  & $-0.0015$ $(0.0003)$ & $-0.0081$ $(0.0010)$ \\
+      $black$  & $0.327$ $(0.045)$  & $0.661$ $(0.074)$ \\
+      \midrule
+      Log-likelihood & --- & $-2{,}248.76$ \\
+      $\hat\sigma$ & --- & $1.232$ \\
+      \bottomrule
+    \end{tabular}
+  \end{examplebox}
+
+  \begin{keybox}
+    \small
+    $narr86$ is $0$ for $1{,}970$ of $2{,}725$ men --- a count with a huge zero
+    pileup, ideal for Poisson. A higher conviction probability
+    ($\Delta pcnv = 0.1$) lowers expected arrests by about $4\%$; a black man's
+    expected arrests are $100[\exp(0.661)-1]\approx 94\%$ higher, ceteris paribus.
+    Since $\hat\sigma = 1.232 > 1$ (overdispersion), inflate SEs by $\approx 23\%$.
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Corner Solutions: The Tobit Model (\S17-4)}
+%% ============================================================
+
+\begin{frame}{Corner Solutions: A Pileup of Zeros}
+
+  \begin{columns}[c]
+    \column{0.55\textwidth}
+    Hours worked, charitable gifts, insurance: a \textbf{nontrivial fraction
+    choose exactly zero}, then a continuous spread of positives. OLS predicts
+    negatives, cannot match the spike at zero, and is heteroskedastic.
+
+    \column{0.43\textwidth}
+    \centering
+    \begin{tikzpicture}[scale=0.7]
+      \draw[->,thick] (0,0) -- (4.6,0) node[below right] {\scriptsize $y$};
+      \draw[->,thick] (0,0) -- (0,2.9) node[above] {\scriptsize density};
+      \draw[very thick,negative] (0.12,0) -- (0.12,2.4);
+      \node[negative,font=\scriptsize,right] at (0.18,2.4) {mass at $0$};
+      \draw[thick,SUFEBlue,domain=0.6:4.3,samples=80,smooth]
+        plot (\x, {2.0*exp(-((\x-2.1)^2)/1.4)});
+      \node[SUFEBlue,font=\scriptsize] at (3.1,1.8) {positive $y$};
+    \end{tikzpicture}
+  \end{columns}
+
+  \smallskip
+
+  \begin{definitionbox}{Tobit model \citep{Tobin1958_estimation}}
+    A latent linear model, observed only when positive:
+    \[
+      y^{*} = \beta_0 + \xbeta + u, \quad u\mid\mathbf{x}\sim \Normal(0,\sigma^2),
+      \qquad y = \max(0,\, y^{*}).
+    \]
+  \end{definitionbox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Tobit: Likelihood and the Role of $\sigma$}
+
+  Two pieces: a \textbf{probability} of the corner and a \textbf{density} for positives.
+  \[
+    P(y=0\mid\mathbf{x}) = 1 - \Phi(\xbeta/\sigma), \qquad
+    y>0:\; \tfrac{1}{\sigma}\phi\!\big((y-\xbeta)/\sigma\big).
+  \]
+
+  \begin{definitionbox}{Tobit log-likelihood}
+    \[
+      \ell_i(\boldsymbol\beta,\sigma)
+       = \mathbf{1}[y_i=0]\,\log\!\big[1-\Phi(\xib/\sigma)\big]
+       + \mathbf{1}[y_i>0]\,\log\!\Big\{\tfrac{1}{\sigma}\phi\big((y_i-\xib)/\sigma\big)\Big\}.
+    \]
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{keybox}
+    Estimate $\boldsymbol\beta$ \emph{and} $\sigma$ jointly by MLE.
+    \textbf{$\sigma$ is not ``ancillary''} --- it enters the partial effects
+    directly, so it matters for the economics, not just for inference.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{The Inverse Mills Ratio: A Truncated-Normal Lemma}
+
+  Every Tobit (and selection) expectation rests on one fact about the normal.
+
+  \begin{definitionbox}{Truncated-normal lemma}
+    If $z\sim\Normal(0,1)$, then for any constant $c$,
+    \[
+      \E\big[z \mid z > c\big] = \frac{\phi(c)}{1-\Phi(c)},
+      \qquad
+      \E\big[z \mid z > -c\big] = \frac{\phi(c)}{\Phi(c)} \;\equiv\; \lambda(c),
+    \]
+    where the second form uses $\phi(-c)=\phi(c)$ and $1-\Phi(-c)=\Phi(c)$.
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{Inverse Mills ratio} $\lambda(c)=\phi(c)/\Phi(c)$ --- the ``selection hazard'':
+    \begin{itemize}
+      \item $\lambda(c) > 0$ for all $c$, and is \textbf{strictly decreasing}.
+      \item $\lambda(c)\to 0$ as $c\to+\infty$; $\lambda(c)\approx -c$ as
+        $c\to-\infty$, so $c+\lambda(c)>0$ always.
+      \item Derivative: $\lambda'(c) = -\lambda(c)\big[c+\lambda(c)\big]\in(-1,0)$.
+    \end{itemize}
+  \end{keybox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    \small
+    This one function does the work in \emph{both} the Tobit conditional mean
+    $\E(y\mid y>0,\mathbf{x})$ and the Heckman selection correction. Watch for it twice.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Tobit Partial Effects via the Inverse Mills Ratio}
+
+  The $\beta_j$ measure effects on the \emph{latent} $y^{*}$ --- rarely the goal;
+  we want effects on the \textbf{observed} $y$. Apply the lemma with $z=u/\sigma$,
+  since $y>0 \Leftrightarrow u/\sigma > -\xbeta/\sigma$:
+  \[
+    \E(y\mid y>0,\mathbf{x})
+      = \xbeta + \sigma\,\E\!\Big[\tfrac{u}{\sigma}\,\Big|\,
+        \tfrac{u}{\sigma} > -\tfrac{\xbeta}{\sigma}\Big]
+      = \xbeta + \sigma\,\lambda(\xbeta/\sigma).
+  \]
+  Combine with $P(y>0\mid\mathbf{x})=\Phi(\xbeta/\sigma)$; the $\lambda$ term cancels:
+  \[
+    \E(y\mid\mathbf{x}) = \Phi(\xbeta/\sigma)\,\E(y\mid y>0,\mathbf{x})
+      = \Phi(\xbeta/\sigma)\,\xbeta + \sigma\,\phi(\xbeta/\sigma).
+  \]
+
+  \begin{keybox}
+    \small
+    Hence the partial effect on the \textbf{unconditional} mean is remarkably clean:
+    \[
+      \frac{\partial\E(y\mid\mathbf{x})}{\partial x_j} = \beta_j\,\Phi(\xbeta/\sigma).
+    \]
+    The factor $\Phi(\xbeta/\sigma)\in(0,1)$ scales the latent coefficient down to
+    the observed-mean effect --- the APE scale factor for Tobit.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{MROZ: Annual Hours Worked --- OLS vs.\ Tobit}
+
+  \begin{examplebox}{Table 17.6/17.7 --- Dependent variable: $hours$ ($325$ zeros)}
+    \centering\footnotesize
+    \begin{tabular}{l c c c c}
+      \toprule
+       & \multicolumn{2}{c}{Coefficients} & \multicolumn{2}{c}{APE} \\
+      Variable & OLS & Tobit & OLS & Tobit \\
+      \midrule
+      $nwifeinc$ & $-3.45$ $(2.24)$ & $-8.81$ $(4.46)$ & $-3.45$ & $-5.19$ \\
+      $educ$     & $28.76$ $(13.04)$ & $80.65$ $(21.58)$ & $28.76$ & $47.47$ \\
+      $age$      & $-30.51$ $(4.24)$ & $-54.41$ $(7.42)$ & $-30.51$ & $-32.03$ \\
+      $kidslt6$  & $-442.1$ $(57.5)$ & $-894.0$ $(111.9)$ & $-442.1$ & $-526.3$ \\
+      \midrule
+      $\hat\sigma$ & $750.18$ & $1{,}122.02$ & & \\
+      \bottomrule
+    \end{tabular}
+  \end{examplebox}
+
+  \begin{keybox}
+    \small
+    \textbf{Do not compare raw coefficients.} The Tobit $educ$ coefficient
+    ($80.65$) dwarfs OLS ($28.76$). But the APE scale factor
+    $n^{-1}\sum_i\Phi(\xib/\hat\sigma)\approx 0.589$ gives a Tobit APE of
+    $0.589\times 80.65 \approx 47.5$ hours --- larger than OLS, but far less
+    dramatic than the raw coefficient suggests.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{When Is Tobit the Wrong Model?}
+
+  \begin{highlightbox}
+    Tobit ties $P(y>0\mid\mathbf{x})$ and $\E(y\mid y>0,\mathbf{x})$ to the
+    \emph{same} parameters $\boldsymbol\beta/\sigma$. A regressor cannot raise the
+    chance of a positive outcome while lowering its size.
+  \end{highlightbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{Specification check.} Run a probit of $w=\mathbf{1}[y>0]$ on
+    $\mathbf{x}$; its coefficients should be ``close'' to $\hat\beta_j/\hat\sigma$
+    from Tobit. Sign flips or large magnitude gaps signal that Tobit is too
+    restrictive --- consider a two-part (hurdle) model instead.
+
+    \smallskip
+    \textbf{Answer to Q2.} In \texttt{MROZ}, ``hours'' is a \textbf{corner
+    solution}, not censoring --- women genuinely \emph{choose} zero. Tobit is
+    appropriate, and $\sigma$ is economically meaningful (not a nuisance).
+  \end{keybox}
+
+\end{frame}
+
+%% ============================================================
+\section{Censored and Truncated Regression (\S17-5)}
+%% ============================================================
+
+\begin{frame}[shrink=10]{Censoring vs.\ Truncation: A Data Problem, Not a Behavior}
+
+  \begin{columns}[t]
+    \column{0.49\textwidth}
+    \begin{definitionbox}{Censored regression}
+      We \textbf{always observe $\mathbf{x}_i$} for a random draw, but $y_i$ is
+      only recorded up to a threshold $c_i$:
+      \[
+        y_i = \beta_0 + \xib + u_i, \quad w_i = \min(y_i, c_i).
+      \]
+      Example: top-coded wealth (``$> \$500\text{k}$''), duration data.
+    \end{definitionbox}
+
+    \column{0.49\textwidth}
+    \begin{definitionbox}{Truncated regression}
+      A \textbf{sub-population is excluded entirely} --- no $\mathbf{x}_i$, no
+      $y_i$ --- based on $y$:
+      \[
+        \text{observe }(\mathbf{x}_i,y_i)\text{ only if } y_i \le c_i.
+      \]
+      Example: a study that only enrolls families below 1.5$\times$ the poverty line.
+    \end{definitionbox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{Key difference.} Censoring keeps the unit (we know $y>c$);
+    truncation \emph{drops} it. Censored regression exploits the censored units;
+    truncated regression cannot.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Censored Normal Regression: Likelihood}
+
+  Under $y_i = \beta_0 + \xib + u_i$, $u_i\mid\mathbf{x}_i,c_i \sim \Normal(0,\sigma^2)$
+  and $w_i=\min(y_i,c_i)$:
+
+  \begin{definitionbox}{Density of the observed $w_i$}
+    \[
+      f(w\mid\mathbf{x}_i,c_i) =
+      \begin{cases}
+        1 - \Phi\!\big((c_i - \xib)/\sigma\big), & w = c_i \quad(\text{censored}),\\[4pt]
+        \tfrac{1}{\sigma}\phi\!\big((w - \xib)/\sigma\big), & w < c_i \quad(\text{uncensored}).
+      \end{cases}
+    \]
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \begin{itemize}
+      \item Maximize $\sum_i \log f(\cdot)$ to get $\hat{\boldsymbol\beta},\hat\sigma$.
+      \item \textbf{Crucial:} here the $\beta_j$ are interpreted \emph{just as in a
+        linear regression} --- no inverse-Mills gymnastics. The expectations of
+        interest are linear in $\boldsymbol\beta$.
+      \item Naively running OLS on \emph{uncensored} obs only $\Rightarrow$
+        inconsistent (same algebra as Tobit, different cause).
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{Example: Duration of Recidivism (\texttt{RECID})}
+
+  \begin{columns}[t]
+    \column{0.55\textwidth}
+    \begin{examplebox}{Table 17.8 --- DV $\log(durat)$ --- $62\%$ censored}
+      \centering\footnotesize
+      \begin{tabular}{l c}
+        \toprule
+        Variable & Coef.\ (SE) \\
+        \midrule
+        $workprg$ & $-0.063$ $(0.120)$ \\
+        $priors$  & $-0.137$ $(0.021)$ \\
+        $tserved$ & $-0.019$ $(0.003)$ \\
+        $felon$   & $0.444$ $(0.145)$ \\
+        $alcohol$ & $-0.635$ $(0.144)$ \\
+        $married$ & $0.341$ $(0.140)$ \\
+        \midrule
+        $\hat\sigma$ & $1.810$ \\
+        \bottomrule
+      \end{tabular}
+    \end{examplebox}
+
+    \column{0.43\textwidth}
+    \begin{keybox}
+      \small
+      $durat$ = months to re-arrest; $893$ of $1{,}445$ never re-arrested
+      $\Rightarrow$ \textbf{censored}.
+      \begin{itemize}
+        \item One more prior $\Rightarrow$ $\approx 14\%$ shorter duration.
+        \item $alcohol$ abuse sharply shortens duration.
+        \item $workprg$ effect small, insignificant.
+      \end{itemize}
+    \end{keybox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{highlightbox}
+    \small
+    Ignoring censoring (OLS treating censored as actual) shrinks estimates toward
+    zero: $priors$ goes from $-0.137$ to $-0.059$. Censored regression recovers the
+    correct magnitudes.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Truncation Biases OLS Toward Zero}
+
+  \begin{columns}[c]
+    \column{0.52\textwidth}
+    \centering
+    \begin{tikzpicture}[scale=0.72]
+      \draw[->,thick] (0,0) -- (5.6,0) node[below right] {\scriptsize education};
+      \draw[->,thick] (0,0) -- (0,3.8) node[above] {\scriptsize income};
+      % truncation line at income = 50
+      \draw[dashed,gray] (0,2.3) -- (5.4,2.3) node[right,font=\scriptsize] {$c=50$};
+      % observed points (below line) - solid
+      \fill[SUFEBlue] (0.8,0.9) circle (2pt); \fill[SUFEBlue] (1.4,1.3) circle (2pt);
+      \fill[SUFEBlue] (2.0,1.0) circle (2pt); \fill[SUFEBlue] (2.6,1.8) circle (2pt);
+      \fill[SUFEBlue] (3.2,1.5) circle (2pt); \fill[SUFEBlue] (3.8,2.1) circle (2pt);
+      % dropped points (above line) - hollow
+      \draw[SUFEGold,thick] (3.0,2.7) circle (2pt); \draw[SUFEGold,thick] (3.6,3.0) circle (2pt);
+      \draw[SUFEGold,thick] (4.2,2.6) circle (2pt); \draw[SUFEGold,thick] (4.6,3.3) circle (2pt);
+      \draw[SUFEGold,thick] (5.0,2.9) circle (2pt);
+      % true regression line (steep)
+      \draw[thick,SUFEGold] (0.4,0.5) -- (5.2,3.4);
+      \node[SUFEGold,font=\scriptsize] at (4.9,3.6) {true};
+      % truncated (flattened) line
+      \draw[thick,SUFEBlue] (0.4,0.8) -- (5.2,2.15);
+      \node[SUFEBlue,font=\scriptsize] at (5.0,1.9) {truncated};
+    \end{tikzpicture}
+
+    \column{0.45\textwidth}
+    \begin{keybox}
+      \small
+      Recreates \textbf{Figure 17.4}. Dropping incomes above $\$50\text{k}$
+      (hollow points) lops off the upper-right tail; the fitted line through the
+      survivors \textbf{flattens} --- biased toward zero.
+    \end{keybox}
+
+    \smallskip
+
+    \begin{highlightbox}
+      \small
+      The \textbf{truncated normal MLE} restores consistency by re-normalizing the
+      density over the observed region \citep{HausmanWise1977_social}.
+    \end{highlightbox}
+  \end{columns}
+
+\end{frame}
+
+%% ============================================================
+\section{Sample Selection Corrections (\S17-6)}
+%% ============================================================
+
+\begin{frame}[shrink=10]{When Is OLS on a Selected Sample Still OK?}
+
+  Let $s_i=1$ if observation $i$ is used, $s_i=0$ otherwise. We run OLS on the
+  $s_i=1$ sub-sample.
+
+  \smallskip
+
+  \begin{columns}[t]
+    \column{0.49\textwidth}
+    \begin{highlightbox}
+      \textbf{\textcolor{positive}{Exogenous selection --- OLS is fine}}
+      \begin{itemize}
+        \item $s$ depends only on $\mathbf{x}$ (or on factors independent of $u$)
+        \item Random sub-sampling
+        \item $\Rightarrow$ $\hat{\boldsymbol\beta}$ still consistent / unbiased
+      \end{itemize}
+    \end{highlightbox}
+
+    \column{0.49\textwidth}
+    \begin{highlightbox}
+      \textbf{\textcolor{negative}{Endogenous selection --- OLS biased}}
+      \begin{itemize}
+        \item $s$ depends on $y$ (truncation on the outcome)
+        \item $s$ depends on $u$ (unobservables)
+        \item $\Rightarrow$ selection bias
+      \end{itemize}
+    \end{highlightbox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{Rule.} Selecting on the explanatory variables is harmless. Selecting
+    on the dependent variable (or on the error) is poison. The danger case is
+    \textbf{incidental truncation}.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Incidental Truncation: The Wage-Offer Problem}
+
+  We want the \textbf{wage offer} equation for \emph{all} women, but we observe a
+  wage only for those who \emph{choose to work}.
+
+  \smallskip
+
+  \begin{definitionbox}{Selection model \citep{Heckman1979_selection}}
+    \begin{align*}
+      \text{outcome:}\quad & y = \xbeta + u, \qquad \E(u\mid\mathbf{x},\mathbf{z}) = 0, \\
+      \text{selection:}\quad & s = \mathbf{1}[\mathbf{z}\boldsymbol\gamma + v \ge 0], \quad v\sim\Normal(0,1).
+    \end{align*}
+    We observe $y$ only when $s=1$. Truncation of $y$ is \emph{incidental} --- it
+    depends on another variable (working), not on $y$ itself.
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{keybox}
+    If $\Corr(u,v) = \rho \ne 0$, the working sample is \textbf{not}
+    representative: women who work have systematically different $u$. OLS on
+    workers is then inconsistent for $\boldsymbol\beta$.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{The Selection Bias as an Omitted Variable}
+
+  Take the expectation of $y=\xbeta+u$ given $(\mathbf{z},v)$. With
+  $\mathbf{x}\subseteq\mathbf{z}$, $(u,v)$ independent of $\mathbf{z}$, and $(u,v)$
+  jointly normal so that $\E(u\mid v)=\rho v$:
+  \[
+    \E(y\mid\mathbf{z},v) = \xbeta + \E(u\mid v) = \xbeta + \rho v.
+  \]
+  Now condition on selection, $s=1 \Leftrightarrow v > -\mathbf{z}\boldsymbol\gamma$.
+  By the \textbf{truncated-normal lemma}, $\E(v\mid v>-\mathbf{z}\boldsymbol\gamma)
+  = \lambda(\mathbf{z}\boldsymbol\gamma)$:
+  \[
+    \E(y\mid\mathbf{z}, s=1) = \xbeta + \rho\,\lambda(\mathbf{z}\boldsymbol\gamma),
+    \qquad \lambda(c) = \frac{\phi(c)}{\Phi(c)} .
+  \]
+
+  \begin{highlightbox}
+    \small
+    OLS of $y$ on $\mathbf{x}$ using workers only \textbf{omits} the regressor
+    $\rho\,\lambda(\mathbf{z}\boldsymbol\gamma)$. Since $\lambda(\cdot)$ correlates
+    with $\mathbf{x}$, this is classic \textbf{omitted-variable bias} --- vanishing
+    only when $\rho=0$.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \small
+    \textbf{The fix writes itself:} \emph{construct} the missing regressor
+    $\lambda(\mathbf{z}\boldsymbol\gamma)$ and add it back. OLS on the selected
+    sample is then consistent --- precisely Heckman's two-step idea.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{The Heckit Procedure}
+
+  \begin{definitionbox}{Heckman two-step (Heckit)}
+    \begin{enumerate}
+      \item \textbf{Selection equation.} Using \emph{all} $n$ observations, estimate a
+        probit of $s_i$ on $\mathbf{z}_i$. Form the estimated inverse Mills ratio
+        \[
+          \hat\lambda_i = \lambda(\mathbf{z}_i\hat{\boldsymbol\gamma})
+            = \phi(\mathbf{z}_i\hat{\boldsymbol\gamma})/\Phi(\mathbf{z}_i\hat{\boldsymbol\gamma}).
+        \]
+      \item \textbf{Outcome equation.} Using only the selected sample ($s_i=1$), run
+        \[
+          y_i \;\text{ on }\; \mathbf{x}_i,\; \hat\lambda_i .
+        \]
+    \end{enumerate}
+  \end{definitionbox}
+
+  \smallskip
+
+  \begin{keybox}
+    \begin{itemize}
+      \item The $t$ statistic on $\hat\lambda_i$ is a \textbf{direct test for
+        selection bias} ($H_0:\rho=0$).
+      \item \textbf{Exclusion restriction:} $\mathbf{z}$ should contain at least one
+        variable \emph{not} in $\mathbf{x}$ --- something that shifts the decision to
+        work but not the wage offer. Without it, multicollinearity inflates the SEs.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=12]{MROZ: Wage Offer Equation --- OLS vs.\ Heckit}
+
+  \begin{examplebox}{Table 17.9 --- DV $\log(wage)$ --- $428$ workers}
+    \centering\footnotesize
+    \begin{tabular}{l c c}
+      \toprule
+      Variable & OLS & Heckit \\
+      \midrule
+      $educ$    & $0.108$ $(0.014)$ & $0.109$ $(0.016)$ \\
+      $exper$   & $0.042$ $(0.012)$ & $0.044$ $(0.016)$ \\
+      $exper^2$ & $-0.00081$ $(0.00039)$ & $-0.00086$ $(0.00044)$ \\
+      $\hat\lambda$ & --- & $0.032$ $(0.134)$ \\
+      \midrule
+      $n$ & $428$ & $428$ \\
+      \bottomrule
+    \end{tabular}
+  \end{examplebox}
+
+  \begin{highlightbox}
+    \small
+    Excluded from $\mathbf{x}$ but in $\mathbf{z}$: $nwifeinc$, $age$, $kidslt6$,
+    $kidsge6$ (drive participation, assumed not the wage offer).
+
+    \smallskip
+    \textbf{Answer to Q3.} Here $t_{\hat\lambda}=0.032/0.134 \approx 0.24$ --- we
+    \emph{fail to reject} $\rho=0$. No evidence of selection bias; OLS and Heckit
+    returns to education differ by one-tenth of a point. Testing first saved an
+    unnecessary correction.
+  \end{highlightbox}
+
+\end{frame}
+
+%% ============================================================
+\section{Synthesis}
+%% ============================================================
+
+\begin{frame}{Decision Guide: Which Model for Which $y$?}
+
+  \begin{center}
+  \small
+  \begin{tabular}{l l l}
+    \toprule
+    Nature of $y$ & Model & Key interpretation tool \\
+    \midrule
+    Binary $\{0,1\}$        & Logit / Probit (MLE)      & APE / PEA \\
+    Fractional $[0,1]$      & Fractional logit (QMLE)   & APE, robust SE \\
+    Count / nonneg.\ $y\ge0$& Poisson (QMLE)            & $100\beta_j\approx \%\Delta\E(y)$ \\
+    Corner solution $y\ge0$ & Tobit (MLE)               & APE $=\Phi(\xbeta/\sigma)\beta_j$ \\
+    Top-coded / duration    & Censored normal reg.      & $\beta_j$ as in linear model \\
+    Sub-population excluded & Truncated normal reg.     & $\beta_j$ as in linear model \\
+    Selection on outcome    & Heckit (two-step)         & inverse Mills + $t$-test on $\rho$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \smallskip
+
+  \begin{keybox}
+    \textbf{First question to ask:} is $y$ \emph{genuinely} limited in the
+    population (behavior $\to$ logit/probit/Poisson/Tobit), or is it fine but
+    \emph{badly observed} (data $\to$ censored/truncated/Heckit)?
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{Recurring Themes Across All Models}
+
+  \begin{highlightbox}
+    \textbf{1. Coefficients $\ne$ effects.} In every nonlinear model the raw
+    $\beta_j$ must be transformed (APE, percentage change, Mills adjustment) before
+    it answers an economic question.
+  \end{highlightbox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    \textbf{2. MLE and QMLE do the heavy lifting.} Logit, probit, Tobit, censored,
+    and truncated models are all MLE; fractional and Poisson are \emph{quasi}-MLE
+    --- consistent for the mean even when the full distribution is wrong, provided
+    SEs are made robust.
+  \end{highlightbox}
+
+  \smallskip
+
+  \begin{highlightbox}
+    \textbf{3. Selection is omitted-variable bias.} The inverse Mills ratio is the
+    missing regressor; estimate it, add it back, and test whether it mattered.
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}{Summary}
+
+  \begin{keybox}
+    \textbf{Binary \& fractional (\S17-1, \S17-2).} Logit/probit squash the index
+    into $(0,1)$; estimate by MLE/QMLE; summarize with APEs. The LPM approximates
+    the average effect well.
+
+    \smallskip
+    \textbf{Nonnegative (\S17-3).} Exponential mean + Poisson QMLE handles counts
+    and zeros, gives percentage-change coefficients, and is robust to overdispersion.
+
+    \smallskip
+    \textbf{Corner solutions (\S17-4).} Tobit models the zero pileup; partial
+    effects scale the latent coefficients by $\Phi(\xbeta/\sigma)$.
+
+    \smallskip
+    \textbf{Data problems (\S17-5, \S17-6).} Censored/truncated regression fix
+    observability defects; Heckit corrects incidental-truncation selection bias and
+    provides a built-in test for it.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=12]{Bridge: From LDVs to Causal Inference}
+
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+    \begin{highlightbox}
+      \textbf{Lecture 17 (today)} \\
+      Modeling \emph{limited} outcomes:
+      \begin{itemize}
+        \item Respect the range of $y$
+        \item Recover partial effects, not just coefficients
+        \item Correct for non-random observation
+      \end{itemize}
+    \end{highlightbox}
+
+    \column{0.48\textwidth}
+    \begin{highlightbox}
+      \textbf{Next: Causal Inference (Ch.\ 19)} \\
+      Designs for credible effects:
+      \begin{itemize}
+        \item Treatment effects with binary/limited outcomes
+        \item RD, DiD extensions, matching
+        \item Potential outcomes meet nonlinear models
+      \end{itemize}
+    \end{highlightbox}
+  \end{columns}
+
+  \smallskip
+
+  \begin{keybox}
+    The logit/probit and Tobit machinery returns in causal settings: average
+    treatment effects with nonlinear models are just APEs of a treatment dummy.
+    The threads from today run straight into the next lecture.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \bibliography{../Bibliography_base}
+\end{frame}
+
+%% ============================================================
+\end{document}
