@@ -118,6 +118,18 @@ Follow-up: user — pages too small / combine lines / split to avoid overflow.
   (brace escaping); title-anchored sed worked.
 - Final: 59 pages, 0 errors, 0 overfull, readable. Committed to branch.
 
+Follow-up: user listed 17 specific pages too small + p.25 equation out of frame.
+- Split all 17 listed frames into two full-size (no-shrink) frames each (one concept per
+  frame): §6-1 beta-def/beta-interp/Ex6.1; §6-2a exact-% / rules-of-thumb; §6-2b
+  quadratics/wage-exper/small-coef-lesson; §6-2d APE/centering; §6-3 nonnested/Ex6.4/
+  over-control/reduce-variance; §6-4 CI-predictions/Ex6.6/residual-analysis.
+- Fixed p.25 (Example 6.3 model): the long population-model equation overflowed
+  horizontally; wrapped it in aligned to break across two lines (0 overfull hbox).
+- GOTCHA: the real PDF was LOCKED (user's viewer open) → dvipdfmx "Unable to open .pdf";
+  verified edits via -jobname=L05test until user closed it. Also: an `=` inside an
+  examplebox TITLE broke pgfkeys (like commas) — moved it into the body.
+- Final: 59 → 76 pages, 0 errors, 0 overfull hbox/vbox. Verified p.33 (eq fix). Committed.
+
 ---
 
 ## Goal
