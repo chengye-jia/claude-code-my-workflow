@@ -130,6 +130,15 @@ Follow-up: user listed 17 specific pages too small + p.25 equation out of frame.
   examplebox TITLE broke pgfkeys (like commas) — moved it into the body.
 - Final: 59 → 76 pages, 0 errors, 0 overfull hbox/vbox. Verified p.33 (eq fix). Committed.
 
+Follow-up: user — split p.59/60/72 + delete all R code (p.73–76).
+- Split Example 6.5 (model | CI), Prediction Intervals vs CI (concept | SE+width),
+  Bootstrap SE (algorithm | formula).
+- Deleted all R code: removed the 3 pure "R Code: ..." verbatim frames, removed the
+  R-code block from "Bootstrap in Practice" (kept its two key boxes), removed the now-empty
+  \section*{R Code Examples} divider. grep confirms 0 verbatim/library() remaining.
+- Net page count unchanged at 76 (+3 splits, −3 R-code frames). 0 errors, 0 overfull.
+  Verified p.74–76 (bootstrap split + no R code). Committed.
+
 ---
 
 ## Goal

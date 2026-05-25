@@ -1171,7 +1171,7 @@
 
 \end{frame}
 
-\begin{frame}[shrink=8]{Example 6.5 --- Confidence Interval for Predicted College GPA}
+\begin{frame}{Example 6.5 --- College GPA: The Model}
 
   \begin{examplebox}{College GPA Prediction (GPA2 --- eq.\ 6.32)}
     \[
@@ -1184,88 +1184,72 @@
         + \underset{(0.00227)}{0.00546}\, hsize^2
     \]
     \[
-      n = 4{,}137, \quad \Rsq = 0.278, \quad \aRsq = 0.277, \quad \hat\sigma = 0.560
+      n = 4{,}137, \quad \Rsq = 0.278, \quad \hat\sigma = 0.560
     \]
   \end{examplebox}
 
+\end{frame}
+
+\begin{frame}{Example 6.5 --- Confidence Interval for the Mean}
+
+  \textbf{Predict for} $sat = 1{,}200$, $hsperc = 30$, $hsize = 5$:
+  $\widehat{colgpa} \approx 2.70$, and the reparameterization trick gives
+  $\se(\hat\theta_0) = 0.020$.
+
   \medskip
 
-      \textbf{Predict for:} $sat = 1{,}200$, $hsperc = 30$, $hsize = 5$
-
-      \medskip
-
-      $\widehat{colgpa} \approx 2.70$
-
-      \medskip
-
-      Using the reparameterization trick: \\
-      $\se(\hat\theta_0) = 0.020$
-  \medskip
-
-      \begin{keybox}
-        \textbf{95\% CI for expected GPA:}
-        \[
-          2.70 \pm 1.96(0.020) = [2.66, 2.74]
-        \]
-        Very narrow! With $n = 4{,}137$, the expected
-        value is precisely estimated. \\[4pt]
-        This is a CI for the \textbf{average} GPA of all students
-        with these characteristics.
-      \end{keybox}
+  \begin{keybox}
+    \textbf{95\% CI for expected GPA:}
+    \[
+      2.70 \pm 1.96(0.020) = [2.66, 2.74] .
+    \]
+    Very narrow --- with $n = 4{,}137$ the mean is precisely estimated. This is a CI for
+    the \textbf{average} GPA of all students with these characteristics.
+  \end{keybox}
 
 \end{frame}
 
-\begin{frame}[shrink=8]{Prediction Intervals vs.\ Confidence Intervals}
+\begin{frame}{Prediction Intervals vs.\ Confidence Intervals}
 
-      \begin{definitionbox}{Two Types of Intervals}
-        \textbf{Confidence interval:} for $\E[y \mid \mathbf{x}]$
-        (the average outcome for a subpopulation)
+  \begin{definitionbox}{Two Types of Intervals}
+    \textbf{Confidence interval:} for $\E[y \mid \mathbf{x}]$ (the average outcome for a
+    subpopulation). \\[4pt]
+    \textbf{Prediction interval:} for $y^0$ (a specific individual's future outcome).
+  \end{definitionbox}
 
-        \medskip
-
-        \textbf{Prediction interval:} for $y^0$
-        (a specific individual's future outcome)
-      \end{definitionbox}
-
-      \medskip
-
-      The prediction error is $\hat{e}^0 = y^0 - \hat{y}^0$. The new unit's error
-      $u^0$ is independent of the estimation sample, so $\Cov(\hat{y}^0, u^0)=0$ and
-      the two variances simply add:
-      \[
-        \Var(\hat{e}^0) = \Var(\hat{y}^0) + \sigma^2 .
-      \]
-
-      Two sources of uncertainty:
-      \begin{enumerate}
-        \item Sampling error in $\bhat_j$'s ($\to 0$ as $n \to \infty$)
-        \item Error variance $\sigma^2$ (does \textbf{not} shrink with $n$)
-      \end{enumerate}
   \medskip
 
-      \begin{keybox}
-        \textbf{Standard error of prediction:}
-        \[
-          \se(\hat{e}^0) = \sqrt{[\se(\hat{y}^0)]^2 + \hat\sigma^2}
-        \]
+  The prediction error is $\hat{e}^0 = y^0 - \hat{y}^0$. The new unit's error $u^0$ is
+  independent of the estimation sample, so $\Cov(\hat{y}^0, u^0)=0$ and the two variances
+  add:
+  \[
+    \Var(\hat{e}^0) = \Var(\hat{y}^0) + \sigma^2 .
+  \]
+  \textbf{Two sources of uncertainty:} sampling error in $\bhat_j$ ($\to 0$ as
+  $n\to\infty$), and the error variance $\sigma^2$ (which does \textbf{not} shrink with
+  $n$).
 
-        \medskip
+\end{frame}
 
-        \textbf{95\% prediction interval:}
-        \[
-          \hat{y}^0 \pm t_{0.025} \cdot \se(\hat{e}^0)
-        \]
-      \end{keybox}
+\begin{frame}{Prediction Intervals: Standard Error and Width}
 
-      \medskip
+  \begin{keybox}
+    \textbf{Standard error of prediction:}
+    $\se(\hat{e}^0) = \sqrt{[\se(\hat{y}^0)]^2 + \hat\sigma^2}$.
 
-      \begin{highlightbox}
-        The prediction interval is \textbf{always wider} than
-        the confidence interval because it includes $\hat\sigma^2$. \\[4pt]
-        For large $n$: $\se(\hat{y}^0)$ is tiny, so
-        $\se(\hat{e}^0) \approx \hat\sigma$ --- the width is
-        dominated by the irreducible error variance.
-      \end{highlightbox}
+    \smallskip
+    \textbf{95\% prediction interval:}
+    $\hat{y}^0 \pm t_{0.025}\,\se(\hat{e}^0)$.
+  \end{keybox}
+
+  \medskip
+
+  \begin{highlightbox}
+    The prediction interval is \textbf{always wider} than the confidence interval because
+    it includes $\hat\sigma^2$. For large $n$, $\se(\hat{y}^0)$ is tiny, so
+    $\se(\hat{e}^0) \approx \hat\sigma$ --- the width is dominated by the irreducible
+    error variance.
+  \end{highlightbox}
 
 \end{frame}
 
@@ -1602,164 +1586,69 @@
 
 \end{frame}
 
-\begin{frame}[shrink=8]{Bootstrap Standard Error: Algorithm and Formula}
+\begin{frame}{Bootstrap Standard Error: The Algorithm}
 
-      \textbf{Algorithm:}
-      \begin{enumerate}
-        \item List observations $1, \ldots, n$
-        \item Draw $n$ integers randomly with replacement
-              $\Rightarrow$ bootstrap sample $b$ (size $n$)
-        \item Compute estimate $\hat{\theta}^{(b)}$ on sample $b$
-        \item Repeat steps 2--3 a total of $m$ times
-        \item Compute $\bar{\theta} = m^{-1}\sum_{b=1}^m \hat{\theta}^{(b)}$
-        \item Compute $\text{bse}(\hat{\theta})$ from eq.\ [6.50]
-      \end{enumerate}
+  \textbf{Algorithm:}
+  \begin{enumerate}
+    \item list observations $1, \ldots, n$;
+    \item draw $n$ integers with replacement $\Rightarrow$ bootstrap sample $b$ (size $n$);
+    \item compute the estimate $\hat{\theta}^{(b)}$ on sample $b$;
+    \item repeat steps 2--3 a total of $m$ times;
+    \item compute $\bar{\theta} = m^{-1}\sum_{b=1}^m \hat{\theta}^{(b)}$, then
+      $\text{bse}(\hat{\theta})$ from eq.\ [6.50].
+  \end{enumerate}
 
-      \medskip
-
-      \begin{keybox}
-        \textbf{Choice of $m$:} Typical value is $m = 1{,}000$.\\
-        Even $m = 500$ often gives a reliable SE.\\
-        $m$ has nothing to do with the sample size $n$.
-      \end{keybox}
   \medskip
 
-      \begin{definitionbox}{Bootstrap Standard Error (eq.\ 6.50)}
-        \[
-          \text{bse}(\hat{\theta}) = \left[
-            (m-1)^{-1} \sum_{b=1}^{m}
-            \bigl(\hat{\theta}^{(b)} - \bar{\theta}\bigr)^2
-          \right]^{1/2}
-        \]
-        where $\bar{\theta} = m^{-1}\sum_{b=1}^m \hat{\theta}^{(b)}$
-        is the average of all bootstrap estimates.
-      \end{definitionbox}
-
-      \medskip
-
-      \begin{highlightbox}
-        $\text{bse}(\hat{\theta})$ is the \textbf{sample standard
-        deviation} of the $m$ bootstrap estimates.
-        It is a consistent estimator of $\text{se}(\hat{\theta})$.
-      \end{highlightbox}
+  \begin{keybox}
+    \textbf{Choice of $m$:} typically $m = 1{,}000$ (even $m = 500$ is often reliable).
+    Note that $m$ has nothing to do with the sample size $n$.
+  \end{keybox}
 
 \end{frame}
 
-\begin{frame}[shrink=8]{Bootstrap in Practice}
+\begin{frame}{Bootstrap Standard Error: The Formula}
 
-      \begin{keybox}
-        \textbf{When to use the bootstrap:}
-        \begin{itemize}
-          \item Asymptotic SE formula unavailable
-                (e.g.\ nonlinear functions of $\hat\beta$)
-          \item Small samples where asymptotics may be poor
-          \item Checking whether analytical SEs are reliable
-        \end{itemize}
-      \end{keybox}
+  \begin{definitionbox}{Bootstrap Standard Error (eq.\ 6.50)}
+    \[
+      \text{bse}(\hat{\theta}) = \left[
+        (m-1)^{-1} \sum_{b=1}^{m}
+        \bigl(\hat{\theta}^{(b)} - \bar{\theta}\bigr)^2
+      \right]^{1/2},
+    \]
+    where $\bar{\theta} = m^{-1}\sum_{b=1}^m \hat{\theta}^{(b)}$ is the average of the
+    bootstrap estimates.
+  \end{definitionbox}
 
-      \medskip
-
-      \begin{keybox}
-        \textbf{Going further:}\\
-        Bootstrap samples can be used to compute
-        \textit{p}-values for $t$ and $F$ statistics, or to
-        construct confidence intervals directly ---
-        often more accurate than bse$(\hat{\theta})$
-        in a $t$ statistic.\\[4pt]
-        See Horowitz (2001).
-      \end{keybox}
   \medskip
 
-      \begin{highlightbox}
-        \textbf{R: Bootstrap SE for OLS coefficient}
-      \end{highlightbox}
-
-      \medskip
-
-      \texttt{\small
-        library(wooldridge); library(boot) \\
-        data(wage1) \\
-        boot\_fn \textless- function(data, idx) \{ \\
-        \quad m \textless- lm(log(wage) $\sim$ educ + exper \\
-        \quad\quad + I(exper\^{}2) + tenure, \\
-        \quad\quad data = data[idx, ]) \\
-        \quad coef(m)["educ"] \} \\
-        set.seed(42) \\
-        b \textless- boot(wage1, boot\_fn, R=1000) \\
-        sd(b\$t) \quad \# bootstrap SE \\
-      }
+  \begin{highlightbox}
+    $\text{bse}(\hat{\theta})$ is just the \textbf{sample standard deviation} of the $m$
+    bootstrap estimates --- a consistent estimator of $\text{se}(\hat{\theta})$.
+  \end{highlightbox}
 
 \end{frame}
 
-%% ============================================================
-\section*{R Code Examples}
-%% ============================================================
+\begin{frame}{Bootstrap in Practice}
 
-\begin{frame}[fragile, shrink=8]{R Code: Scaling and Beta Coefficients}
+  \begin{keybox}
+    \textbf{When to use the bootstrap:}
+    \begin{itemize}
+      \item the asymptotic SE formula is unavailable (e.g.\ nonlinear functions of
+        $\hat\beta$);
+      \item small samples where asymptotics may be poor;
+      \item checking whether analytical SEs are reliable.
+    \end{itemize}
+  \end{keybox}
 
-\begin{verbatim}
-library(wooldridge)
+  \medskip
 
-## --- Scaling (Table 6.1) ---
-data(bwght)
-m1 <- lm(bwght ~ cigs + faminc, data = bwght)
-bwght$bwghtlbs <- bwght$bwght / 16
-m2 <- lm(bwghtlbs ~ cigs + faminc, data = bwght)
-# Compare: coef(m2) = coef(m1)/16; t-stats identical
-
-## --- Beta Coefficients (Example 6.1) ---
-data(hprice2)
-m_std <- lm(scale(price) ~ scale(nox) + scale(crime)
-  + scale(rooms) + scale(dist) + scale(stratio),
-  data = hprice2)
-coef(m_std)  # beta coefficients (intercept ~ 0)
-\end{verbatim}
-
-\end{frame}
-
-\begin{frame}[fragile, shrink=10]{R Code: Quadratic Models}
-
-\begin{verbatim}
-## --- Quadratic (WAGE1 eq. 6.12) ---
-data(wage1)
-m_quad <- lm(wage ~ exper + I(exper^2), data = wage1)
-summary(m_quad)
-tp <- abs(coef(m_quad)["exper"]) /
-  (2 * abs(coef(m_quad)["I(exper^2)"]))
-cat("Turning point:", round(tp, 1), "years\n")
-
-## --- Interaction (Example 6.3: ATTEND) ---
-data(attend)
-m_int <- lm(stndfnl ~ atndrte + priGPA + ACT +
-  I(priGPA^2) + I(ACT^2) + atndrte:priGPA,
-  data = attend)
-summary(m_int)
-# APE of atndrte at mean priGPA
-ape <- coef(m_int)["atndrte"] +
-  coef(m_int)["atndrte:priGPA"] * mean(attend$priGPA)
-\end{verbatim}
-
-\end{frame}
-
-\begin{frame}[fragile, shrink=8]{R Code: Predictions and Log Models}
-
-\begin{verbatim}
-## --- Prediction CI (Example 6.5: GPA2) ---
-data(gpa2)
-m_gpa <- lm(colgpa ~ sat + hsperc + hsize + I(hsize^2),
-  data = gpa2)
-nd <- data.frame(sat=1200, hsperc=30, hsize=5)
-predict(m_gpa, newdata=nd, interval="confidence")
-predict(m_gpa, newdata=nd, interval="prediction")
-
-## --- Log model prediction (Example 6.7: CEOSAL2) ---
-data(ceosal2)
-m_log <- lm(lsalary ~ lsales + lmktval + ceoten,
-  data = ceosal2)
-sigma_hat <- summary(m_log)$sigma
-alpha_norm  <- exp(sigma_hat^2 / 2)       # normality
-alpha_smear <- mean(exp(residuals(m_log))) # smearing
-\end{verbatim}
+  \begin{keybox}
+    \textbf{Going further.} Bootstrap samples can also compute \textit{p}-values for $t$
+    and $F$ statistics, or construct confidence intervals directly --- often more
+    accurate than putting $\text{bse}(\hat{\theta})$ into a $t$ statistic. See
+    Horowitz (2001).
+  \end{keybox}
 
 \end{frame}
 
