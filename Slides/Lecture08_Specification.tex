@@ -1243,27 +1243,44 @@
 
 \end{frame}
 
-\begin{frame}[shrink=8]{Why MIM Needs a Strong Assumption: The Algebra}
+\begin{frame}{Why MIM Needs a Strong Assumption: The Algebra}
 
   Use the identity $x_k = z_k + m_k x_k$ (observed $\Rightarrow m_k = 0,\ x_k = z_k$;
   missing $\Rightarrow z_k = 0$). Substituting into the true model
-  $y = \beta_0 + \sum_{j<k}\beta_j x_j + \beta_k x_k + u$ gives
+  $y = \beta_0 + \sum_{j<k}\beta_j x_j + \beta_k x_k + u$,
   \[
     y = \beta_0 + \sum_{j<k}\beta_j x_j + \beta_k z_k
-        + \underbrace{\beta_k\, m_k x_k}_{\text{\textbf{not} a MIM regressor}} + u .
+        + \underbrace{\beta_k\, m_k x_k}_{\text{omitted by MIM}} + u ,
   \]
-  MIM regresses $y$ on $1, x_1, \ldots, x_{k-1}, z_k, m_k$: it includes $m_k$ but
-  \emph{omits} the term $\beta_k m_k x_k$.
+  so MIM includes the dummy $m_k$ but \emph{omits} $\beta_k m_k x_k$.
 
   \begin{keybox}
-    Model the missing-data conditional mean of $x_k$ as linear:
+    \textbf{Why a dummy catches only the mean.} A dummy adds one constant to every
+    missing row, and least squares makes that constant the group \emph{mean} --- the best
+    constant satisfies $\arg\min_{c}\E[(W-c)^2] = \E(W)$. Split the dropped term:
     \[
-      \E(x_k \mid x_1, \ldots, x_{k-1},\, m_k = 1)
-        = \delta_0 + \textstyle\sum_{j<k}\delta_j x_j .
+      \beta_k x_k
+      = \underbrace{\beta_k\,\E(x_k\mid\text{miss})}_{\text{constant}\;\to\;\gamma}
+      + \underbrace{\beta_k\bigl(x_k - \E(x_k\mid\text{miss})\bigr)}_{\text{varies within the group}} .
     \]
-    On the missing rows the omitted term is $\beta_k\bigl(\delta_0 + \sum_{j<k}\delta_j
-    x_j\bigr)$: the dummy soaks up the constant $\gamma = \beta_k\delta_0$, but each
-    $\beta_k\delta_j x_j$ is collinear with the regressor $x_j$.
+    Only the first piece fits a dummy; capturing the second would need the omitted
+    interaction $m_k x_k$.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}{MIM Bias: Where the Leftover Goes}
+
+  Whether that leftover deviation biases the slopes depends on how $x_k$ relates to the
+  other regressors. Model the missing-data conditional mean as linear:
+  \[
+    \E(x_k \mid x_1, \ldots, x_{k-1},\, m_k = 1)
+      = \delta_0 + \textstyle\sum_{j<k}\delta_j x_j .
+  \]
+
+  \begin{keybox}
+    The dummy absorbs the constant $\gamma = \beta_k\delta_0$, but each
+    $\beta_k\delta_j x_j$ is collinear with $x_j$ --- so it contaminates $\hat\beta_j$.
   \end{keybox}
 
   \begin{highlightbox}
