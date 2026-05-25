@@ -71,17 +71,27 @@ def save_state(state_path: Path, state: dict):
 
 
 def find_latest_log(project_dir: str) -> tuple[Path | None, float]:
-    """Find the most recently modified .md file in session_logs/."""
-    log_dir = Path(project_dir) / "quality_reports" / "session_logs"
-    if not log_dir.is_dir():
-        return None, 0.0
+    """Find the most recently modified .md file in session_logs/.
 
-    md_files = list(log_dir.glob("*.md"))
-    if not md_files:
-        return None, 0.0
+    Tries the passed project_dir first, then falls back to $CLAUDE_PROJECT_DIR.
+    Without the fallback a drifting cwd (e.g. a subdirectory like Slides/) makes
+    the session_logs path miss, producing a false "no log exists" reminder.
+    """
+    import os
 
-    latest = max(md_files, key=lambda f: f.stat().st_mtime)
-    return latest, latest.stat().st_mtime
+    candidates = [project_dir, os.environ.get("CLAUDE_PROJECT_DIR", "")]
+    for base in candidates:
+        if not base:
+            continue
+        log_dir = Path(base) / "quality_reports" / "session_logs"
+        if not log_dir.is_dir():
+            continue
+        md_files = list(log_dir.glob("*.md"))
+        if not md_files:
+            continue
+        latest = max(md_files, key=lambda f: f.stat().st_mtime)
+        return latest, latest.stat().st_mtime
+    return None, 0.0
 
 
 def main():

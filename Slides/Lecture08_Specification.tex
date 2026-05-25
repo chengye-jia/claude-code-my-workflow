@@ -59,6 +59,29 @@
 
 \end{frame}
 
+\begin{frame}{Functional Form Misspecification: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} Even with \emph{every} relevant variable collected, OLS can
+    be biased if $y$ is related to the $x_j$ through the \textbf{wrong functional
+    form} --- a missing quadratic, log, or interaction. We \emph{have} the data; only
+    the specification is wrong.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} If the true model carries a nonlinear term we drop, that term is
+    absorbed into the error and induces $\Cov(x_j, u) \neq 0$:
+    \[
+      y = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k
+        + \underbrace{\gamma\, x_1^2 + \cdots}_{\text{dropped}\;\to\; u} .
+    \]
+    \textbf{Plan:} (i) what misspecification \emph{is}, (ii) detect it --- $F$ test on
+    quadratics and the \textbf{RESET} test, (iii) choose between \textbf{nonnested}
+    models.
+  \end{keybox}
+
+\end{frame}
+
 \begin{frame}[shrink=30]{Functional Form Misspecification: Definition}
 
   \begin{definitionbox}{Functional Form Misspecification}
@@ -351,6 +374,25 @@
 \section{Proxy Variables for Unobserved Variables (\S9-2)}
 %% ============================================================
 
+\begin{frame}{Proxy Variables: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} The most damaging specification error is a \textbf{missing
+    determinant we cannot observe} --- e.g.\ \emph{ability} in a wage equation. If it
+    correlates with a regressor, OLS is biased and inconsistent (omitted-variable
+    bias). Can we do anything \emph{without} the variable itself?
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} We cannot drop the unobservable (that \emph{is} the bias) and we
+    cannot measure it. The compromise: substitute an observed \textbf{proxy} that is
+    correlated with it. \textbf{Plan:} the proxy idea, the plug-in regression, the
+    conditions under which it removes the bias, and using a \textbf{lagged dependent
+    variable} as a proxy.
+  \end{keybox}
+
+\end{frame}
+
 \begin{frame}{Omitted Variables: A Bigger Problem}
 
   Functional form misspecification is mild: we have all the data, just need the right form.
@@ -585,6 +627,36 @@
 
 \end{frame}
 
+\begin{frame}[shrink=10]{Why Was Unemployment Negative Without the Lag?}
+
+  Theory predicts $\beta_{\mathit{unem}} \ge 0$ (joblessness raises crime), yet column~(1)
+  reports $-0.029$. Two points resolve the puzzle.
+
+  \begin{keybox}
+    \textbf{1. It is not significant.} $t = -0.029/0.032 \approx -0.9$ --- the negative
+    estimate is \textbf{statistically indistinguishable from zero}. The ``wrong sign'' is
+    sampling noise, not a finding: never over-read a single insignificant coefficient.
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{2. Omitted-variable bias.} Column~(1) leaves out \textbf{persistent city
+    traits} (demographics, socioeconomic conditions, reporting practices) that drive
+    crime; $\log(crmrte_{82})$ proxies for them. With $\delta$ = effect of those traits on
+    crime and $\gamma$ = their partial association with $\mathit{unem}$,
+    \[
+      \plim \hat\beta_{\mathit{unem}}^{(1)} = \beta_{\mathit{unem}} + \delta\,\gamma .
+    \]
+    The coefficient \emph{rises} ($-0.029 \to +0.009$) once the lag is added, so the bias
+    $\delta\gamma$ was \textbf{negative}. Since $\delta>0$ (past crime enters at $+1.19$),
+    we infer $\gamma<0$: in this sample, higher-baseline-crime cities had \emph{lower}
+    1987 unemployment.
+  \end{highlightbox}
+
+  \textbf{After the lag:} the confounding is absorbed and $\hat\beta_{\mathit{unem}}$ returns
+  to its expected non-negative sign ($+0.009$) --- though still insignificant at $n=46$.
+
+\end{frame}
+
 \begin{frame}[shrink=20]{A Different Slant on Multiple Regression (\S9-2b)}
 
   \textbf{Alternative interpretation of regression with proxies:}
@@ -613,9 +685,111 @@
 
 \end{frame}
 
+\begin{frame}[shrink=12]{Potential Outcomes and Proxy Variables (\S9-2c)}
+
+  The proxy-variable idea links directly to the \textbf{potential outcomes} framework
+  (Ch.\ 2--7). For a binary treatment $w \in \{0,1\}$ with potential outcomes
+  $y(0), y(1)$:
+  \[
+    y(0) = \mu_0 + v(0), \qquad y(1) = \mu_1 + v(1), \qquad
+    \tau_{\mathit{ate}} = \mu_1 - \mu_0 .
+  \]
+
+  \begin{keybox}
+    \textbf{Selection problem:} participation $w$ may be correlated with the
+    unobservables $v(0), v(1)$. \textbf{Unconfoundedness (ignorability):} conditional
+    on covariates $\mathbf{x}$, $w$ is independent of $\bigl(y(0), y(1)\bigr)$ ---
+    which is \emph{exactly the proxy-variable condition}: $\mathbf{x}$ proxies for the
+    unobserved factors driving both the outcome and the treatment decision.
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Estimation.} With linear forms
+    $\E[v(g)\mid w,\mathbf{x}] = \E[v(g)\mid \mathbf{x}]
+      = (\mathbf{x}-\boldsymbol\eta)\boldsymbol\beta_g$, $\boldsymbol\eta = \E(\mathbf{x})$,
+    the ATE comes from one interacted regression over the \emph{entire} sample,
+    \[
+      y_i \;\text{ on }\; w_i,\; \mathbf{x}_i,\; w_i\cdot(\mathbf{x}_i - \bar{\mathbf{x}}),
+    \]
+    where the coefficient on $w_i$ is $\hat\tau_{\mathit{ate}}$ (derived next, \S7-6).
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=10]{The Parameter of Interest and the ATE Regression (\S7-6)}
+
+  \begin{keybox}
+    \textbf{Setup.} Each unit has potential outcomes $y(1)$ (if treated) and $y(0)$ (if
+    untreated); with treatment $w\in\{0,1\}$ we observe only one,
+    $y = (1-w)\,y(0) + w\,y(1)$, where $y(g)=\mu_g+v(g)$ and $\mu_g=\E[y(g)]$.
+
+    \smallskip
+    \textbf{Parameter of interest --- the average treatment effect (ATE):}
+    \[
+      \tau \;=\; \E[\,y(1)-y(0)\,] \;=\; \mu_1-\mu_0 .
+    \]
+    The \emph{unit-level} effect $y_i(1)-y_i(0)$ is never observed, so we target its average.
+  \end{keybox}
+
+  \textbf{Derivation.} Take $\E(\cdot\mid w,\mathbf{x})$; \textbf{unconfoundedness} drops $w$
+  from each conditional mean:
+  \begin{align*}
+    \E(y \mid w, \mathbf{x})
+      &= \E[y(0)\mid\mathbf{x}] + w\,\big\{\E[y(1)\mid\mathbf{x}] - \E[y(0)\mid\mathbf{x}]\big\} \\
+      &= \mu_0 + (\mathbf{x}-\boldsymbol\eta)\boldsymbol\beta_0
+         + \underbrace{(\mu_1-\mu_0)}_{\tau}\,w
+         + (\boldsymbol\beta_1-\boldsymbol\beta_0)\,w(\mathbf{x}-\boldsymbol\eta).
+  \end{align*}
+  $\Rightarrow$ regress $y$ on $w$, $\mathbf{x}$, $w(\mathbf{x}-\bar{\mathbf{x}})$
+  ($\boldsymbol\eta=\E(\mathbf{x})$ replaced by $\bar{\mathbf{x}}$); the coefficient on $w$
+  estimates $\tau$.
+
+\end{frame}
+
+\begin{frame}{Why That Form? Interaction and Centering (\S7-6)}
+
+  \begin{keybox}
+    \textbf{Why the interaction $w(\mathbf{x}-\bar{\mathbf{x}})$?} It lets the treated and
+    control groups have \emph{different slopes} ($\boldsymbol\beta_1\neq\boldsymbol\beta_0$),
+    so the effect may vary with covariates:
+    \[
+      \tau(\mathbf{x}) = \tau + (\mathbf{x}-\boldsymbol\eta)(\boldsymbol\beta_1-\boldsymbol\beta_0).
+    \]
+    Dropping it forces a \emph{constant} effect $\tau(\mathbf{x})\equiv\tau$.
+  \end{keybox}
+
+  \begin{highlightbox}
+    \textbf{Why \emph{center} at $\bar{\mathbf{x}}$?} The ATE is the \emph{average} of
+    $\tau(\mathbf{x})$, and $\E(\mathbf{x}-\boldsymbol\eta)=0$, so the coefficient on $w$
+    equals $\tau$ \textbf{only when the interaction is demeaned}. With a raw $w\mathbf{x}$
+    term, that coefficient would instead be the effect at $\mathbf{x}=\mathbf{0}$ --- a
+    (usually fictional) unit, not the population average.
+  \end{highlightbox}
+
+\end{frame}
+
 %% ============================================================
 \section{Models with Random Slopes (\S9-3)}
 %% ============================================================
+
+\begin{frame}{Models with Random Slopes: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} Every model so far forces \emph{one} slope $\beta_j$ on the
+    whole population. But the return to education, or the effect of a price change,
+    plausibly \textbf{differs across individuals} by unobserved traits. What is OLS
+    estimating when slopes are heterogeneous?
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} Allow each unit its own intercept $a_i$ and slope $b_i$, and
+    define the population averages $\alpha = \E(a_i)$ and $\beta = \E(b_i)$, so that
+    $\beta$ is the \textbf{average partial effect (APE)}. \textbf{Plan:} the
+    conditions under which OLS still recovers $\alpha,\beta$, the
+    heteroskedasticity it induces, and when it breaks down.
+  \end{keybox}
+
+\end{frame}
 
 \begin{frame}[shrink=25]{The Random Slopes Model}
 
@@ -703,6 +877,25 @@
 %% ============================================================
 \section{Properties of OLS under Measurement Error (\S9-4)}
 %% ============================================================
+
+\begin{frame}{Measurement Error: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} We often record a variable \emph{with error}: reported vs
+    true income, average vs marginal tax rate, self-reported vs actual hours. Does a
+    mismeasured variable bias OLS --- and if so, in \textbf{which direction}?
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} Write each observed value as truth plus noise, e.g.\
+    $x_1 = x_1^{*} + e_1$, and trace how the noise $e_1$ propagates into
+    $\hat{\boldsymbol\beta}$. \textbf{Plan:} (i) measurement error in the
+    \emph{dependent} variable (usually harmless), then (ii) error in an
+    \emph{explanatory} variable under the \textbf{classical errors-in-variables}
+    assumption $\Rightarrow$ \textbf{attenuation bias} toward zero.
+  \end{keybox}
+
+\end{frame}
 
 \begin{frame}[shrink=20]{Measurement Error: The Issue}
 
@@ -943,6 +1136,30 @@
 %% ============================================================
 \section{Missing Data, Nonrandom Samples, Outliers (\S9-5)}
 %% ============================================================
+
+\begin{frame}{Data Problems: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} Real samples are imperfect: observations have \textbf{gaps},
+    the sample may be drawn \textbf{nonrandomly}, and a few \textbf{outliers} can
+    dominate the fit. Each can threaten random sampling (MLR.2) --- but not all of
+    them bias OLS.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} For every data problem the decisive question is the same:
+    \emph{is an observation's inclusion or exclusion related to the error $u$?}
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item \textbf{Missing data} (§9-5a): MCAR / MAR / NMAR; complete-case vs.\ the
+        missing-indicator method.
+      \item \textbf{Nonrandom samples} (§9-5b): \emph{exogenous} (harmless) vs.\
+        \emph{endogenous} (biasing) selection.
+      \item \textbf{Outliers} (§9-5c): influential observations --- which motivate
+        \textbf{LAD} in §9-6.
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
 
 \begin{frame}[shrink=15]{Missing Data (\S9-5a)}
 
@@ -1265,6 +1482,24 @@
 %% ============================================================
 \section{Least Absolute Deviations Estimation (\S9-6)}
 %% ============================================================
+
+\begin{frame}{Least Absolute Deviations: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} OLS minimizes \emph{squared} residuals, so a single extreme
+    $y$ can swing every coefficient. Rather than hunt down and delete outliers, can
+    we estimate with a rule that is \textbf{intrinsically resistant} to them?
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} Replace OLS's quadratic loss with an \textbf{absolute-value}
+    loss --- minimize the sum of \emph{absolute} residuals rather than squared ones.
+    This estimates the \textbf{conditional median} instead of the mean.
+    \textbf{Plan:} the LAD criterion, why the median is robust to outliers, and the
+    robustness--efficiency trade-off against OLS.
+  \end{keybox}
+
+\end{frame}
 
 \begin{frame}{Least Absolute Deviations (LAD)}
 

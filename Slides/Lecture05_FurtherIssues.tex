@@ -1,0 +1,1942 @@
+%% ============================================================
+%% Lecture 5: Multiple Regression Analysis: Further Issues
+%% Intermediate Econometrics — SUFE
+%% Wooldridge, Introductory Econometrics, 8th edition, Chapter 6
+%% ============================================================
+\documentclass[aspectratio=169, 12pt]{beamer}
+\input{header}
+
+\title[L5: Further Issues]{Multiple Regression Analysis: Further Issues}
+\subtitle{Intermediate Econometrics}
+\author[SUFE Econometrics]{Chengye Jia}
+\institute{%
+  Department of Economics \\
+  Shandong University of Finance and Economics}
+\date{Spring 2026 \\ \smallskip \scriptsize Wooldridge, Chapter 6}
+
+%% ============================================================
+\begin{document}
+%% ============================================================
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}[shrink=10]{Outline}
+  \tableofcontents
+\end{frame}
+
+%% ============================================================
+\section{Data Scaling and Beta Coefficients (\S6-1)}
+%% ============================================================
+
+\begin{frame}{Data Scaling and Beta Coefficients: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} Does it matter whether wage is in dollars or thousands, or
+    birth weight in ounces or pounds? Rescaling a variable changes the \emph{numbers}
+    OLS reports --- coefficients, standard errors, $t$, $F$, confidence intervals ---
+    yet should change \textbf{nothing essential}. Often we rescale purely for cosmetics
+    (fewer leading zeros).
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} Track how each statistic transforms when $y$ or $x_j$ is multiplied
+    by a constant, and confirm that measured effects and test outcomes are preserved.
+    Then rescale to \textbf{standard-deviation units} --- \emph{beta (standardized)
+    coefficients} --- to compare regressors on a common footing. \textbf{Plan:}
+    rescaling $y$, rescaling $x_j$, log invariance, beta coefficients.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=12]{Effects of Rescaling the Dependent Variable}
+
+  Will switching birth weight from \emph{ounces} to \emph{pounds} change any
+  conclusion? Rescale $y$ and watch what happens to every statistic.
+
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      Consider the birth weight equation:
+      \[
+        \widehat{bwght} = \underset{(1.049)}{116.974}
+          - \underset{(0.0916)}{0.4634}\, cigs
+          + \underset{(0.0292)}{0.0927}\, faminc
+      \]
+      Now define $bwghtlbs = bwght/16$ (ounces $\to$ pounds).
+
+      \medskip
+
+      \textbf{What changes?}
+      \begin{itemize}
+        \item Every coefficient is divided by 16
+        \item Every standard error is divided by 16
+        \item The $t$ statistics are \textbf{unchanged}
+        \item $\Rsq$ is \textbf{unchanged}
+        \item $\SSR$ is divided by $16^2 = 256$
+        \item SER is divided by 16
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{keybox}
+        \textbf{Rule --- Rescaling $y$:} \\[4pt]
+        If $y$ is multiplied by $c$: \\[2pt]
+        $\bhat_j \to c\,\bhat_j$ \\
+        $\se(\bhat_j) \to c\,\se(\bhat_j)$ \\
+        $t_{\bhat_j} \to$ \textbf{unchanged} \\
+        $\Rsq \to$ \textbf{unchanged} \\
+        $\SSR \to c^2 \cdot \SSR$ \\
+        $\text{SER} \to |c| \cdot \text{SER}$
+      \end{keybox}
+
+      \medskip
+
+      \textbf{Key insight:} Rescaling $y$ is purely cosmetic ---
+      it changes the appearance but not the statistical conclusions.
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Effects of Rescaling an Independent Variable}
+
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      Now define $packs = cigs/20$ (cigarettes $\to$ packs per day).
+
+      \medskip
+
+      Rewriting the original equation:
+      \[
+        \widehat{bwght} = \underset{(1.049)}{116.974}
+          - \underset{(1.832)}{9.268}\, packs
+          + \underset{(0.0292)}{0.0927}\, faminc
+      \]
+
+      \medskip
+
+      \textbf{What changes?}
+      \begin{itemize}
+        \item Coefficient on $packs$ is $20 \times (-0.4634) = -9.268$
+        \item Standard error on $packs$ is $20 \times 0.0916 = 1.832$
+        \item The $t$ statistic: $-9.268/1.832 = -5.06$ (unchanged!)
+        \item Intercept, other coefficients: unchanged
+        \item $\Rsq$, $\SSR$, SER: all unchanged
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{keybox}
+        \textbf{Rule --- Rescaling $x_j$:} \\[4pt]
+        If $x_j$ is multiplied by $c$: \\[2pt]
+        $\bhat_j \to \bhat_j / c$ \\
+        $\se(\bhat_j) \to \se(\bhat_j) / c$ \\
+        $t_{\bhat_j} \to$ \textbf{unchanged} \\
+        Other $\bhat$'s $\to$ \textbf{unchanged} \\
+        $\Rsq$, $\SSR$, SER $\to$ \textbf{unchanged}
+      \end{keybox}
+
+      \medskip
+
+      \medskip
+      \textbf{Bottom line.} Rescaling any variable changes coefficients and
+      standard errors proportionally, but never the $t$ statistics, $F$ statistics,
+      $\Rsq$, or any test conclusion.
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Rescaling Summary and Logarithmic Invariance}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      {\small
+      \begin{tabular}{lcc}
+        \toprule
+        & \textbf{Rescale $y$} & \textbf{Rescale $x_j$} \\
+        & ($y \to cy$) & ($x_j \to cx_j$) \\
+        \midrule
+        $\bhat_j$    & $\times c$ & $\div c$ \\
+        $\se(\bhat_j)$ & $\times c$ & $\div c$ \\
+        $t_{\bhat_j}$  & unchanged & unchanged \\
+        $\Rsq$       & unchanged & unchanged \\
+        $\SSR$       & $\times c^2$ & unchanged \\
+        SER          & $\times |c|$ & unchanged \\
+        \bottomrule
+      \end{tabular}
+      }
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Logarithmic invariance:} \\[4pt]
+        If $y$ appears as $\log(y)$: changing the units of $y$
+        only affects the intercept. \\[4pt]
+        $\log(c \cdot y) = \log(c) + \log(y)$ \\[4pt]
+        All slope coefficients are \textbf{unchanged}. \\[6pt]
+        Similarly, if $x_j$ appears as $\log(x_j)$: changing
+        the units of $x_j$ only shifts the intercept. \\[4pt]
+        \textbf{Elasticities are invariant to units of measurement.}
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+  \medskip
+
+  \medskip
+  \textbf{Practical advice.} Use rescaling to make coefficients easy to read ---
+  eliminate long strings of zeros (if $\bhat = 0.00013$, measure $x$ in thousands).
+  This is cosmetic, not substantive.
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Beta (Standardized) Coefficients: Definition}
+
+  When regressors live on wildly different scales --- dollars, years, test points ---
+  the raw $\bhat_j$ cannot be ranked by ``importance'': a small coefficient may merely
+  reflect large units. \textbf{Standardizing} puts every variable in common units.
+
+  \begin{definitionbox}{Beta Coefficients}
+    \textbf{Standardize} all variables to $z$-scores:
+    \[
+      z_y = \frac{y_i - \bar{y}}{\hat\sigma_y}, \qquad
+      z_j = \frac{x_{ij} - \bar{x}_j}{\hat\sigma_j}
+    \]
+    Then run the regression (no intercept needed):
+    \[
+      \hat{z}_y = \hat{b}_1 z_1 + \hat{b}_2 z_2 + \cdots + \hat{b}_k z_k
+    \]
+    The \textbf{beta coefficient} (standardized coefficient) is:
+    \[
+      \hat{b}_j = \frac{\hat\sigma_j}{\hat\sigma_y} \hat\beta_j
+      \quad \text{for } j = 1, \ldots, k
+    \]
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{Where this comes from.} Write the fitted equation in deviations,
+    $\hat y_i-\bar y=\sum_j \bhat_j(x_{ij}-\bar x_j)$; divide by $\hat\sigma_y$ and
+    multiply/divide term $j$ by $\hat\sigma_j$:
+    \[
+      \frac{\hat y_i-\bar y}{\hat\sigma_y}
+        = \sum_j \underbrace{\frac{\hat\sigma_j}{\hat\sigma_y}\,\bhat_j}_{\hat b_j}\;
+          \frac{x_{ij}-\bar x_j}{\hat\sigma_j}.
+    \]
+    So $\hat b_j$ is simply $\bhat_j$ rescaled by the ratio of standard deviations.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Beta Coefficients: Interpretation}
+
+  \begin{keybox}
+    \textbf{Interpretation:} A one \emph{standard deviation} increase in $x_j$
+    changes $\hat{y}$ by $\hat{b}_j$ standard deviations. \\[6pt]
+    This puts all variables on the same scale, allowing direct comparison
+    of the relative importance of different regressors.
+  \end{keybox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{When are beta coefficients useful?}
+      \begin{itemize}
+        \item Variables measured on different scales (test scores, income, age)
+        \item Want to rank variables by ``importance''
+        \item Especially useful when units are arbitrary or hard to interpret
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{highlightbox}
+        \textbf{Key facts:}
+        \begin{itemize}
+          \item The $t$ statistics are \textbf{identical} for standardized
+                and unstandardized variables
+          \item With one regressor: the beta coefficient equals the
+                sample correlation $r_{xy}$ (between $-1$ and $1$)
+          \item Even when elasticities are of interest, beta coefficients
+                can still be informative
+        \end{itemize}
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.1 --- Effects of Pollution on Housing Prices}
+
+  \begin{examplebox}{Beta Coefficients for Housing Prices (HPRICE2)}
+    The level-level model:
+    \[
+      price = \beta_0 + \beta_1 nox + \beta_2 crime + \beta_3 rooms
+            + \beta_4 dist + \beta_5 stratio + u
+    \]
+    Beta coefficient estimates (each variable replaced by its $z$-score):
+    \[
+      \widehat{zprice} = -0.340\, znox - 0.143\, zcrime + 0.514\, zrooms
+                        - 0.235\, zdist - 0.270\, zstratio
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Ranking by importance:}
+      \begin{enumerate}
+        \item $rooms$: $|\hat{b}| = 0.514$ (largest)
+        \item $nox$: $|\hat{b}| = 0.340$
+        \item $stratio$: $|\hat{b}| = 0.270$
+        \item $dist$: $|\hat{b}| = 0.235$
+        \item $crime$: $|\hat{b}| = 0.143$ (smallest)
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        A one-sd increase in $nox$ decreases
+        price by 0.34 sd. \\[4pt]
+        The same relative movement in pollution
+        has a larger effect on price than crime. \\[4pt]
+        \textbf{Cannot conclude this from raw coefficients}
+        because units differ!
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%% ============================================================
+\section{Logarithmic Functional Forms (\S6-2a)}
+%% ============================================================
+
+\begin{frame}{Logarithmic Functional Forms: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} Logs are everywhere in applied work: they deliver
+    \textbf{constant-elasticity} and \textbf{semi-elasticity} interpretations that are
+    \emph{unit-free}, they narrow the range of variables, and they dampen the influence
+    of outliers and heteroskedasticity --- but they make no sense for variables that can
+    be zero, negative, or are already proportions.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} Compare the four forms (level--level, level--log, log--level,
+    log--log) and their slope interpretations, then sharpen the \emph{exact} percentage
+    change $100[\exp(\hat\beta_1)-1]$ against the approximation $100\hat\beta_1$.
+    \textbf{Plan:} the four forms, a housing-price example, exact vs.\ approximate
+    percentages, and rules of thumb for when to use logs.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Review: Four Functional Forms}
+
+  \begin{highlightbox}
+    \textbf{The four functional form combinations for $y$ and $x$:}
+  \end{highlightbox}
+
+  \medskip
+
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Model} & \textbf{Dependent} & \textbf{Independent} & \textbf{Interpretation of $\beta_1$} \\
+    \midrule
+    Level--Level & $y$        & $x$        & $\Delta y = \beta_1 \Delta x$ \\[3pt]
+    Level--Log   & $y$        & $\log(x)$  & $\Delta y = (\beta_1/100)\, \%\Delta x$ \\[3pt]
+    Log--Level   & $\log(y)$  & $x$        & $\%\Delta y \approx 100\beta_1 \Delta x$ \\[3pt]
+    Log--Log     & $\log(y)$  & $\log(x)$  & $\%\Delta y \approx \beta_1\, \%\Delta x$ (elasticity) \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Remember:} The log-level and log-log interpretations are
+    \emph{approximations}. For large changes, use the exact formula
+    $\%\Delta y = 100[\exp(\bhat \Delta x) - 1]$ (next slide).
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Functional Forms in Practice: Housing Prices}
+
+  \begin{examplebox}{Housing Prices (HPRICE2 --- eq.\ 6.7)}
+    \[
+      \widehat{\log(price)} = \underset{(0.19)}{9.23}
+        - \underset{(0.066)}{0.718}\, \log(nox)
+        + \underset{(0.019)}{0.306}\, rooms
+    \]
+    \[
+      n = 506, \quad \Rsq = 0.514
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Interpreting the coefficients:}
+      \begin{itemize}
+        \item $\bhat_{\log(nox)} = -0.718$: elasticity \\
+              1\% increase in $nox$ $\Rightarrow$ price falls by $\approx 0.718\%$
+        \item $\bhat_{rooms} = 0.306$: semi-elasticity \\
+              One more room $\Rightarrow$ price rises by $\approx 30.6\%$
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        This equation mixes log--log (for $nox$) and log--level (for $rooms$). \\[4pt]
+        Both interpretations follow directly from the functional form table. \\[4pt]
+        The 30.6\% approximation for $rooms$ is somewhat rough ---
+        the exact change is 35.8\% (next slide).
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Exact vs.\ Approximate Percentage Changes}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{definitionbox}{Exact Percentage Change (eq.\ 6.8)}
+        In the model $\widehat{\log(y)} = \bhat_0 + \bhat_1 x_1 + \bhat_2 x_2$,
+        fixing $x_1$:
+        \[
+          \%\Delta\hat{y} = 100 \cdot [\exp(\bhat_2 \Delta x_2) - 1]
+        \]
+      \end{definitionbox}
+
+      \medskip
+
+      \textbf{When does this matter?}
+      \begin{itemize}
+        \item For small $\bhat_2 \Delta x_2$: the approximation $100 \cdot \bhat_2 \Delta x_2$ is fine
+        \item For large changes: the exact formula can differ substantially
+      \end{itemize}
+
+      \medskip
+      \textbf{Why?} A first-order Taylor expansion $\exp(a)\approx 1+a$ gives
+      $100\,\bhat_2\Delta x_2$, so it keeps only the \emph{first-order} term; the
+      dropped $a^2/2$ is why the exact increase and decrease are asymmetric.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{examplebox}{Housing Prices: $rooms$}
+        $\bhat_{rooms} = 0.306$
+
+        \medskip
+
+        \textbf{Add one room} ($\Delta rooms = 1$): \\
+        Approx: $30.6\%$ \\
+        Exact: $100[\exp(0.306) - 1] = 35.8\%$
+
+        \medskip
+
+        \textbf{Remove one room} ($\Delta rooms = -1$): \\
+        Approx: $-30.6\%$ \\
+        Exact: $100[\exp(-0.306) - 1] = -26.4\%$
+
+        \medskip
+
+        The approximation always lies between the
+        exact increase and exact decrease.
+      \end{examplebox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{When to Use Logarithms: Rules of Thumb}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Use $\log(x)$ when:}
+      \begin{itemize}
+        \item $x > 0$ always (wages, prices, sales, population)
+        \item Large variation in $x$ (firm sales span millions to billions)
+        \item Want percentage-change interpretation
+        \item Want to reduce the influence of outliers
+        \item Want to improve normality of errors
+      \end{itemize}
+
+      \medskip
+
+      \textbf{Use $x$ in levels when:}
+      \begin{itemize}
+        \item $x$ is measured in years (education, experience, age)
+        \item $x$ is a proportion or percent (unemployment rate, pass rate)
+        \item $x$ takes on zero or negative values
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Benefits of logs:}
+        \begin{enumerate}
+          \item Coefficients have percentage-change interpretation
+          \item Slope coefficients invariant to units
+          \item Narrows the range of variables $\Rightarrow$ less sensitivity to outliers
+          \item $\log(y)$ as dependent variable often makes CLM assumptions
+                more plausible (homoskedasticity, normality)
+        \end{enumerate}
+      \end{keybox}
+
+      \medskip
+
+      \medskip
+      \textbf{Warning.} If $y \geq 0$ with $y = 0$ possible, $\log(y)$ is undefined.
+      The fix $\log(1+y)$ is sometimes used, but its coefficients are \textbf{not}
+      invariant to the units of $y$ --- use with caution.
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%% ============================================================
+\section{Quadratic Models and Interactions (\S6-2b, \S6-2c)}
+%% ============================================================
+
+\begin{frame}{Quadratics and Interactions: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} A linear model forces a \emph{constant} partial effect, but
+    economics often demands otherwise: the return to experience \textbf{diminishes},
+    and the payoff to class attendance may \textbf{depend on} ability. Quadratics and
+    interactions relax the constant-effect straitjacket while staying linear in the
+    parameters.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} The partial effect is now itself a \emph{function}, found by
+    calculus: a quadratic gives $\partial y/\partial x = \beta_1 + 2\beta_2 x$, and an
+    interaction gives $\partial y/\partial x_1 = \beta_1 + \beta_3 x_2$. \textbf{Plan:}
+    quadratics and turning points, interaction terms, and worked examples.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=12]{Models with Quadratics}
+
+  The simplest way to let a marginal effect \emph{change} with the level of $x$ ---
+  diminishing returns to experience, a U-shaped cost curve --- is to add the square
+  of $x$ as its own regressor.
+
+  \begin{definitionbox}{Quadratic Specification}
+    \[
+      y = \beta_0 + \beta_1 x + \beta_2 x^2 + u
+    \]
+    The estimated equation:
+    $\hat{y} = \bhat_0 + \bhat_1 x + \bhat_2 x^2$. \\[4pt]
+    The \textbf{marginal effect} of $x$ on $\hat{y}$ depends on $x$:
+    \[
+      \frac{\Delta \hat{y}}{\Delta x} \approx \bhat_1 + 2\bhat_2 x
+    \]
+  \end{definitionbox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Turning point.} Set the marginal effect to zero,
+        $\bhat_1 + 2\bhat_2 x^* = 0$:
+        \[
+          x^* = -\frac{\bhat_1}{2\bhat_2} = \frac{|\bhat_1|}{2|\bhat_2|}
+        \]
+        Check whether $x^*$ is within the range of the data!
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Two shapes:}
+      \begin{itemize}
+        \item $\bhat_1 > 0$, $\bhat_2 < 0$: \textbf{hump shape} (diminishing returns)
+        \item $\bhat_1 < 0$, $\bhat_2 > 0$: \textbf{U-shape} (increasing returns)
+        \item Same sign on $\bhat_1$, $\bhat_2$: monotonic, no turning point for $x > 0$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Wage--Experience Quadratic (WAGE1)}
+
+  \begin{examplebox}{Diminishing Returns to Experience (eq.\ 6.12)}
+    \[
+      \widehat{wage} = \underset{(0.35)}{3.73}
+        + \underset{(0.041)}{0.298}\, exper
+        - \underset{(0.0009)}{0.0061}\, exper^2
+    \]
+    \[
+      n = 526, \quad \Rsq = 0.093
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Marginal effect at different experience levels:}
+      \[
+        \frac{\Delta \widehat{wage}}{\Delta exper} \approx 0.298 - 2(0.0061)\, exper
+      \]
+      \begin{itemize}
+        \item $exper = 1$: $0.298 - 0.012 = 0.286$ (\$0.29/hr)
+        \item $exper = 10$: $0.298 - 0.122 = 0.176$ (\$0.18/hr)
+        \item $exper = 20$: $0.298 - 0.244 = 0.054$ (\$0.05/hr)
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Turning point:}
+        \[
+          exper^* = \frac{0.298}{2(0.0061)} \approx 24.4 \text{ years}
+        \]
+        After 24.4 years, the estimated return to experience
+        is \textbf{negative}. \\[4pt]
+        About 28\% of the sample has $exper > 24$, so the turning
+        point is economically relevant --- not just a mathematical artifact.
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.2 --- Housing Prices with Quadratic $rooms$}
+
+  \begin{examplebox}{Quadratic in $rooms$ (HPRICE2 --- eq.\ 6.14)}
+    \[
+      \widehat{\log(price)} = \underset{(0.57)}{13.39}
+        - \underset{(0.115)}{0.902}\, \log(nox)
+        - \underset{(0.043)}{0.087}\, \log(dist)
+    \]
+    \[
+      - \underset{(0.165)}{0.545}\, rooms
+      + \underset{(0.013)}{0.062}\, rooms^2
+      - \underset{(0.006)}{0.048}\, stratio
+    \]
+    \[
+      n = 506, \quad \Rsq = 0.603
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \textbf{The U-shape:} $\bhat_1 < 0$, $\bhat_2 > 0$. \quad
+  Turning point: $rooms^* = 0.545 / [2(0.062)] \approx 4.4$.
+  Only 1\% of communities have $\leq 4.4$ average rooms,
+  so for the vast majority more rooms $\Rightarrow$ higher price.
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.2 --- Marginal Effect of $rooms$}
+
+  \begin{keybox}
+    \textbf{Marginal effect of $rooms$ on $\log(price)$:}
+    \[
+      \%\Delta \widehat{price} \approx (-54.5 + 12.4\, rooms)\, \Delta rooms
+    \]
+  \end{keybox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Effect at different values:}
+      \begin{itemize}
+        \item At $rooms = 5$: $(-54.5 + 62.0) = 7.5\%$ per room
+        \item At $rooms = 6$: $(-54.5 + 74.4) = 19.9\%$ per room
+        \item At $rooms = 7$: $(-54.5 + 86.8) = 32.3\%$ per room
+      \end{itemize}
+
+      \medskip
+
+      A very strong \textbf{increasing} effect at typical values!
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{highlightbox}
+        \textbf{Lesson:} The coefficient on $rooms^2$ is just 0.062 ---
+        seemingly tiny. But the marginal effect $\bhat_1 + 2\bhat_2 \cdot rooms$
+        changes rapidly across the data range. \\[4pt]
+        Never dismiss a quadratic term based on the size
+        of the coefficient alone. Always compute the marginal
+        effect at relevant values of $x$.
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Important Lesson: Small Coefficients on $x^2$ Can Matter}
+
+  \begin{highlightbox}
+    \textbf{Do not dismiss a quadratic term just because $\bhat_2$ ``looks small.''}
+  \end{highlightbox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      In the housing example, $\bhat_{rooms^2} = 0.062$. \\
+      This seems tiny, but the marginal effect is:
+      \[
+        \bhat_1 + 2\bhat_2 \cdot rooms
+      \]
+      At $rooms = 6.45$: the slope is $0.255$ (25.5\% per room). \\
+      At $rooms = 7$: the slope is $0.323$ (32.3\% per room).
+
+      \medskip
+
+      The quadratic term is highly significant ($t = 0.062/0.013 = 4.77$).
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Compare with a linear model:} \\[4pt]
+        Dropping $rooms^2$, the coefficient on $rooms$
+        becomes about 0.255, implying 25.5\% per room
+        regardless of current size. \\[4pt]
+        The quadratic model reveals that the effect is
+        \textbf{much stronger} for larger houses ---
+        an important insight the linear model misses entirely.
+      \end{keybox}
+
+      \medskip
+
+      \textbf{General rule:} Always compute the marginal effect
+      at interesting values of $x$ (mean, quartiles).
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=8]{Interaction Terms: When One Effect Depends on Another}
+
+  Sometimes the effect of $x_2$ is not constant but \textbf{depends on the level of
+  $x_1$} --- an extra bedroom is worth more in a larger house, and class attendance
+  helps stronger students more. An \emph{interaction term} $x_1 x_2$ captures this.
+
+  \begin{definitionbox}{Interaction model and its partial effect}
+    \[
+      y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3\, x_1 x_2 + u
+      \quad\Longrightarrow\quad
+      \frac{\partial y}{\partial x_2} = \beta_2 + \beta_3 x_1 .
+    \]
+    The effect of $x_2$ now moves with $x_1$ (and symmetrically,
+    $\partial y/\partial x_1 = \beta_1 + \beta_3 x_2$).
+  \end{definitionbox}
+
+  \begin{keybox}
+    \textbf{Reading $\beta_2$ correctly.} $\beta_2$ is the effect of $x_2$ \emph{only
+    when $x_1 = 0$} --- often uninteresting or impossible (a house with zero square
+    feet). Report the partial effect at \textbf{meaningful} values of $x_1$ --- the
+    mean, median, or quartiles --- instead.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.3 --- Attendance and Exam Performance: Model}
+
+  \begin{examplebox}{Interactions with Quadratics (ATTEND --- eq.\ 6.18--6.19)}
+    \[
+      stndfnl = \beta_0 + \beta_1\, atndrte + \beta_2\, priGPA + \beta_3\, ACT
+              + \beta_4\, priGPA^2 + \beta_5\, ACT^2
+              + \beta_6\, priGPA \cdot atndrte + u
+    \]
+    \[
+      \widehat{stndfnl} = \underset{(1.36)}{2.05}
+        - \underset{(0.0102)}{0.0067}\, atndrte
+        - \underset{(0.48)}{1.63}\, priGPA
+        - \underset{(0.098)}{0.128}\, ACT
+    \]
+    \[
+      + \underset{(0.101)}{0.296}\, priGPA^2
+      + \underset{(0.0022)}{0.0045}\, ACT^2
+      + \underset{(0.0043)}{0.0056}\, priGPA \cdot atndrte
+    \]
+    \[
+      n = 680, \quad \Rsq = 0.229, \quad \aRsq = 0.222
+    \]
+  \end{examplebox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.3 --- Partial Effect of Attendance}
+
+  \begin{keybox}
+    \textbf{Partial effect of attendance on standardized final exam score:}
+    \[
+      \frac{\Delta stndfnl}{\Delta atndrte} = \bhat_1 + \bhat_6\, priGPA
+      = -0.0067 + 0.0056 \cdot priGPA
+    \]
+  \end{keybox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{At different prior GPA levels:}
+      \begin{itemize}
+        \item $priGPA = 2.0$: $-0.0067 + 0.0112 = 0.0045$
+        \item $priGPA = 2.59$ (mean): $-0.0067 + 0.0145 = 0.0078$
+        \item $priGPA = 3.5$: $-0.0067 + 0.0196 = 0.0129$
+      \end{itemize}
+
+      \medskip
+
+      At the mean: a 10-point increase in attendance
+      raises the standardized score by 0.078 sd.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{highlightbox}
+        \textbf{Key insight:} \\
+        The effect of attendance is \textbf{stronger} for students
+        with higher prior GPA. \\[4pt]
+        Students who were already doing well benefit more
+        from going to class --- the interaction $priGPA \cdot atndrte$
+        captures this heterogeneity.
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Interpreting the Attendance Interaction}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Testing the partial effect at the mean:}
+
+      \medskip
+
+      To get $\se$ of the effect at $\overline{priGPA} = 2.59$:
+      \begin{enumerate}
+        \item Replace $priGPA \cdot atndrte$ with $(priGPA - 2.59) \cdot atndrte$
+        \item Re-run the regression
+        \item The new coefficient on $atndrte$ equals the partial effect at the mean,
+              with its own $\se$
+      \end{enumerate}
+
+      \medskip
+
+      Result: $\bhat = 0.0078$, $\se = 0.0026$, $t = 3.0$. \\
+      \textbf{Statistically significant} at the 1\% level.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{highlightbox}
+        \textbf{Key lessons from this example:} \\[4pt]
+        \begin{enumerate}
+          \item Looking at $\bhat_1 = -0.0067$ alone would
+                suggest attendance \emph{hurts} performance ---
+                but this is the effect when $priGPA = 0$ (meaningless!)
+          \item The individual $t$ stats on $\bhat_1$ and $\bhat_6$ are both
+                insignificant, but the $F$-test for joint significance
+                rejects $\text{H}_0$: $\beta_1 = 0, \beta_6 = 0$ at 5\%
+          \item \textbf{Always evaluate interactions at interesting values}
+        \end{enumerate}
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%% ============================================================
+\section{Average Partial Effects and Centering (\S6-2d)}
+%% ============================================================
+
+\begin{frame}{Average Partial Effects and Centering: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} Once the partial effect varies across people (quadratics,
+    interactions), \emph{which} number do we report? And why do the coefficients on the
+    level terms look so strange after adding an interaction? Both puzzles are solved by
+    averaging --- and by centering variables before interacting them.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} The \textbf{average partial effect (APE)} averages the
+    observation-specific effect over the sample,
+    $\text{APE}_j = n^{-1}\sum_i \partial \hat y_i / \partial x_j$. Centering each
+    variable at its mean before forming the interaction makes the coefficient on the
+    level term read directly as the APE. \textbf{Plan:} defining the APE, then
+    centering.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Average Partial Effects (APE)}
+
+  \begin{definitionbox}{Average Partial Effect}
+    In a model with quadratics and interactions, the partial effect of $x_j$
+    on $y$ varies across observations. \\[4pt]
+    The \textbf{Average Partial Effect (APE)} averages the partial effect
+    across all $n$ observations:
+    \[
+      \widehat{\text{APE}}_j = \frac{1}{n} \sum_{i=1}^{n}
+      \left. \frac{\partial \hat{y}_i}{\partial x_j} \right|_{x_i}
+    \]
+  \end{definitionbox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{examplebox}{APE in the Attendance Model}
+        Partial effect of $atndrte$: $\bhat_1 + \bhat_6\, priGPA_i$ \\[4pt]
+        $\widehat{\text{APE}}_{atndrte} = \bhat_1 + \bhat_6\, \overline{priGPA}$ \\[4pt]
+        $= -0.0067 + 0.0056(2.59) = 0.0078$
+      \end{examplebox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{examplebox}{APE for $priGPA$}
+        Partial effect: $\bhat_2 + 2\bhat_4\, priGPA_i + \bhat_6\, atndrte_i$ \\[4pt]
+        $\widehat{\text{APE}}_{priGPA} = \bhat_2 + 2\bhat_4\, \overline{priGPA}$
+        $+ \bhat_6\, \overline{atndrte}$
+      \end{examplebox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Centering Variables Before Creating Interactions}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      Consider: $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 x_2 + u$
+
+      \medskip
+
+      $\beta_2$ is the effect of $x_2$ when $x_1 = 0$ --- often uninteresting.
+
+      \medskip
+
+      \textbf{Reparameterize:} replace $x_1 x_2$ with
+      $(x_1 - \bar{x}_1)(x_2 - \bar{x}_2)$:
+      \[
+        y = \alpha_0 + \delta_1 x_1 + \delta_2 x_2
+          + \beta_3 (x_1 - \bar{x}_1)(x_2 - \bar{x}_2) + u
+      \]
+      Now $\delta_2 = \beta_2 + \beta_3 \bar{x}_1$ is the APE of $x_2$!
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Benefits of centering:}
+        \begin{enumerate}
+          \item Coefficients on $x_1$ and $x_2$ become the APE directly
+          \item Standard errors for APE come automatically
+          \item Reduces multicollinearity between $x_j$ and $x_j \cdot x_k$
+          \item The interaction coefficient $\beta_3$ is unchanged
+        \end{enumerate}
+      \end{keybox}
+
+      \medskip
+
+      \begin{highlightbox}
+        Same logic applies to quadratics: \\
+        $y = \gamma_0 + \gamma_1 x + \beta_2(x - \bar{x})^2 + u$ \\[4pt]
+        Now $\gamma_1$ is the APE of $x$.
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%% ============================================================
+\section{Adjusted $\Rsq$ and Model Selection (\S6-3)}
+%% ============================================================
+
+\begin{frame}{Adjusted $\Rsq$ and Model Selection: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} $R^2$ \emph{never} falls when you add a regressor --- so it
+    cannot tell you whether a variable belongs. We need a measure that
+    \textbf{penalizes} complexity, a principled way to choose between competing models,
+    and the judgment to know when \emph{not} to add a control.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} The \textbf{adjusted} $\Rsq$ replaces sample sums with
+    degrees-of-freedom-corrected estimators,
+    $\aRsq = 1 - \dfrac{\hat\sigma^2}{\text{SST}/(n-1)}$, so it can \emph{fall} when a
+    useless regressor is added. \textbf{Plan:} $\aRsq$ and its properties, choosing
+    between nonnested models, over-controlling, and adding regressors to cut the error
+    variance.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Adjusted $R$-Squared: Definition}
+
+  \textbf{Recall:} $\Rsq = 1 - \SSR/\SST$ never falls when a variable is added. \\
+  To penalize model complexity, replace $\SSR/n$ with $\SSR/(n-k-1)$:
+
+  \medskip
+
+  \begin{definitionbox}{Adjusted $R$-Squared (eq.\ 6.21)}
+    \[
+      \aRsq = 1 - \frac{\SSR/(n-k-1)}{\SST/(n-1)}
+            = 1 - \frac{\hat\sigma^2}{\SST/(n-1)}
+    \]
+    Alternative formula: $\displaystyle\aRsq = 1 - (1 - \Rsq)\frac{n-1}{n-k-1}$
+  \end{definitionbox}
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Why $n-k-1$?} \\[4pt]
+    $\Rsq = 1 - \SSR/n \div \SST/n$. Replacing with unbiased estimators:
+    $\hat\sigma^2 = \SSR/(n-k-1)$ and $\SST/(n-1)$ is the sample variance of $y$.
+    Using unbiased estimators instead of $n$-scaled versions gives $\aRsq$.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Adjusted $R$-Squared: Key Properties}
+
+  \begin{keybox}
+    \textbf{Properties of $\aRsq$:}
+    \begin{enumerate}
+      \item Penalizes adding variables: $\aRsq$ \textbf{can decrease} when a variable is added
+      \item $\aRsq$ increases $\iff$ the $t$ statistic on the new variable exceeds 1 in absolute value
+      \item For a group of variables: $\aRsq$ increases $\iff$ the $F$ statistic $> 1$
+      \item $\aRsq \leq \Rsq$ always; with small $n$ and large $k$, $\aRsq$ can be \textbf{negative}
+      \item $\aRsq < 0$ signals a very poor model relative to its complexity
+    \end{enumerate}
+  \end{keybox}
+
+  \medskip
+
+  \begin{highlightbox}
+    \textbf{Important:} The $F$ statistic for testing exclusion restrictions uses $\Rsq$, \textbf{not} $\aRsq$.
+    The formula with $\aRsq$ is \emph{not valid}!
+  \end{highlightbox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{$\aRsq$ Can Be Negative}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{examplebox}{Numerical Example}
+        If $\Rsq = 0.10$, $n = 51$, $k = 10$:
+        \[
+          \aRsq = 1 - (1 - 0.10) \frac{50}{40} = 1 - 1.125 = -0.125
+        \]
+        A negative $\aRsq$ tells us the model has too many
+        regressors relative to the sample size and explanatory power.
+      \end{examplebox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{highlightbox}
+        \textbf{Important reminders:}
+        \begin{itemize}
+          \item The $F$ statistic in (4.41) uses $\Rsq$, \textbf{not} $\aRsq$.
+                Using $\aRsq$ in the $F$ formula is \emph{not} valid!
+          \item When $\aRsq$ is reported alongside $\Rsq$, remember that sometimes
+                the $\aRsq$ column is mislabeled as $\Rsq$ --- always check
+          \item $\aRsq$ is most useful for comparing models with the
+                \textbf{same dependent variable} but different regressors
+        \end{itemize}
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Choosing Between Nonnested Models}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Nested models:} one is a special case of the other
+      $\Rightarrow$ use the $F$ test.
+
+      \medskip
+
+      \textbf{Nonnested models:} neither is a special case of the other
+      $\Rightarrow$ $F$ test does not apply.
+
+      \medskip
+
+      \begin{examplebox}{Baseball Salary (MLB1)}
+        Model A: $\log(salary)$ on $years$, $gamesyr$, $bavg$, $hrunsyr$ \\
+        Model B: same, but with $rbisyr$ instead of $hrunsyr$
+
+        \medskip
+
+        $\aRsq_A = 0.6211$ \\
+        $\aRsq_B = 0.6226$
+
+        \medskip
+
+        Slight preference for Model B, but the difference is tiny.
+      \end{examplebox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Using $\aRsq$ for nonnested models:} \\[4pt]
+        Pick the model with the higher $\aRsq$. \\[4pt]
+        This works when:
+        \begin{enumerate}
+          \item Same dependent variable (same $\SST$)
+          \item Same sample ($n$ must be identical)
+        \end{enumerate}
+      \end{keybox}
+
+      \medskip
+
+      \medskip
+      \textbf{Critical limitation.} You cannot use $\Rsq$ or $\aRsq$ to compare
+      $y$ vs.\ $\log(y)$ as dependent variables --- they measure variation in
+      \emph{different} things. Section~6-4 gives the fix.
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.4 --- CEO Compensation: Level vs.\ Log}
+
+  \begin{examplebox}{Two Models for CEO Salary (CEOSAL2)}
+    \textbf{Model A} (level--level):
+    \[
+      \widehat{salary} = \underset{(223.90)}{830.63}
+        + \underset{(0.0089)}{0.0163}\, sales
+        + \underset{(11.08)}{19.63}\, roe
+    \]
+    \[
+      n = 209, \quad \Rsq = 0.029, \quad \aRsq = 0.020
+    \]
+
+    \medskip
+
+    \textbf{Model B} (log--log):
+    \[
+      \widehat{lsalary} = \underset{(0.29)}{4.36}
+        + \underset{(0.033)}{0.275}\, lsales
+        + \underset{(0.0040)}{0.0179}\, roe
+    \]
+    \[
+      n = 209, \quad \Rsq = 0.282, \quad \aRsq = 0.275
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \begin{keybox}
+    Cannot compare $\Rsq = 0.029$ (for $salary$) with $\Rsq = 0.282$ (for $\log(salary)$) ---
+    they explain variation in \textbf{different variables}.
+    We need the method from Section 6-4 to make a valid comparison.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Over-Controlling: Adding Bad Controls}
+
+  \textbf{It is possible to control for \emph{too many} variables:} including a
+  ``bad control'' can introduce bias or mask the very effect you want to measure.
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{examplebox}{Beer Taxes and Traffic Fatalities}
+        Want: effect of beer $tax$ on $fatalities$.
+
+        \medskip
+
+        \textbf{Good controls:} $miles$, $percmale$, $perc16\_21$
+        (demographics, driving exposure)
+
+        \medskip
+
+        \textbf{Bad control:} $beercons$ (beer consumption) \\
+        If we hold $beercons$ fixed, how would $tax$ affect fatalities?
+        Only through non-alcohol channels --- not what we want!
+      \end{examplebox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{When is a control ``bad''?} \\[4pt]
+        A variable is a bad control if it is:
+        \begin{enumerate}
+          \item On the \textbf{causal pathway} between $x$ and $y$
+                (a ``mediator'')
+          \item An \textbf{outcome} of the treatment variable
+          \item Would change the \textbf{ceteris paribus interpretation}
+                to something uninteresting
+        \end{enumerate}
+
+        \medskip
+
+        \textbf{Rule of thumb:} Think carefully about the ceteris paribus
+        interpretation. Does holding this variable fixed make economic sense?
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Adding Regressors to Reduce Error Variance}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{The tradeoff:} Adding a variable to a regression:
+      \begin{itemize}
+        \item[\textcolor{positive}{+}] Reduces error variance $\sigma^2$ (takes variation out of $u$)
+        \item[\textcolor{negative}{$-$}] May increase multicollinearity (inflates $\Var(\bhat_j)$)
+      \end{itemize}
+
+      \medskip
+
+      \textbf{Clear case:} If new variables are \textbf{uncorrelated} with the
+      regressors of interest:
+      \begin{itemize}
+        \item No multicollinearity increase
+        \item Error variance decreases
+        \item Standard errors of all coefficients shrink
+        \item \textbf{Always include} such variables
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{examplebox}{Computer Equipment Grants}
+        Effect of randomly assigned grant amount on college GPA.
+        \begin{itemize}
+          \item Random assignment $\Rightarrow$ grant is uncorrelated with
+                HS GPA, family background, etc.
+          \item Including HS GPA and test scores as controls:
+                reduces $\hat\sigma^2$ without increasing multicollinearity
+          \item Result: more precise estimate of the grant effect
+        \end{itemize}
+      \end{examplebox}
+
+      \medskip
+
+      \begin{keybox}
+        \textbf{With random assignment:} include pre-treatment controls
+        to improve precision, even though they are not needed for unbiasedness.
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%% ============================================================
+\section{Prediction and Residual Analysis (\S6-4)}
+%% ============================================================
+
+\begin{frame}{Prediction and Residual Analysis: Motivation \& Setup}
+
+  \begin{highlightbox}
+    \textbf{Motivation.} So far we used regression to estimate ceteris paribus
+    \emph{effects}. But we also want to \textbf{predict} $y$ at chosen values of the
+    regressors --- and to be honest about the uncertainty, which differs for an
+    \emph{average} outcome versus a \emph{single} new unit.
+  \end{highlightbox}
+
+  \begin{keybox}
+    \textbf{Setup.} Distinguish the \textbf{confidence interval} for the mean
+    $\E(y\mid\mathbf{x}_0)$ from the wider \textbf{prediction interval} for an individual
+    $y_0$ (which adds the error variance $\hat\sigma^2$). \textbf{Plan:} confidence
+    intervals for predictions, prediction intervals, residual analysis, and recovering
+    $y$ when $\log(y)$ is the dependent variable.
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Confidence Intervals for Predictions}
+
+  We often want the predicted \emph{mean} response at chosen values $x_j = c_j$, with a
+  confidence interval around it. The point estimate is immediate; its standard error
+  takes a small trick.
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      Given $\hat{y} = \bhat_0 + \bhat_1 x_1 + \cdots + \bhat_k x_k$, we
+      predict $\E[y \mid x_1 = c_1, \ldots, x_k = c_k]$:
+      \[
+        \hat\theta_0 = \bhat_0 + \bhat_1 c_1 + \cdots + \bhat_k c_k
+      \]
+
+      \medskip
+
+      \textbf{How to get $\se(\hat\theta_0)$?}
+
+      \medskip
+
+      \textbf{The reparameterization trick:}
+      \begin{enumerate}
+        \item Define $x_j^0 = x_j - c_j$ for each variable
+        \item Regress $y$ on $x_1^0, \ldots, x_k^0$
+        \item The new intercept $= \hat\theta_0$ with its own $\se$!
+      \end{enumerate}
+
+      \medskip
+
+      95\% CI: $\hat\theta_0 \pm t_{0.025} \cdot \se(\hat\theta_0)$
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Why this works:} \\[4pt]
+        Writing $\beta_0 = \theta_0 - \beta_1 c_1 - \cdots - \beta_k c_k$
+        and substituting: \\[4pt]
+        $y = \theta_0 + \beta_1(x_1 - c_1) + \cdots + \beta_k(x_k - c_k) + u$ \\[4pt]
+        The intercept in this new regression is exactly $\theta_0$,
+        the expected value of $y$ at the specified $x$-values.
+      \end{keybox}
+
+      \medskip
+
+      \begin{highlightbox}
+        \textbf{Note:} The variance of the prediction is smallest when
+        $c_j = \bar{x}_j$ for all $j$ (predicting at the sample means).
+        Predictions far from the means have wider CIs.
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.5 --- Confidence Interval for Predicted College GPA}
+
+  \begin{examplebox}{College GPA Prediction (GPA2 --- eq.\ 6.32)}
+    \[
+      \widehat{colgpa} = \underset{(0.075)}{1.493}
+        + \underset{(0.00007)}{0.00149}\, sat
+        - \underset{(0.00056)}{0.01386}\, hsperc
+    \]
+    \[
+        - \underset{(0.01650)}{0.06088}\, hsize
+        + \underset{(0.00227)}{0.00546}\, hsize^2
+    \]
+    \[
+      n = 4{,}137, \quad \Rsq = 0.278, \quad \aRsq = 0.277, \quad \hat\sigma = 0.560
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Predict for:} $sat = 1{,}200$, $hsperc = 30$, $hsize = 5$
+
+      \medskip
+
+      $\widehat{colgpa} \approx 2.70$
+
+      \medskip
+
+      Using the reparameterization trick: \\
+      $\se(\hat\theta_0) = 0.020$
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{95\% CI for expected GPA:}
+        \[
+          2.70 \pm 1.96(0.020) = [2.66, 2.74]
+        \]
+        Very narrow! With $n = 4{,}137$, the expected
+        value is precisely estimated. \\[4pt]
+        This is a CI for the \textbf{average} GPA of all students
+        with these characteristics.
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Prediction Intervals vs.\ Confidence Intervals}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{definitionbox}{Two Types of Intervals}
+        \textbf{Confidence interval:} for $\E[y \mid \mathbf{x}]$
+        (the average outcome for a subpopulation)
+
+        \medskip
+
+        \textbf{Prediction interval:} for $y^0$
+        (a specific individual's future outcome)
+      \end{definitionbox}
+
+      \medskip
+
+      The prediction error is $\hat{e}^0 = y^0 - \hat{y}^0$. The new unit's error
+      $u^0$ is independent of the estimation sample, so $\Cov(\hat{y}^0, u^0)=0$ and
+      the two variances simply add:
+      \[
+        \Var(\hat{e}^0) = \Var(\hat{y}^0) + \sigma^2 .
+      \]
+
+      Two sources of uncertainty:
+      \begin{enumerate}
+        \item Sampling error in $\bhat_j$'s ($\to 0$ as $n \to \infty$)
+        \item Error variance $\sigma^2$ (does \textbf{not} shrink with $n$)
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Standard error of prediction:}
+        \[
+          \se(\hat{e}^0) = \sqrt{[\se(\hat{y}^0)]^2 + \hat\sigma^2}
+        \]
+
+        \medskip
+
+        \textbf{95\% prediction interval:}
+        \[
+          \hat{y}^0 \pm t_{0.025} \cdot \se(\hat{e}^0)
+        \]
+      \end{keybox}
+
+      \medskip
+
+      \begin{highlightbox}
+        The prediction interval is \textbf{always wider} than
+        the confidence interval because it includes $\hat\sigma^2$. \\[4pt]
+        For large $n$: $\se(\hat{y}^0)$ is tiny, so
+        $\se(\hat{e}^0) \approx \hat\sigma$ --- the width is
+        dominated by the irreducible error variance.
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.6 --- Prediction Interval for Future College GPA}
+
+  \begin{examplebox}{Individual Prediction (GPA2)}
+    Same student: $sat = 1{,}200$, $hsperc = 30$, $hsize = 5$. \\[4pt]
+    $\hat{y}^0 = 2.70$, $\se(\hat{y}^0) = 0.020$, $\hat\sigma = 0.560$
+    \[
+      \se(\hat{e}^0) = \sqrt{(0.020)^2 + (0.560)^2} \approx 0.560
+    \]
+    \textbf{95\% prediction interval:} $2.70 \pm 1.96(0.560) = [1.60, 3.80]$
+  \end{examplebox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Compare:}
+      \begin{itemize}
+        \item CI for average GPA: $[2.66, 2.74]$ (very narrow)
+        \item PI for individual GPA: $[1.60, 3.80]$ (very wide!)
+      \end{itemize}
+
+      \medskip
+
+      The prediction interval spans more than 2 full GPA points.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Why so wide?} \\[4pt]
+        The model explains only 27.8\% of the variation
+        in college GPA ($\Rsq = 0.278$). \\[4pt]
+        Unobserved factors (motivation, study habits,
+        health, social environment) account for most
+        of the variation. \\[4pt]
+        \textbf{Good news:} SAT and HS rank do not
+        predetermine college success!
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=12]{Residual Analysis}
+
+  The residual itself carries information: a large $|\uh_i|$ flags an observation the
+  model badly misses --- an underpriced house, a value-adding school, or an over- or
+  under-paid athlete.
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{definitionbox}{Residual Analysis}
+        Examine individual residuals $\uh_i = y_i - \yh_i$
+        to identify observations that are unusually
+        above or below the regression line.
+      \end{definitionbox}
+
+      \medskip
+
+      \textbf{Applications:}
+      \begin{itemize}
+        \item \textbf{Housing:} The house with the most negative
+              residual is the most ``underpriced'' relative to
+              its predicted value
+        \item \textbf{Law schools:} Rank schools by residual after
+              controlling for inputs (LSAT, GPA) --- the highest
+              residual school adds the most ``value''
+        \item \textbf{Sports:} Identify overpaid/underpaid athletes
+              relative to their performance
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{examplebox}{Housing Prices (HPRICE1)}
+        Regress $price$ on $lotsize$, $sqrft$, $bdrms$. \\
+        $n = 88$ homes.
+
+        \medskip
+
+        The most negative residual: $\uh_{81} = -120{,}206$. \\
+        House 81's asking price is \$120,206 below its predicted price. \\[4pt]
+        Possible explanations:
+        \begin{itemize}
+          \item Unobserved defects (bad neighborhood, needs repairs)
+          \item Motivated seller
+          \item Genuinely underpriced (a ``bargain'')
+        \end{itemize}
+      \end{examplebox}
+
+      \medskip
+
+      \begin{keybox}
+        The residual reflects everything \textbf{not} captured by the model.
+        Large residuals may reveal model misspecification or unusual observations.
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Predicting $y$ When $\log(y)$ Is the Dependent Variable}
+
+  If the model is $\log(y) = \beta_0 + \beta_1 x_1 + \cdots + \beta_k x_k + u$,
+  OLS predicts $\widehat{\log(y)}$, not $y$ directly.
+
+  \medskip
+
+  \textbf{Naive prediction:} $\tilde{y} = \exp(\widehat{\log(y)})$
+
+  \medskip
+
+  \begin{keybox}
+    This \textbf{systematically underestimates} $\E[y \mid \mathbf{x}]$
+    because $\E[\exp(u)] > \exp(\E[u]) = 1$ by Jensen's inequality
+    whenever $\Var(u) > 0$.
+  \end{keybox}
+
+  \medskip
+
+  \begin{definitionbox}{Correction Under Normality (eq.\ 6.40)}
+    If $u \mid \mathbf{x} \sim \Normal(0, \sigma^2)$, then
+    $\E[\exp(u)] = \exp(\sigma^2/2)$, so:
+    \[
+      \hat{y} = \exp\!\left(\frac{\hat\sigma^2}{2}\right) \cdot \exp\!\left(\widehat{\log(y)}\right)
+    \]
+    where $\hat\sigma^2 = \SSR/(n - k - 1)$ is the squared SER.
+    The correction factor $\exp(\hat\sigma^2/2) > 1$ inflates the naive prediction.
+  \end{definitionbox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Predicting $y$ From $\log(y)$: Smearing Estimate}
+
+  \begin{definitionbox}{Smearing Estimate (eq.\ 6.43)}
+    Without assuming normality, estimate $\E[\exp(u)]$ from residuals:
+    \[
+      \hat\alpha_0 = \frac{1}{n} \sum_{i=1}^{n} \exp(\uh_i)
+    \]
+    Then the adjusted prediction is:
+    \[
+      \hat{y} = \hat\alpha_0 \cdot \exp\!\left(\widehat{\log(y)}\right)
+    \]
+    Since $\exp$ is convex, $\hat\alpha_0 > 1$ always.
+  \end{definitionbox}
+
+  \medskip
+
+  \begin{keybox}
+    \textbf{Which correction to use?}
+    \begin{itemize}
+      \item Errors approximately normal $\Rightarrow$ use eq.\ 6.40
+            ($\exp(\hat\sigma^2/2)$); more efficient when correct
+      \item Unsure about normality $\Rightarrow$ use smearing estimate (eq.\ 6.43);
+            robust to non-normality
+      \item Both are consistent estimators of $\E[y \mid \mathbf{x}]$
+    \end{itemize}
+  \end{keybox}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Example 6.7 --- Predicting CEO Salaries}
+
+  \begin{examplebox}{CEO Salary Prediction (CEOSAL2 --- eq.\ 6.45)}
+    \[
+      \widehat{lsalary} = \underset{(0.257)}{4.504}
+        + \underset{(0.039)}{0.163}\, lsales
+        + \underset{(0.050)}{0.109}\, lmktval
+        + \underset{(0.0053)}{0.0117}\, ceoten
+    \]
+    \[
+      n = 177, \quad \Rsq = 0.318
+    \]
+  \end{examplebox}
+
+  \medskip
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Predict for:} $sales = 5{,}000$ (millions), \\
+      $mktval = 10{,}000$ (millions), $ceoten = 10$ years.
+
+      \medskip
+
+      $\widehat{lsalary} = 4.504 + 0.163 \log(5{,}000)$
+      $+ 0.109 \log(10{,}000) + 0.0117(10) \approx 7.013$
+
+      \medskip
+
+      Naive: $\exp(7.013) = \$1{,}110{,}983$
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Adjusted predictions:}
+        \begin{itemize}
+          \item Smearing: $\hat\alpha_0 = 1.136$ \\
+                $\hat{y} = 1.136 \times 1{,}110{,}983 = \$1{,}262{,}077$
+          \item Normality: $\exp(\hat\sigma^2/2) = 1.117$ \\
+                $\hat{y} = 1.117 \times 1{,}110{,}983 = \$1{,}240{,}968$
+        \end{itemize}
+
+        \medskip
+
+        Both adjustments add $\approx$ \$130,000--\$150,000
+        to the naive prediction. The adjustment matters!
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Comparing Models with Different Dependent Variables}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Problem:} Cannot compare $\Rsq$ from a model
+      for $y$ with $\Rsq$ from a model for $\log(y)$.
+
+      \medskip
+
+      \textbf{Solution:} Compute a ``pseudo-$\Rsq$'' for $y$
+      from the log model:
+      \[
+        \tilde{R}^2 = 1 - \frac{\sum_{i=1}^{n} \hat{r}_i^2}
+                             {\sum_{i=1}^{n} (y_i - \bar{y})^2}
+      \]
+      where $\hat{r}_i = y_i - \hat\alpha_0 \exp(\widehat{\log(y)}_i)$
+      are residuals for predicting $y$ (not $\log y$).
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{examplebox}{Example 6.8: CEO Salaries}
+        From the log model:
+        $\Corr(salary_i, \hat{m}_i)^2 = (0.493)^2 = 0.243$
+
+        \medskip
+
+        From the level model (eq.\ 6.49):
+        $\Rsq = 0.201$
+
+        \medskip
+
+        The log model explains \textbf{more} variation
+        in $salary$ (24.3\% vs.\ 20.1\%) and has more
+        interpretable coefficients.
+      \end{examplebox}
+
+      \medskip
+
+      \medskip
+      \textbf{Conclusion.} The log model wins on both goodness-of-fit and
+      interpretability for CEO salary.
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%% ============================================================
+\section*{Summary}
+%% ============================================================
+
+\begin{frame}[shrink=15]{Chapter 6 Summary: Scaling and Functional Form}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Data Scaling (\S6-1)}
+        \begin{itemize}
+          \item Rescaling changes $\hat\beta$ and SEs proportionally
+          \item $t$, $F$, $\Rsq$ are \textbf{invariant} to rescaling
+          \item Beta coefficients: standardize all variables for
+                cross-regressor comparison
+        \end{itemize}
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Functional Form (\S6-2)}
+        \begin{itemize}
+          \item Four log combinations; exact \% change $= \exp(\cdot) - 1$
+          \item Quadratics: marginal effect $= \hat\beta_1 + 2\hat\beta_2 x$
+          \item Interactions: partial effect depends on other variable
+          \item APE: average partial effect over sample
+          \item Centering at $\bar{x}$: constant $=$ APE directly
+        \end{itemize}
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Chapter 6 Summary: Model Selection and Prediction}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Adjusted $\Rsq$ (\S6-3)}
+        \begin{itemize}
+          \item Penalizes extra regressors; can be negative
+          \item Valid for nonnested models with \textbf{same} $y$
+          \item Cannot compare models with different $y$'s
+          \item Beware over-controlling (bad controls)
+        \end{itemize}
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{Prediction (\S6-4)}
+        \begin{itemize}
+          \item CI for $\E[y|\mathbf{x}]$: narrow (sampling uncertainty)
+          \item PI for new $y^0$: wide (adds $\hat\sigma^2$ for error)
+          \item Log models: correct with $\exp(\hat\sigma^2/2)$
+                or smearing estimate
+          \item Compare $y$ vs.\ $\log(y)$ using pseudo-$\Rsq$
+        \end{itemize}
+      \end{keybox}
+    \end{column}
+  \end{columns}
+
+  \medskip
+
+  \begin{highlightbox}
+    \textbf{Core theme of Ch.\ 6:} OLS is more flexible than it looks.
+    Scaling, functional form, and prediction all build on the same estimator ---
+    what changes is \textit{how we set up the model} and \textit{how we read the results}.
+  \end{highlightbox}
+
+\end{frame}
+
+%% ============================================================
+\section*{Appendix 6A: Bootstrap}
+%% ============================================================
+
+\begin{frame}[shrink=15]{The Bootstrap: Motivation}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Problem:} Formulas for standard errors are sometimes
+      \begin{itemize}
+        \item Hard to derive analytically
+        \item Not good approximations to the true sampling variation
+        \item Unavailable for complex estimators
+      \end{itemize}
+
+      \medskip
+
+      \textbf{Solution:} Use a \textbf{resampling method} --- treat
+      the observed data as a population from which we can draw
+      new samples.
+
+      \medskip
+
+      \begin{keybox}
+        The most common resampling method is the
+        \textbf{nonparametric bootstrap}.
+        It requires no distributional assumptions.
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{definitionbox}{The Bootstrap Idea}
+        \begin{enumerate}
+          \item We have an estimator $\hat{\theta}$ computed
+                from a sample of size $n$
+          \item Treat the $n$ observations as the ``population''
+          \item Draw $n$ observations \textbf{with replacement}
+                to create a bootstrap sample
+          \item Recompute $\hat{\theta}^{(b)}$ on each bootstrap sample
+          \item Repeat $m$ times and use the variation in
+                $\{\hat{\theta}^{(b)}\}$ to measure uncertainty
+        \end{enumerate}
+      \end{definitionbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Bootstrap Standard Error: Algorithm and Formula}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Algorithm:}
+      \begin{enumerate}
+        \item List observations $1, \ldots, n$
+        \item Draw $n$ integers randomly with replacement
+              $\Rightarrow$ bootstrap sample $b$ (size $n$)
+        \item Compute estimate $\hat{\theta}^{(b)}$ on sample $b$
+        \item Repeat steps 2--3 a total of $m$ times
+        \item Compute $\bar{\theta} = m^{-1}\sum_{b=1}^m \hat{\theta}^{(b)}$
+        \item Compute $\text{bse}(\hat{\theta})$ from eq.\ [6.50]
+      \end{enumerate}
+
+      \medskip
+
+      \begin{keybox}
+        \textbf{Choice of $m$:} Typical value is $m = 1{,}000$.\\
+        Even $m = 500$ often gives a reliable SE.\\
+        $m$ has nothing to do with the sample size $n$.
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{definitionbox}{Bootstrap Standard Error (eq.\ 6.50)}
+        \[
+          \text{bse}(\hat{\theta}) = \left[
+            (m-1)^{-1} \sum_{b=1}^{m}
+            \bigl(\hat{\theta}^{(b)} - \bar{\theta}\bigr)^2
+          \right]^{1/2}
+        \]
+        where $\bar{\theta} = m^{-1}\sum_{b=1}^m \hat{\theta}^{(b)}$
+        is the average of all bootstrap estimates.
+      \end{definitionbox}
+
+      \medskip
+
+      \begin{highlightbox}
+        $\text{bse}(\hat{\theta})$ is the \textbf{sample standard
+        deviation} of the $m$ bootstrap estimates.
+        It is a consistent estimator of $\text{se}(\hat{\theta})$.
+      \end{highlightbox}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}[shrink=15]{Bootstrap in Practice}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{keybox}
+        \textbf{When to use the bootstrap:}
+        \begin{itemize}
+          \item Asymptotic SE formula unavailable
+                (e.g.\ nonlinear functions of $\hat\beta$)
+          \item Small samples where asymptotics may be poor
+          \item Checking whether analytical SEs are reliable
+        \end{itemize}
+      \end{keybox}
+
+      \medskip
+
+      \begin{keybox}
+        \textbf{Going further:}\\
+        Bootstrap samples can be used to compute
+        \textit{p}-values for $t$ and $F$ statistics, or to
+        construct confidence intervals directly ---
+        often more accurate than bse$(\hat{\theta})$
+        in a $t$ statistic.\\[4pt]
+        See Horowitz (2001).
+      \end{keybox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{highlightbox}
+        \textbf{R: Bootstrap SE for OLS coefficient}
+      \end{highlightbox}
+
+      \medskip
+
+      \texttt{\small
+        library(wooldridge); library(boot) \\
+        data(wage1) \\
+        boot\_fn \textless- function(data, idx) \{ \\
+        \quad m \textless- lm(log(wage) $\sim$ educ + exper \\
+        \quad\quad + I(exper\^{}2) + tenure, \\
+        \quad\quad data = data[idx, ]) \\
+        \quad coef(m)["educ"] \} \\
+        set.seed(42) \\
+        b \textless- boot(wage1, boot\_fn, R=1000) \\
+        sd(b\$t) \quad \# bootstrap SE \\
+      }
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+%% ============================================================
+\section*{R Code Examples}
+%% ============================================================
+
+\begin{frame}[fragile, shrink=15]{R Code: Scaling and Beta Coefficients}
+
+\begin{verbatim}
+library(wooldridge)
+
+## --- Scaling (Table 6.1) ---
+data(bwght)
+m1 <- lm(bwght ~ cigs + faminc, data = bwght)
+bwght$bwghtlbs <- bwght$bwght / 16
+m2 <- lm(bwghtlbs ~ cigs + faminc, data = bwght)
+# Compare: coef(m2) = coef(m1)/16; t-stats identical
+
+## --- Beta Coefficients (Example 6.1) ---
+data(hprice2)
+m_std <- lm(scale(price) ~ scale(nox) + scale(crime)
+  + scale(rooms) + scale(dist) + scale(stratio),
+  data = hprice2)
+coef(m_std)  # beta coefficients (intercept ~ 0)
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile, shrink=18]{R Code: Quadratic Models}
+
+\begin{verbatim}
+## --- Quadratic (WAGE1 eq. 6.12) ---
+data(wage1)
+m_quad <- lm(wage ~ exper + I(exper^2), data = wage1)
+summary(m_quad)
+tp <- abs(coef(m_quad)["exper"]) /
+  (2 * abs(coef(m_quad)["I(exper^2)"]))
+cat("Turning point:", round(tp, 1), "years\n")
+
+## --- Interaction (Example 6.3: ATTEND) ---
+data(attend)
+m_int <- lm(stndfnl ~ atndrte + priGPA + ACT +
+  I(priGPA^2) + I(ACT^2) + atndrte:priGPA,
+  data = attend)
+summary(m_int)
+# APE of atndrte at mean priGPA
+ape <- coef(m_int)["atndrte"] +
+  coef(m_int)["atndrte:priGPA"] * mean(attend$priGPA)
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile, shrink=15]{R Code: Predictions and Log Models}
+
+\begin{verbatim}
+## --- Prediction CI (Example 6.5: GPA2) ---
+data(gpa2)
+m_gpa <- lm(colgpa ~ sat + hsperc + hsize + I(hsize^2),
+  data = gpa2)
+nd <- data.frame(sat=1200, hsperc=30, hsize=5)
+predict(m_gpa, newdata=nd, interval="confidence")
+predict(m_gpa, newdata=nd, interval="prediction")
+
+## --- Log model prediction (Example 6.7: CEOSAL2) ---
+data(ceosal2)
+m_log <- lm(lsalary ~ lsales + lmktval + ceoten,
+  data = ceosal2)
+sigma_hat <- summary(m_log)$sigma
+alpha_norm  <- exp(sigma_hat^2 / 2)       # normality
+alpha_smear <- mean(exp(residuals(m_log))) # smearing
+\end{verbatim}
+
+\end{frame}
+
+%% ============================================================
+\end{document}
