@@ -1249,15 +1249,29 @@
   missing $\Rightarrow z_k = 0$). Substituting into the true model
   $y = \beta_0 + \sum_{j<k}\beta_j x_j + \beta_k x_k + u$,
   \[
+    \text{(true model)}\quad
     y = \beta_0 + \sum_{j<k}\beta_j x_j + \beta_k z_k
-        + \underbrace{\beta_k\, m_k x_k}_{\text{omitted by MIM}} + u ,
+        + \underbrace{\beta_k\, m_k x_k}_{\text{omitted by MIM}} + u .
   \]
-  so MIM includes the dummy $m_k$ but \emph{omits} $\beta_k m_k x_k$.
+  MIM instead fits the linear specification
+  \[
+    \text{(MIM fits)}\quad
+    \hat{y} = \hat\gamma_0 + \sum_{j<k}\hat\gamma_j x_j + \hat\gamma_k z_k
+              + \hat\gamma_m\, m_k ,
+  \]
+  replacing the true term $\beta_k(m_k x_k)$ with a plain dummy $\hat\gamma_m m_k$ --- a
+  \emph{misspecified} form that drops the $m_k x_k$ interaction.
+
+\end{frame}
+
+\begin{frame}{Why a Dummy Catches Only the Mean}
+
+  The dummy $m_k$ can add only a \emph{constant} to every missing row, and least squares
+  makes that constant the group \emph{mean} (the best constant satisfies
+  $\arg\min_{c}\E[(W-c)^2] = \E(W)$).
 
   \begin{keybox}
-    \textbf{Why a dummy catches only the mean.} A dummy adds one constant to every
-    missing row, and least squares makes that constant the group \emph{mean} --- the best
-    constant satisfies $\arg\min_{c}\E[(W-c)^2] = \E(W)$. Split the dropped term:
+    Split the dropped term into its missing-group mean plus deviations:
     \[
       \beta_k x_k
       = \underbrace{\beta_k\,\E(x_k\mid\text{miss})}_{\text{constant}\;\to\;\gamma}
