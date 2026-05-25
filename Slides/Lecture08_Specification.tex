@@ -1214,6 +1214,35 @@
 
 \end{frame}
 
+\begin{frame}[shrink=8]{Why MIM Needs a Strong Assumption}
+
+  Zero-imputing $x_k$ makes the fitted model differ across the two groups:
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item \textbf{observed} ($m_k=0$):
+      $y = \beta_0 + \sum_{j<k}\beta_j x_j + \beta_k x_k + u$ \quad(the true model);
+    \item \textbf{missing} ($m_k=1$):
+      $y = (\beta_0+\gamma) + \sum_{j<k}\beta_j x_j + u$ \quad($\beta_k x_k$ dropped,
+      replaced by the dummy $\gamma$).
+  \end{itemize}
+
+  \begin{keybox}
+    For the missing rows MIM \textbf{throws away} $\beta_k x_k$ and lets the single dummy
+    $\gamma$ stand in for it. A dummy can absorb only a \textbf{level shift} --- the
+    \emph{average} of the dropped term, $\gamma \approx \beta_k\,\E(x_k \mid \text{missing})$.
+  \end{keybox}
+
+  \begin{highlightbox}
+    This works \textbf{only if} $\E(x_k \mid x_1,\dots,x_{k-1},\text{missing})$ does not
+    move with the other regressors --- i.e.\ $x_k$ is \textbf{uncorrelated} with them. If
+    $x_k$ \emph{is} correlated with $x_1,\dots,x_{k-1}$, the dropped $\beta_k x_k$ varies
+    with those regressors and is mis-attributed to $\beta_1,\dots,\beta_{k-1}$ ---
+    omitted-variable bias the dummy cannot fix (it shifts the \emph{intercept}, not the
+    slopes). \textbf{Contrast:} complete-case OLS is consistent under MCAR \emph{without}
+    this condition --- it just uses fewer observations.
+  \end{highlightbox}
+
+\end{frame}
+
 \begin{frame}{MCAR vs.\ MIM: Which to Use?}
 
   \begin{center}\footnotesize
